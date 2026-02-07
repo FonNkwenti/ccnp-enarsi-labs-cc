@@ -1,9 +1,9 @@
 # Implementation Plan: Implement EIGRP Lab 06
 
-## Phase 1: Lab Design & Topology
+## Phase 1: Lab Design & Topology [checkpoint: 992cec3]
 - [x] Task: Review `labs/eigrp/baseline.yaml` for Lab 06 requirements. 291f029
 - [x] Task: Design Skynet Global "Traffic Engineering" scenario for route filtering. e518d8d
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) e518d8d
 
 ## Phase 2: Workbook & Config Implementation
 - [ ] Task: Initialize lab directory `labs/eigrp/lab-06-filtering-control/`.
