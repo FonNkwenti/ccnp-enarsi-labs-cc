@@ -137,7 +137,63 @@ To maximize resource utilization, you must enable load balancing across both the
 
 ---
 
-## 7. Troubleshooting Scenario
+## 7. Verification Cheatsheet
+
+### 7.1 Topology Table Analysis (R1)
+Verify the Successor, Feasible Successor, and distance metrics.
+```bash
+R1# show ip eigrp topology 3.3.3.3/32
+EIGRP-IPv4 Topology Entry for AS 100 for 3.3.3.3/32
+  State is Passive, Query origin flag is 1, 1 Successor(s), FD is 156160
+  Descriptor Blocks:
+  10.0.12.2 (FastEthernet1/0), from 10.0.12.2, Send flag is 0x0
+      Composite metric is (156160/128256), Route is Internal
+      Vector metric:
+        Minimum bandwidth is 100000 Kbit
+        Total delay is 5100 microseconds
+        Reliability is 255/255
+        Load is 1/255
+        Minimum MTU is 1500
+        Hop count is 2
+        Originating router is 3.3.3.3
+  10.0.13.2 (FastEthernet1/1), from 10.0.13.2, Send flag is 0x0
+      Composite metric is (258560/2560), Route is Internal
+      Vector metric:
+        Minimum bandwidth is 100000 Kbit
+        Total delay is 9100 microseconds
+        Reliability is 255/255
+        Load is 1/255
+        Minimum MTU is 1500
+        Hop count is 1
+        Originating router is 3.3.3.3
+```
+*Note: The first entry is the Successor (lowest metric). The second entry is the Feasible Successor (RD 2560 < FD 156160).*
+
+### 7.2 Routing Table with Variance (R1)
+Confirm that both paths are installed in the RIB.
+```bash
+R1# show ip route 3.3.3.3
+Routing entry for 3.3.3.3/32
+  Known via "eigrp 100", distance 90, metric 156160, type internal
+  Redistributing via eigrp 100
+  Last update from 10.0.12.2 on FastEthernet1/0, 00:04:12 ago
+  Routing Descriptor Blocks:
+  * 10.0.12.2, from 10.0.12.2, 00:04:12 ago, via FastEthernet1/0
+      Route metric is 156160, traffic share count is 120
+      Total delay is 5100 microseconds, minimum bandwidth is 100000 Kbit
+      Reliability 255/255, minimum MTU 1500 bytes
+      Loading 1/255, Hops 2
+    10.0.13.2, from 10.0.13.2, 00:04:12 ago, via FastEthernet1/1
+      Route metric is 258560, traffic share count is 72
+      Total delay is 9100 microseconds, minimum bandwidth is 100000 Kbit
+      Reliability 255/255, minimum MTU 1500 bytes
+      Loading 1/255, Hops 1
+```
+*Note: Two descriptor blocks exist with different traffic share counts.*
+
+---
+
+## 8. Troubleshooting Scenario
 
 ### The Fault
 After configuring a Variance of 10, R1 still only uses a single path to reach R3's Loopback, even though the secondary path is visible in the topology table.
