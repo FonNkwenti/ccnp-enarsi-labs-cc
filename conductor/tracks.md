@@ -14,7 +14,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement EIGRP Lab 05: Authentication & Advanced**
+- [x] **Track: Implement EIGRP Lab 05: Authentication & Advanced**
   *Link: [./tracks/eigrp_std_05_20260207/](./tracks/eigrp_std_05_20260207/)*
 
 ---
