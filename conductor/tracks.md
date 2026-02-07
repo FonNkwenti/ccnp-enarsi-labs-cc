@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Standardize EIGRP Lab 01 Workbook and Verification**
+- [x] **Track: Standardize EIGRP Lab 01 Workbook and Verification**
   *Link: [./tracks/eigrp_std_20260207/](./tracks/eigrp_std_20260207/)*
