@@ -6,10 +6,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Preparation' (Protocol in workflow.md)
 
 ## Phase 2: Refactoring
-- [~] Task: Restructure `workbook.md` to "Challenge-First" format.
-- [ ] Task: Update narrative to Skynet Global "Scenario-Based" guidelines.
-- [ ] Task: Ensure all terminology matches Cisco Official Standards.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Refactoring' (Protocol in workflow.md)
+- [x] Task: Restructure `workbook.md` to "Challenge-First" format. 6d7cb95
+- [x] Task: Update narrative to Skynet Global "Scenario-Based" guidelines. 6d7cb95
+- [x] Task: Ensure all terminology matches Cisco Official Standards. 6d7cb95
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Refactoring' (Protocol in workflow.md)
 
 ## Phase 3: Verification & Polish
 - [ ] Task: Create a Verification Cheatsheet section in the workbook.
