@@ -9,8 +9,8 @@
 - [x] Task: Initialize lab directory `labs/eigrp/lab-09-dual-stack-migration/`. 8459177
 - [x] Task: Create `topology.drawio` with active devices. f1df2d3
 - [x] Task: Generate `initial-configs/` from Lab 08 solutions. 81dbc31
-- [~] Task: Draft `workbook.md` following "Challenge-First" format.
-- [ ] Task: Implement full `solutions/` configurations.
+- [x] Task: Draft `workbook.md` following "Challenge-First" format. 2352e08
+- [~] Task: Implement full `solutions/` configurations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workbook.md)
 
 ## Phase 3: Verification & Quality Assurance
