@@ -5,7 +5,7 @@
 
 ## 1. Concepts & Skills Covered
 
-- Configure EIGRP autonomous system and router-id
+- Configure EIGRP Autonomous System and Router-ID
 - Understand the EIGRP neighbor discovery process (Hello packets, multicast 224.0.0.10)
 - Verify neighbor relationships using `show ip eigrp neighbors`
 - Implement passive interfaces to prevent unnecessary Hello traffic
@@ -46,7 +46,9 @@
 ```
 
 ### Scenario Narrative
-You are deploying EIGRP across a small enterprise network. The hub router (R1) connects to a branch router (R2), which in turn connects to a remote branch (R3). Your goal is to establish full EIGRP adjacency using AS 100, optimize Hello traffic with passive interfaces, and verify end-to-end reachability.
+As the Lead Network Architect for **Antigravity Global**, you have been tasked with establishing a new routing domain between the Headquarters (R1), the regional Branch Office (R2), and a newly acquired Remote Site (R3). 
+
+The company has standardized on **EIGRP Autonomous System 100**. Your mission is to ensure stable neighbor adjacencies across the point-to-point FastEthernet links while adhering to security best practices by suppressing routing updates on non-essential interfaces. The business depends on full reachability between all Loopback interfaces for management and monitoring.
 
 ### Device Role Table
 | Device | Role | Platform | Loopback0 | EIGRP AS |
@@ -73,24 +75,11 @@ You are deploying EIGRP across a small enterprise network. The hub router (R1) c
 | R2 (c3725) | Fa0/0, Fa0/1 | - | - |
 | R3 (c3725) | Fa0/0, Fa0/1 | - | - |
 
-### Console Access Table
-| Device | Port | Connection Command |
-|--------|------|--------------------|
-| R1 | 5001 | `telnet localhost 5001` |
-| R2 | 5002 | `telnet localhost 5002` |
-| R3 | 5003 | `telnet localhost 5003` |
-
-### Cabling Table
-| Link ID | Source:Interface | Target:Interface | Subnet |
-|---------|------------------|------------------|--------|
-| L1 | R1:Fa1/0 | R2:Fa0/0 | 10.0.12.0/30 |
-| L2 | R2:Fa0/1 | R3:Fa0/0 | 10.0.23.0/30 |
-
 ---
 
 ## 4. Base Configuration
 
-> ⚠️ **Apply these configurations BEFORE starting EIGRP tasks**
+> ⚠️ **Apply these configurations BEFORE starting the EIGRP challenge.**
 
 ### R1 (Hub Router)
 ```bash
@@ -169,193 +158,105 @@ end
 write memory
 ```
 
-### Pre-Lab Verification
-Run these commands to confirm Layer 3 connectivity before starting EIGRP:
-```bash
-! From R1:
-ping 10.0.12.2
+---
 
-! From R2:
-ping 10.0.12.1
-ping 10.0.23.2
+## 5. Lab Challenge: Core Implementation
 
-! From R3:
-ping 10.0.23.1
-```
+### Objective 1: Establish EIGRP Adjacencies
+Configure EIGRP on all three routers using **Autonomous System 100**. 
+- Ensure the **Router-ID** on each device matches its respective Loopback0 address.
+- Advertise all connected networks (including Loopbacks) into the EIGRP process.
+- Use the most specific wildcard masks possible for network advertisements.
+- Disable automatic route summarization.
+
+### Objective 2: Traffic Optimization & Security
+Security policy dictates that EIGRP control plane traffic (Hellos) should not be leaked onto non-transit networks.
+- Configure all **Loopback** interfaces as **Passive Interfaces**.
 
 ---
 
-## 5. Configuration Tasks Workbook
+## 6. Verification & Analysis
 
-### Task 1: Enable EIGRP and Advertise Networks
+Use the following commands to verify your implementation. Successful completion of the challenge should result in the outcomes listed below.
 
-**Objective:** Configure EIGRP AS 100 on all routers and advertise all connected networks.
+### Verification Checklist
+- [ ] **Neighbor Adjacency:** Run `show ip eigrp neighbors`. Does R2 see both R1 and R3?
+- [ ] **Passive Interfaces:** Run `show ip eigrp interfaces`. Are the Loopback interfaces suppressed while physical links remain active?
+- [ ] **Routing Table:** Run `show ip route eigrp`. Does R1 have routes to R2 and R3's loopbacks?
+- [ ] **End-to-End Connectivity:** Ping from R1's Loopback0 to R3's Loopback0 (`ping 3.3.3.3 source 1.1.1.1`).
 
-**Theory:**
-EIGRP uses Hello packets (multicast 224.0.0.10) to discover neighbors. For adjacency to form, routers must have:
-- Matching AS number
-- Matching K-values (bandwidth, delay, reliability, load, MTU weights)
-- Interfaces in the same subnet
-- Authentication (if configured)
+### Verification Table
+| Command | Expected Outcome |
+|---------|------------------|
+| `show ip eigrp neighbors` | Adjacencies established on all transit links. |
+| `show ip protocols` | Confirming AS 100 and correct Passive Interfaces. |
+| `show ip route eigrp` | Full reachability to all remote prefixes. |
 
-**Step-by-Step:**
+---
 
-**On R1:**
+## 7. Troubleshooting Scenario
+
+### The Fault
+After a recent "optimization" by a junior admin, R2 is no longer forming an adjacency with R1. You notice that R2's configuration now shows `router eigrp 200`.
+
+### The Mission
+1. Identify why the adjacency failed using `debug eigrp packets hello`.
+2. Restore the configuration to meet the original design requirements (AS 100).
+3. Verify that the routing table has repopulated.
+
+---
+
+## 8. Solutions (Spoiler Alert!)
+
+> 💡 **Try to complete the lab without looking at these steps first!**
+
+### Objective 1 & 2: Full Configuration
+
+**R1 (Hub):**
 ```bash
 configure terminal
-!
 router eigrp 100
  eigrp router-id 1.1.1.1
  network 1.1.1.1 0.0.0.0
  network 10.0.12.0 0.0.0.3
+ passive-interface Loopback0
  no auto-summary
-!
 end
 ```
 
-**On R2:**
+**R2 (Branch):**
 ```bash
 configure terminal
-!
 router eigrp 100
  eigrp router-id 2.2.2.2
  network 2.2.2.2 0.0.0.0
  network 10.0.12.0 0.0.0.3
  network 10.0.23.0 0.0.0.3
+ passive-interface Loopback0
  no auto-summary
-!
 end
 ```
 
-**On R3:**
+**R3 (Remote):**
 ```bash
 configure terminal
-!
 router eigrp 100
  eigrp router-id 3.3.3.3
  network 3.3.3.3 0.0.0.0
  network 10.0.23.0 0.0.0.3
- no auto-summary
-!
-end
-```
-
----
-
-### Task 2: Configure Passive Interfaces
-
-**Objective:** Prevent EIGRP Hello packets from being sent on Loopback interfaces.
-
-**Theory:**
-Passive interfaces suppress Hello packets on interfaces where no neighbors are expected. This:
-- Reduces CPU overhead
-- Prevents accidental adjacency formation
-- Is best practice for Loopbacks and management interfaces
-
-**Step-by-Step (All Routers):**
-```bash
-configure terminal
-!
-router eigrp 100
  passive-interface Loopback0
-!
-end
-```
-
----
-
-### Task 3: Verify EIGRP Adjacencies
-
-**Objective:** Confirm all routers have established neighbor relationships.
-
-**Theory:**
-The `show ip eigrp neighbors` command displays:
-- **H**: Handle number (order neighbor was discovered)
-- **Address**: Neighbor's IP address
-- **Interface**: Local interface facing the neighbor
-- **Hold**: Time before declaring neighbor dead (default 15 sec)
-- **Uptime**: Duration since adjacency formed
-- **SRTT**: Smooth Round Trip Time (in ms)
-- **Q Cnt**: Packets in queue waiting to be sent
-
-**Verification Commands:**
-```bash
-show ip eigrp neighbors
-show ip eigrp interfaces
-show ip protocols
-```
-
----
-
-## 6. Verification & Analysis Table
-
-| Command | Expected Output | What It Confirms |
-|---------|----------------|------------------|
-| `show ip eigrp neighbors` | R1 shows 1 neighbor (R2), R2 shows 2 neighbors | Adjacencies are UP |
-| `show ip eigrp interfaces` | Fa1/0 (R1), Fa0/0+Fa0/1 (R2), Fa0/0 (R3) listed | EIGRP enabled on correct interfaces |
-| `show ip eigrp interfaces` | Loopback0 NOT listed | Passive interface working |
-| `show ip route eigrp` | R1 sees 2.2.2.2/32 and 3.3.3.3/32 | Routes learned via EIGRP |
-| `ping 3.3.3.3 source 1.1.1.1` | 100% success | End-to-end reachability confirmed |
-| `show ip protocols` | Shows EIGRP 100, networks advertised | Protocol configuration correct |
-
----
-
-## 7. Troubleshooting Challenge
-
-### Scenario
-After completing all tasks, a network administrator accidentally changes R2's EIGRP AS number to 200. What happens?
-
-### Symptoms
-- R1 loses neighbor relationship with R2
-- R3 loses neighbor relationship with R2
-- `show ip eigrp neighbors` on R1 shows empty table
-- Routes to 2.2.2.2, 3.3.3.3, and 10.0.23.0/30 disappear from R1
-
-### Diagnostic Commands
-```bash
-! On R1:
-show ip eigrp neighbors
-show ip eigrp interfaces
-debug eigrp packets hello
-```
-
-### Root Cause
-EIGRP AS number mismatch. R1 and R3 are in AS 100, but R2 is now in AS 200. EIGRP requires matching AS numbers for adjacency.
-
-### Fix
-```bash
-! On R2:
-configure terminal
-no router eigrp 200
-!
-router eigrp 100
- eigrp router-id 2.2.2.2
- network 2.2.2.2 0.0.0.0
- network 10.0.12.0 0.0.0.3
- network 10.0.23.0 0.0.0.3
  no auto-summary
- passive-interface Loopback0
-!
 end
-```
-
-### Verification of Fix
-```bash
-show ip eigrp neighbors
-! Should show neighbors on both Fa0/0 and Fa0/1
-
-ping 1.1.1.1 source 3.3.3.3
-! Should succeed
 ```
 
 ---
 
-## 8. Lab Completion Checklist
+## 9. Lab Completion Checklist
 
-- [ ] All three routers have EIGRP AS 100 configured
-- [ ] Router-IDs are set to Loopback0 addresses
-- [ ] All physical and loopback networks are advertised
-- [ ] Loopback0 is configured as passive on all routers
-- [ ] `show ip eigrp neighbors` shows expected neighbors
-- [ ] End-to-end ping from R1 to R3's loopback succeeds
-- [ ] Troubleshooting challenge completed successfully
+- [ ] All three routers have EIGRP Autonomous System 100 configured.
+- [ ] Router-IDs are set to Loopback0 addresses.
+- [ ] All physical and loopback networks are advertised with specific wildcard masks.
+- [ ] Loopback0 is configured as a Passive Interface on all routers.
+- [ ] `show ip eigrp neighbors` shows the expected neighbors.
+- [ ] End-to-end ping from R1 to R3's loopback succeeds.
+- [ ] Troubleshooting challenge resolved and verified.
