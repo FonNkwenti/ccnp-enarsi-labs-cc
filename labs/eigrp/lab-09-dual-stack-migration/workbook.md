@@ -157,27 +157,40 @@ Deploy IPv6 addressing and EIGRP routing.
 
 ## 7. Verification Cheatsheet
 
-### 7.1 Verify Named Mode Multi-AF (R1)
+### 7.1 Verify IPv4 Named Mode Neighbors
 ```bash
 R1# show eigrp address-family ipv4 neighbors
 EIGRP-IPv4 VR(SKYNET_CORE) Address-Family Neighbors for AS(100)
 H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
                                                    (sec)         (ms)       Cnt Num
 0   10.0.12.2               Fa1/0                    12 00:10:25   15   200  0  55
-...
+```
+*Verify: Neighbor is learned under the virtual instance 'SKYNET_CORE'.*
+
+### 7.2 Verify IPv6 Named Mode Neighbors
+```bash
 R1# show eigrp address-family ipv6 neighbors
 EIGRP-IPv6 VR(SKYNET_CORE) Address-Family Neighbors for AS(100)
 H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
                                                    (sec)         (ms)       Cnt Num
 0   FE80::C802:12FF:FE34:0  Fa1/0                    14 00:05:12   20   200  0  12
 ```
+*Verify: IPv6 neighbor is established via Link-Local address.*
 
-### 7.2 Verify IPv6 Route Learning
+### 7.3 Verify Dual-Stack Topology Table
 ```bash
-R3# show ipv6 route eigrp
-...
-D   2001:DB8:ACAD:1::1/128 [90/130816]
-     via FE80::C801:23FF:FE45:0, FastEthernet0/0
+R1# show eigrp address-family ipv4 topology 5.5.5.5/32
+R1# show eigrp address-family ipv6 topology 2001:DB8:ACAD:5::5/128
+```
+*Verify: Both IPv4 and IPv6 loopbacks are present in the topology table.*
+
+### 7.4 Verify IPv6 Reachability
+```bash
+R1# ping ipv6 2001:DB8:ACAD:5::5
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 2001:DB8:ACAD:5::5, timeout is 2 seconds:
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/24/32 ms
 ```
 
 ---

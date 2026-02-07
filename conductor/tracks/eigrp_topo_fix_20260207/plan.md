@@ -1,0 +1,21 @@
+# Implementation Plan: Fix EIGRP Lab Topology Diagrams (04-09)
+
+## Phase 1: Audit & Baseline Verification
+- [~] Task: Compare `labs/eigrp/baseline.yaml` with each workbook to define the precise logical topology for each lab.
+- [ ] Task: Create a checklist of required elements (routers, interfaces, subnets) for each diagram.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: Audit' (Protocol in workflow.md)
+
+## Phase 2: Diagram Generation & Export
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 04.
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 05.
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 06.
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 07 (Add R4 OSPF).
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 08 (Add R6 VPN).
+- [ ] Task: Update/Re-generate `topology.drawio` for Lab 09 (Full Dual-Stack).
+- [ ] Task: Export all `.drawio` files to `.png` (200% zoom, transparent).
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
+
+## Phase 3: Documentation Sync
+- [ ] Task: Update lab `README.md` files (if applicable) to link/display the new PNG diagrams.
+- [ ] Task: Final quality check against `drawio` skill standards.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Finalization' (Protocol in workflow.md)

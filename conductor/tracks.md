@@ -34,8 +34,13 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement EIGRP Lab 09: Dual-Stack Migration**
+- [ ] **Track: Implement EIGRP Lab 09: Dual-Stack Migration**
   *Link: [./tracks/eigrp_std_09_20260207/](./tracks/eigrp_std_09_20260207/)*
+
+---
+
+- [~] **Track: Fix EIGRP Lab Topology Diagrams (04-09)**
+  *Link: [./tracks/eigrp_topo_fix_20260207/](./tracks/eigrp_topo_fix_20260207/)*
 
 ---
 
