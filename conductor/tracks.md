@@ -39,7 +39,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Fix EIGRP Lab Topology Diagrams (04-09)**
+- [x] **Track: Fix EIGRP Lab Topology Diagrams (04-09)**
   *Link: [./tracks/eigrp_topo_fix_20260207/](./tracks/eigrp_topo_fix_20260207/)*
 
 ---
