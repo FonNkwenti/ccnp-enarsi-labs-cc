@@ -10,7 +10,7 @@
 - Verify summary routes in the topology table
 - Analyze the impact of summarization on routing table size
 - Troubleshoot summarization misconfigurations
-- Integrate a new router (R7) into existing EIGRP domain
+- Integrate a new router (R7) into an existing EIGRP domain
 
 ---
 
@@ -56,12 +56,9 @@
 ```
 
 ### Scenario Narrative
-Your enterprise network is growing. The routing tables on R1 and R2 are becoming large, and EIGRP queries are propagating across the entire network when a route flaps. You need to implement route summarization to:
-1. Reduce routing table size
-2. Create query boundaries
-3. Improve network stability
+As the Lead Network Architect for **Skynet Global**, you are managing a rapidly expanding enterprise network. The routing tables on the Core (R1) and Branch (R2) routers are growing significantly, and you have observed that EIGRP queries are propagating across the entire domain whenever a remote link flaps, causing unnecessary CPU overhead and potential "Stuck-In-Active" (SIA) issues.
 
-A new summary boundary router (R7) has been added to demonstrate summarization behavior.
+Your mission is to implement **Manual Route Summarization** at key network boundaries. This will optimize the routing table size and, more importantly, create **Query Boundaries** to contain EIGRP convergence events. You have deployed a new router, **R7**, to serve as a summary boundary for the 172.16.0.0/16 regional subnet.
 
 ### Device Role Table
 | Device | Role | Platform | Loopback0 | New in Lab 03 |
@@ -83,303 +80,129 @@ A new summary boundary router (R7) has been added to demonstrate summarization b
 | R3 | c3725 | 256 MB | `c3725-adventerprisek9-mz.124-15.T14.image` |
 | R7 | c3725 | 256 MB | `c3725-adventerprisek9-mz.124-15.T14.image` |
 
-### Console Access Table
-| Device | Port | Connection Command |
-|--------|------|--------------------|
-| R1 | 5001 | `telnet localhost 5001` |
-| R2 | 5002 | `telnet localhost 5002` |
-| R3 | 5003 | `telnet localhost 5003` |
-| R7 | 5007 | `telnet localhost 5007` |
-
-### Cabling Table
-| Link ID | Source:Interface | Target:Interface | Subnet | Status |
-|---------|------------------|------------------|--------|--------|
-| L1 | R1:Fa1/0 | R2:Fa0/0 | 10.0.12.0/30 | Existing |
-| L2 | R2:Fa0/1 | R3:Fa0/0 | 10.0.23.0/30 | Existing |
-| L6 | R1:Fa0/0 | R7:Fa0/0 | 10.0.17.0/30 | **New** |
-
 ---
 
 ## 4. Base Configuration
 
-> ⚠️ **This lab builds on Lab 02.** Initial configs include EIGRP from previous labs.
+> ⚠️ **This lab builds on Lab 02.** Ensure basic EIGRP connectivity is established before proceeding.
 
-### R1 (Existing + New Interface)
+### R7 (New Boundary Router - Complete Config)
+Configure R7 with its Loopbacks and establish EIGRP AS 100 connectivity to R1.
 ```bash
 enable
 configure terminal
-!
-! New interface for R7 connection
-interface FastEthernet0/0
- description Link to R7 (Summary Boundary)
- ip address 10.0.17.1 255.255.255.252
- no shutdown
-!
-end
-write memory
-```
-
-### R7 (New Device - Complete Config)
-```bash
-enable
-configure terminal
-!
 hostname R7
-!
 interface Loopback0
  ip address 7.7.7.7 255.255.255.255
- no shutdown
-!
-! Simulated summary networks behind R7
 interface Loopback1
  ip address 172.16.1.1 255.255.255.0
- no shutdown
-!
 interface Loopback2
  ip address 172.16.2.1 255.255.255.0
- no shutdown
-!
 interface Loopback3
  ip address 172.16.3.1 255.255.255.0
- no shutdown
-!
 interface Loopback4
  ip address 172.16.4.1 255.255.255.0
- no shutdown
-!
 interface FastEthernet0/0
  description Link to R1 (Hub)
  ip address 10.0.17.2 255.255.255.252
  no shutdown
-!
 router eigrp 100
- eigrp router-id 7.7.7.7
  network 7.7.7.7 0.0.0.0
  network 10.0.17.0 0.0.0.3
  network 172.16.0.0 0.0.255.255
  no auto-summary
- passive-interface Loopback0
- passive-interface Loopback1
- passive-interface Loopback2
- passive-interface Loopback3
- passive-interface Loopback4
-!
-line con 0
- logging synchronous
- exec-timeout 0 0
-!
+ passive-interface default
+ no passive-interface FastEthernet0/0
 end
-write memory
 ```
 
-### R3 - Add Summary Networks
+### R3 (Simulated Branch Networks)
+Add the specific subnets that will be summarized at the R3 boundary.
 ```bash
 enable
 configure terminal
-!
-! Add networks to be summarized
 interface Loopback1
  ip address 192.168.1.1 255.255.255.0
- no shutdown
-!
 interface Loopback2
  ip address 192.168.2.1 255.255.255.0
- no shutdown
-!
 interface Loopback3
  ip address 192.168.3.1 255.255.255.0
- no shutdown
-!
 router eigrp 100
  network 192.168.0.0 0.0.255.255
  passive-interface Loopback1
  passive-interface Loopback2
  passive-interface Loopback3
-!
 end
-write memory
 ```
 
 ---
 
-## 5. Configuration Tasks Workbook
+## 5. Lab Challenge: Route Summarization
 
-### Task 1: Verify Current Routing Table Size
+### Objective 1: Implement Regional Summarization at R7
+Configure manual route summarization on R7's outbound interface to R1.
+- Summarize all `172.16.x.x` networks into a single `/16` advertisement.
+- Verify that R1 receives only the summary route and no longer sees the individual `/24` subnets.
+- Confirm the presence of the **Discard Route** (Null0) in R7's routing table.
 
-**Objective:** Observe the unsummarized routing table before implementing summarization.
+### Objective 2: Implement Remote Site Summarization at R3
+Configure manual route summarization on R3's outbound interface to R2.
+- Summarize the `192.168.1.0/24`, `192.168.2.0/24`, and `192.168.3.0/24` networks into a single `/16` advertisement.
+- Verify that R2 and R1 only see the summary route.
 
-**Theory:**
-Without summarization, every specific route is advertised individually. This leads to:
-- Large routing tables consuming memory
-- Longer SPF calculations
-- Broader query scope during convergence
-
-**Step-by-Step:**
-```bash
-! On R1 - Check current routes
-show ip route eigrp
-show ip route summary
-
-! Count EIGRP routes
-show ip route eigrp | count D
-```
-
-**Expected:** Multiple /24 and /32 routes for the 172.16.x.x and 192.168.x.x ranges.
+### Objective 3: Validate Query Boundary Containment
+Confirm that summarization effectively limits the scope of EIGRP queries.
+- Enable EIGRP packet debugging on R1.
+- Simulate a failure of a specific subnet at R3 (e.g., shutdown `Loopback1`).
+- Observe that R1 does **not** receive a query for the failed subnet, as the summary route at R3 remains valid.
 
 ---
 
-### Task 2: Configure Summarization on R7
+## 6. Verification & Analysis
 
-**Objective:** Summarize the 172.16.0.0/16 networks at R7 before advertising to R1.
+| Command | Expected Outcome |
+|---------|------------------|
+| `show ip route eigrp` | Only `/16` summaries for `172.16.0.0` and `192.168.0.0` are present. |
+| `show ip route | include Null0` | A discard route for each summary exists on the summarizing router. |
+| `show ip eigrp topology` | The summary route is present in the topology table with a distance matching the best component. |
+| `debug eigrp packets query` | No queries received on R1 when a summarized subnet flaps. |
 
-**Theory:**
-EIGRP summarization is configured per-interface using `ip summary-address eigrp`. The summary:
-- Creates a Null0 route locally (loop prevention)
-- Advertises a single summary instead of component routes
-- Establishes a query boundary (queries stop at summarizing router)
+---
 
-**Step-by-Step on R7:**
+## 7. Troubleshooting Scenario
+
+### The Fault
+After implementing the summary at R7, R3 can no longer reach any of the `172.16.x.x` subnets. Analysis on R1 reveals that the route to `172.16.0.0/16` is pointing to `Null0` instead of being learned from R7.
+
+### The Mission
+1. Identify the configuration error on R1 that is causing it to discard traffic for the `172.16.0.0/16` range.
+2. Correct the configuration to restore end-to-end reachability.
+3. Verify that R1 now learns the summary correctly from R7.
+
+---
+
+## 8. Solutions (Spoiler Alert!)
+
+### Objective 1: Regional Summarization (R7)
 ```bash
-configure terminal
-!
 interface FastEthernet0/0
  ip summary-address eigrp 100 172.16.0.0 255.255.0.0
-!
-end
 ```
 
-**Verification:**
+### Objective 2: Remote Site Summarization (R3)
 ```bash
-! On R7 - Check for Null0 route
-show ip route | include Null0
-
-! On R1 - Should see single summary
-show ip route 172.16.0.0
-```
-
----
-
-### Task 3: Configure Summarization on R3
-
-**Objective:** Summarize the 192.168.0.0/16 networks at R3.
-
-**Theory:**
-By summarizing at R3, we prevent R2 and R1 from seeing individual /24 routes. If any 192.168.x.x network flaps, the query is contained at R3.
-
-**Step-by-Step on R3:**
-```bash
-configure terminal
-!
 interface FastEthernet0/0
  ip summary-address eigrp 100 192.168.0.0 255.255.0.0
-!
-end
-```
-
-**Verification:**
-```bash
-! On R2 - Should see summary, not specifics
-show ip route 192.168.0.0
-
-! On R1 - Should see summary only
-show ip route eigrp | include 192.168
 ```
 
 ---
 
-### Task 4: Verify Query Boundaries
+## 9. Lab Completion Checklist
 
-**Objective:** Confirm that summarization creates effective query boundaries.
-
-**Theory:**
-When a route covered by a summary goes down, EIGRP sends queries. With summarization:
-- Queries stop at the summarizing router
-- Other routers only know the summary (which remains valid)
-- Faster convergence and reduced SIA risk
-
-**Step-by-Step:**
-```bash
-! On R3 - Simulate a network failure
-configure terminal
-interface Loopback1
- shutdown
-exit
-
-! On R1 - Should see NO query activity
-debug eigrp packets query
-
-! Wait 10 seconds, then restore
-configure terminal
-interface Loopback1
- no shutdown
-end
-
-! Disable debug
-undebug all
-```
-
-**Expected:** R1 should not receive any queries because R3's summary remains valid.
-
----
-
-## 6. Verification & Analysis Table
-
-| Command | Expected Output | What It Confirms |
-|---------|----------------|------------------|
-| `show ip route eigrp` on R1 | 172.16.0.0/16 and 192.168.0.0/16 as D routes | Summaries received |
-| `show ip route | include Null0` on R7 | `172.16.0.0/16 is directly connected, Null0` | Local summary installed |
-| `show ip route | include Null0` on R3 | `192.168.0.0/16 is directly connected, Null0` | Local summary installed |
-| `show ip eigrp topology` on R1 | Summary routes in topology | DUAL tracks summaries |
-| `ping 172.16.1.1 source 1.1.1.1` | 100% success | Reachability via summary |
-| `show ip route summary` on R1 | Fewer routes than before | Table optimization |
-
----
-
-## 7. Troubleshooting Challenge
-
-### Scenario
-After implementing summarization, users report they cannot reach 172.16.3.1 from R3.
-
-### Symptoms
-- `ping 172.16.3.1 source 3.3.3.3` fails
-- R3 shows the route to 172.16.0.0/16 via R2
-- R1 shows the route to 172.16.0.0/16 pointing to Null0!
-
-### Root Cause
-R1 has a more specific or conflicting summary installed. Check if R1 inadvertently configured summarization, creating a local Null0 route.
-
-### Diagnostic Commands
-```bash
-! On R1
-show ip route 172.16.0.0 longer-prefixes
-show run | include summary-address
-show ip eigrp topology 172.16.0.0/16
-```
-
-### Fix
-If R1 has an unwanted summary:
-```bash
-configure terminal
-interface FastEthernet0/0
- no ip summary-address eigrp 100 172.16.0.0 255.255.0.0
-end
-```
-
-### Verification
-```bash
-ping 172.16.3.1 source 3.3.3.3
-! Should succeed
-```
-
----
-
-## 8. Lab Completion Checklist
-
-- [ ] R7 integrated into EIGRP AS 100
-- [ ] R7 advertises 172.16.0.0/16 summary to R1
-- [ ] R3 advertises 192.168.0.0/16 summary to R2
-- [ ] Null0 routes present on summarizing routers
-- [ ] R1's routing table shows summaries, not specifics
-- [ ] Query boundary test passed (no queries on R1 for R3's networks)
-- [ ] End-to-end ping from R3 to 172.16.1.1 succeeds
-- [ ] Troubleshooting challenge completed
+- [ ] R7 integrated and EIGRP adjacency established with R1.
+- [ ] Manual summarization configured on R7 (172.16.0.0/16).
+- [ ] Manual summarization configured on R3 (192.168.0.0/16).
+- [ ] Null0 discard routes verified on R7 and R3.
+- [ ] R1 and R2 routing tables optimized (summaries only).
+- [ ] Query boundary containment verified via debug.
+- [ ] Troubleshooting challenge resolved.
