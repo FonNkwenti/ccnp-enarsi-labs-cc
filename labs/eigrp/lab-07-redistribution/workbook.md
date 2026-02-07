@@ -164,6 +164,7 @@ R4# show ip route ospf
 O E1  2.2.2.2 [110/120] via 10.0.14.1, 00:05:12, FastEthernet0/0
 O E1  3.3.3.3 [110/120] via 10.0.14.1, 00:05:12, FastEthernet0/0
 ```
+*Verify: Routes appear as 'O E1' indicating Type 1 external routes.*
 
 ### 7.2 Verify EIGRP External Routes (R2)
 ```bash
@@ -171,6 +172,37 @@ R2# show ip route eigrp
 ...
 D EX  4.4.4.4 [170/2560512] via 10.0.12.1, 00:04:45, FastEthernet0/0
 ```
+*Verify: Routes appear as 'D EX' with an Administrative Distance of 170.*
+
+### 7.3 Verify Tagging (R1)
+```bash
+R1# show ip eigrp topology 4.4.4.4/32
+...
+      Originating router is 10.0.14.2
+      Route tag is 111
+```
+*Verify: Tag 111 is present on OSPF-to-EIGRP redistributed routes.*
+
+```bash
+R1# show ip ospf database external 2.2.2.2
+...
+  Routing Bit Set on this LSA
+  LS age: 154
+  Options: (No TOS-capability, DC)
+  LS Type: AS External Link
+  Link State ID: 2.2.2.2 (AS Boundary Router address)
+  Advertising Router: 1.1.1.1
+  LS Seq Number: 80000001
+  Checksum: 0x3456
+  Length: 36
+  Network Mask: /32
+	Metric Type: 1 (Comparable directly to link state cost)
+	TOS: 0 
+	Metric: 100 
+	Forward Address: 0.0.0.0
+	External Route Tag: 222
+```
+*Verify: Tag 222 is present on EIGRP-to-OSPF redistributed routes.*
 
 ---
 
