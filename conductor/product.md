@@ -19,7 +19,7 @@ A comprehensive set of hands-on labs for the Cisco CCNP ENCOR (350-401) exam.
 
 ## Scope of Coverage
 - **Core Routing & Switching:** In-depth coverage of EIGRP, OSPF, BGP, STP, and EtherChannel, including complex mutual redistribution and multi-protocol integration scenarios.
-- **IP Services & Security:** Comprehensive labs for NAT, FHRP, AAA, ACLs, and VPN technologies.
+- **IP Services & Security:** Comprehensive labs for NAT, FHRP, AAA, ACLs, and Virtual Private Networking (VPN) using GRE and IPsec technologies.
 
 ## Learning Path
 - **Topic-Focused Progression:** Labs are designed as standalone modules for specific exam blueprint bullets, ranging from introductory concepts to advanced optimization, allowing users to target specific weak areas.
