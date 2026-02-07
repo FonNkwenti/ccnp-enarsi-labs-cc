@@ -49,7 +49,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement OSPF Lab 02: OSPF Network Types**
+- [x] **Track: Implement OSPF Lab 02: OSPF Network Types**
   *Link: [./tracks/ospf_std_02_20260207/](./tracks/ospf_std_02_20260207/)*
 
 ---
