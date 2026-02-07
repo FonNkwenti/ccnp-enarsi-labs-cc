@@ -16,6 +16,6 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md) 0ac6c18
 
 ## Phase 3: Documentation Sync
-- [~] Task: Update lab `README.md` files (if applicable) to link/display the new PNG diagrams.
-- [ ] Task: Final quality check against `drawio` skill standards.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Finalization' (Protocol in workflow.md)
+- [x] Task: Update lab `README.md` files (if applicable) to link/display the new PNG diagrams. d23a498
+- [x] Task: Final quality check against `drawio` skill standards. d23a498
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Finalization' (Protocol in workflow.md)

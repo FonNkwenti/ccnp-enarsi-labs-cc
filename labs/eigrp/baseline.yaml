@@ -213,7 +213,7 @@ labs:
     title: EIGRP over VPN Tunnel
     difficulty: Advanced
     time_minutes: 90
-    devices: [R1, R2, R3, R6]
+    devices: [R1, R2, R3, R5, R6]
     extends: 6
     topology_note: R6 added for GRE tunnel
     objectives:
