@@ -6,7 +6,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Audit' (Protocol in workflow.md) 0ac6c18
 
 ## Phase 2: Diagram Generation & Export
-- [ ] Task: Update/Re-generate `topology.drawio` for Lab 04.
+- [~] Task: Update/Re-generate `topology.drawio` for Lab 04.
 - [ ] Task: Update/Re-generate `topology.drawio` for Lab 05.
 - [ ] Task: Update/Re-generate `topology.drawio` for Lab 06.
 - [ ] Task: Update/Re-generate `topology.drawio` for Lab 07 (Add R4 OSPF).
