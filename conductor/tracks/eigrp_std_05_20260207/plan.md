@@ -5,13 +5,13 @@
 - [x] Task: Design Skynet Global "Security Hardening" scenario for EIGRP authentication. b645b95
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) b645b95
 
-## Phase 2: Workbook & Config Implementation
+## Phase 2: Workbook & Config Implementation [checkpoint: 7274c2e]
 - [x] Task: Initialize lab directory `labs/eigrp/lab-05-authentication-advanced/`. b36fb96
 - [x] Task: Create `topology.drawio` with active devices. ad886f4
 - [x] Task: Generate `initial-configs/` from Lab 04 solutions. ba2f1fe
 - [x] Task: Draft `workbook.md` following "Challenge-First" format. 02851d7
 - [x] Task: Implement full `solutions/` configurations. c25fe3c
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md) b645b95
 
 ## Phase 3: Verification & Quality Assurance
 - [ ] Task: Create Verification Cheatsheet in `workbook.md`.
