@@ -1,9 +1,9 @@
 # Implementation Plan: Implement OSPF Lab 02
 
-## Phase 1: Lab Design & Topology
+## Phase 1: Lab Design & Topology [checkpoint: fdacb90]
 - [x] Task: Review `labs/ospf/baseline.yaml` for Lab 02 requirements. 3466f89
 - [x] Task: Design Skynet Global scenario narrative for OSPF Lab 02. fa5e561
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) 3466f89
 
 ## Phase 2: Workbook & Config Implementation
 - [ ] Task: Initialize lab directory `labs/ospf/lab-02-*/`.
