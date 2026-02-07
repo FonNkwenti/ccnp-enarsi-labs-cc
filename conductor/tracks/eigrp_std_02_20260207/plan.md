@@ -1,9 +1,9 @@
 # Implementation Plan: Standardize EIGRP Lab 02
 
-## Phase 1: Analysis & Preparation
+## Phase 1: Analysis & Preparation [checkpoint: e4ce771]
 - [x] Task: Audit existing `workbook.md` in `labs/eigrp/lab-02-path-selection/`.
 - [x] Task: Extract solution-specific configuration to be moved to the solution section.
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Preparation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Preparation' (Protocol in workflow.md)
 
 ## Phase 2: Refactoring
 - [ ] Task: Restructure `workbook.md` to "Challenge-First" format.
