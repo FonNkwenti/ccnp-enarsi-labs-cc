@@ -7,8 +7,8 @@
 
 ## Phase 2: Workbook & Config Implementation
 - [x] Task: Initialize lab directory `labs/eigrp/lab-07-redistribution/`. a57a59e
-- [~] Task: Create `topology.drawio` with active devices.
-- [ ] Task: Generate `initial-configs/` from Lab 06 solutions.
+- [x] Task: Create `topology.drawio` with active devices. 579c21e
+- [~] Task: Generate `initial-configs/` from Lab 06 solutions.
 - [ ] Task: Draft `workbook.md` following "Challenge-First" format.
 - [ ] Task: Implement full `solutions/` configurations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
