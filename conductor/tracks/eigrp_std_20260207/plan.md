@@ -12,6 +12,6 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Refactoring' (Protocol in workflow.md)
 
 ## Phase 3: Verification & Polish
-- [~] Task: Create a Verification Cheatsheet section in the workbook.
-- [ ] Task: Validate CLI output examples for c7200 platform.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Finalization' (Protocol in workflow.md)
+- [x] Task: Create a Verification Cheatsheet section in the workbook.
+- [x] Task: Validate CLI output examples for c7200 platform.
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Finalization' (Protocol in workflow.md)
