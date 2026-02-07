@@ -5,7 +5,7 @@
 - [x] Task: Create a checklist of required elements (routers, interfaces, subnets) for each diagram. 0ac6c18
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Audit' (Protocol in workflow.md) 0ac6c18
 
-## Phase 2: Diagram Generation & Export [checkpoint: 5c059d6]
+## Phase 2: Diagram Generation & Export [checkpoint: 80121bc]
 - [x] Task: Update/Re-generate `topology.drawio` for Lab 04. 311dca4
 - [x] Task: Update/Re-generate `topology.drawio` for Lab 05. d965d60
 - [x] Task: Update/Re-generate `topology.drawio` for Lab 06. be8aad5
