@@ -42,18 +42,28 @@ For every diagram, you must maintain two files with the **exact same basename**:
 - **Colors**:
   - **Routers**: Blue (`#036897`).
   - **Annotation Boxes**: Light Yellow (`#fff2cc`) with Gold border (`#d6b656`).
-- **Labels**:
-  - Include Hostname, Interface Name (e.g., Gi0/0), and IP Address/Subnet.
-  - Use 11pt bold for hostnames, 10pt for interface details.
+- **Mandatory Labeling**:
+  - **Hostnames**: Bold, 11pt, positioned directly above or below the icon.
+  - **Interfaces**: 10pt, positioned at **each end** of every link (e.g., `Fa0/0`, `Gi1/1`).
+  - **IP Addresses**: 10pt, positioned next to the interface. For point-to-point links, use the host part (e.g., `.1`, `.2` or `::1`, `::2`).
+  - **Subnets**: 9pt, positioned near the center of the link or in a callout box. Include both IPv4 and IPv6 for dual-stack labs.
+  - **Loopbacks**: 10pt, listed clearly below the hostname or in a dedicated info box.
+  - **Administrative Info**: EIGRP AS numbers, OSPF Areas, and BGP ASNs must be clearly labeled using annotation boxes or boundary markers.
 
 ## 5. Workflow
 
 ### Creating a New Diagram
 1.  Open Draw.io (Desktop or Web).
 2.  Create the diagram following design standards.
-3.  Save the editable file as `.drawio` in the appropriate `assets/` subdirectory.
-4.  Export the diagram as a `.png` (Transparent Background, 200% Zoom/Scale 2.0 for high DPI) to the same directory.
-5.  Link the PNG in your README.md files: `![Topology](../../assets/diagrams/topology-diagrams/my-lab-topology.png)`
+3.  **Validation Checklist**:
+    - [ ] Does every device have a hostname and Loopback IP?
+    - [ ] Does every link have interface names on BOTH ends?
+    - [ ] Does every link have host IP bits on BOTH ends?
+    - [ ] Is the subnet ID clearly visible for every segment?
+    - [ ] Are protocol boundaries (Areas, AS) clearly marked?
+4.  Save the editable file as `.drawio` in the appropriate subdirectory.
+5.  Export the diagram as a `.png` (Transparent Background, 200% Zoom/Scale 2.0 for high DPI) to the same directory.
+6.  Link the PNG in your README.md files.
 
 ### Updating a Diagram
 1.  Open the existing `.drawio` file.

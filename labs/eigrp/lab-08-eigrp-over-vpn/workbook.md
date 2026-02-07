@@ -159,6 +159,7 @@ To prevent packet fragmentation caused by GRE encapsulation (24-byte overhead):
 ## 7. Verification Cheatsheet
 
 ### 7.1 Verify Tunnel Adjacency
+Confirm that the EIGRP neighbor relationship is active over the virtual tunnel interface.
 ```bash
 R1# show ip eigrp neighbors
 EIGRP-IPv4 Neighbors for AS 100
@@ -166,8 +167,10 @@ H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  
                                                    (sec)         (ms)       Cnt Num
 0   172.16.16.2             Tu8                      12 00:03:45   25   200  0  42
 ```
+*Verify: The interface 'Tu8' confirms the adjacency is formed via the tunnel.*
 
 ### 7.2 Verify Tunnel MTU/MSS
+Verify that the IP MTU and TCP MSS values are correctly set to accommodate GRE overhead.
 ```bash
 R1# show ip interface tunnel 8
 Tunnel8 is up, line protocol is up
@@ -177,6 +180,21 @@ Tunnel8 is up, line protocol is up
   TCP MSS foraging is enabled
   TCP MSS setting is 1360
 ```
+*Verify: MTU is 1400 and TCP MSS is 1360.*
+
+### 7.3 Verify Tunnel Interface & Recursive Routing
+```bash
+R1# show interface tunnel 8
+Tunnel8 is up, line protocol is up 
+  Hardware is Tunnel
+  Internet address is 172.16.16.1/30
+  MTU 17912 bytes, BW 100 Kbit/sec, DLY 50000 usec, 
+     reliability 255/255, txload 1/255, rxload 1/255
+  Encapsulation TUNNEL, loopback not set
+  Keepalive not set
+  Tunnel source 10.0.16.1 (GigabitEthernet3/0), destination 10.0.16.2
+```
+*Verify: Tunnel source and destination are reachable via physical interfaces (Gi3/0).*
 
 ---
 
