@@ -194,7 +194,57 @@ Use the following commands to verify your implementation. Successful completion 
 
 ---
 
-## 7. Troubleshooting Scenario
+## 7. Verification Cheatsheet
+
+### Neighbor Adjacency (R2 Example)
+Confirm that neighbors are discovered on both physical interfaces.
+```bash
+R2# show ip eigrp neighbors
+EIGRP-IPv4 Neighbors for AS 100
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+1   10.0.23.2               Fa0/1                    12 00:04:15   40   240  0  5
+0   10.0.12.1               Fa0/0                    13 00:05:22   25   200  0  3
+```
+*Verify: 'Address' corresponds to neighbors, 'Interface' is correct, and 'Hold' time is counting down from 15.*
+
+### Passive Interface Verification (All Routers)
+Ensure Loopback0 is listed as passive and not sending Hellos.
+```bash
+R1# show ip eigrp interfaces detail Loopback0
+EIGRP-IPv4 Interfaces for AS 100
+                              Xmit Queue   PeerQ        Mean   Pacing   Multicast    Pending
+Interface        Peers        Un/Reliable  Un/Reliable  SRTT   Time     Flow Timer   Routes
+Lo0                0             0/0          0/0          0      0/1            0           0
+  Hello-interval is 5, Hold-time is 15
+  Split-horizon is enabled
+  Next xmit serial <none>
+  Packetized sent/expedited: 0/0
+  Hello's sent/expedited: 0/0
+  Un/reliable mcasts: 0/0  Un/reliable ucasts: 0/0
+  Mcast exceptions: 0  CR packets: 0  ACKs suppressed: 0
+  Retransmissions sent: 0  Out-of-sequence rcvd: 0
+  Topology items sent: 0  advertisable: 0
+  Passive interface
+```
+*Verify: The last line confirms 'Passive interface'.*
+
+### Routing Table Reachability (R1 Example)
+Verify that all remote Loopbacks and transit subnets are learned.
+```bash
+R1# show ip route eigrp
+      10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks
+D        10.0.23.0/30 [90/30720] via 10.0.12.2, 00:06:12, FastEthernet1/0
+      2.0.0.0/32 is subnetted, 1 subnets
+D        2.2.2.2 [90/130560] via 10.0.12.2, 00:06:12, FastEthernet1/0
+      3.0.0.0/32 is subnetted, 1 subnets
+D        3.3.3.3 [90/158720] via 10.0.12.2, 00:05:45, FastEthernet1/0
+```
+*Verify: Routes are marked with 'D' (EIGRP) and next-hops are correct.*
+
+---
+
+## 8. Troubleshooting Scenario
 
 ### The Fault
 After a recent "optimization" by a junior admin, R2 is no longer forming an adjacency with R1. You notice that R2's configuration now shows `router eigrp 200`.
@@ -206,7 +256,7 @@ After a recent "optimization" by a junior admin, R2 is no longer forming an adja
 
 ---
 
-## 8. Solutions (Spoiler Alert!)
+## 9. Solutions (Spoiler Alert!)
 
 > 💡 **Try to complete the lab without looking at these steps first!**
 
@@ -251,7 +301,7 @@ end
 
 ---
 
-## 9. Lab Completion Checklist
+## 10. Lab Completion Checklist
 
 - [ ] All three routers have EIGRP Autonomous System 100 configured.
 - [ ] Router-IDs are set to Loopback0 addresses.
