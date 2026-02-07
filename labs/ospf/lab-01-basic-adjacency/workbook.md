@@ -109,23 +109,37 @@ Enable OSPF on the physical interfaces to form neighbors.
 ## 7. Verification Cheatsheet
 
 ### 7.1 Verify OSPF Neighbors
+Confirm that the neighbor relationship has reached the FULL state.
 ```bash
 R1# show ip ospf neighbor
 Neighbor ID     Pri   State           Dead Time   Address         Interface
 10.2.2.2          1   FULL/DR         00:00:34    10.12.0.2       Fa1/0
 10.3.3.3          1   FULL/BDR        00:00:38    10.13.0.2       Fa1/1
 ```
-*Note: DR/BDR roles may vary depending on boot sequence.*
+*Verify: 'FULL' indicates successful database synchronization. DR/BDR roles depend on boot sequence.*
 
-### 7.2 Verify Routing Table
+### 7.2 Verify OSPF Interface Parameters
+Check the Hello/Dead timers and network type.
+```bash
+R1# show ip ospf interface FastEthernet 1/0
+FastEthernet1/0 is up, line protocol is up 
+  Internet Address 10.12.0.1/30, Area 0 
+  Process ID 1, Router ID 10.1.1.1, Network Type BROADCAST, Cost: 1
+  Transmit Delay is 1 sec, State BDR, Priority 1 
+  Designated Router (ID) 10.2.2.2, Interface address 10.12.0.2
+  Backup Designated router (ID) 10.1.1.1, Interface address 10.12.0.1
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+```
+*Verify: Timer intervals MUST match for adjacency to form.*
+
+### 7.3 Verify Routing Table
 ```bash
 R1# show ip route ospf
       10.0.0.0/8 is variably subnetted, 6 subnets, 2 masks
 O        10.2.2.2/32 [110/2] via 10.12.0.2, 00:05:12, FastEthernet1/0
 O        10.3.3.3/32 [110/2] via 10.13.0.2, 00:05:12, FastEthernet1/1
-O        10.23.0.0/30 [110/2] via 10.12.0.2, 00:05:12, FastEthernet1/0
-                      [110/2] via 10.13.0.2, 00:05:12, FastEthernet1/1
 ```
+*Verify: Loopbacks are learned via OSPF (AD 110).*
 
 ---
 
