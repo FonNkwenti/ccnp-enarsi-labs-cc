@@ -6,8 +6,8 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) e518d8d
 
 ## Phase 2: Workbook & Config Implementation
-- [~] Task: Initialize lab directory `labs/eigrp/lab-06-filtering-control/`.
-- [ ] Task: Create `topology.drawio` with active devices.
+- [x] Task: Initialize lab directory `labs/eigrp/lab-06-filtering-control/`. 2c6e322
+- [~] Task: Create `topology.drawio` with active devices.
 - [ ] Task: Generate `initial-configs/` from Lab 05 solutions.
 - [ ] Task: Draft `workbook.md` following "Challenge-First" format.
 - [ ] Task: Implement full `solutions/` configurations.
