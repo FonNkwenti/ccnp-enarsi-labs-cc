@@ -1,0 +1,232 @@
+# CCNP ENCOR EIGRP Lab 09: Dual-Stack EIGRP Migration
+**Student Workbook & Instructor Guide**
+
+---
+
+## 1. Concepts & Skills Covered
+
+- Configure EIGRP Named Mode for multi-address family support
+- Implement EIGRP for IPv6 (Address Family IPv6)
+- Understand the migration path from Classic Mode to Named Mode
+- Verify dual-stack EIGRP adjacencies and route propagation
+- Optimize EIGRP for IPv6 using summaries and stub features
+- Troubleshoot IPv6 connectivity in an EIGRP domain
+
+---
+
+## 2. Topology & Scenario
+
+### ASCII Diagram
+```
+                                  ┌─────────────────┐
+                                  │       R4        │
+                                  │  OSPF Domain    │
+                                  │  4.4.4.4/32     │
+                                  └────────┬────────┘
+                                           │ Fa0/0
+                                           │ 10.0.14.2/30
+                                           │
+                    ┌─────────────────┐    │ Fa1/1
+                    │       R1        ├────┘
+                    │   (Hub Router)  ├──────────────┐
+                    │  Lo0: 1.1.1.1   │              │ Fa0/0
+                    └───┬─────────┬───┘              │ 10.0.17.1/30
+                        │ Fa1/0   │ Fa1/1            │
+                        │         │                  │
+           10.0.12.1/30 │         │ 10.0.12.2/30     │ 10.0.17.2/30
+                        │    ┌────┴────────┐    ┌────┴────────┐
+                        │    │     R2      │    │     R7      │
+                        │    │   Branch    │    │ Summary Bdy │
+                        │    │ 2.2.2.2/32  │    │ 7.7.7.7/32  │
+                        │    └────┬────────┘    └─────────────┘
+                        │         │ Fa0/1
+                        │         │ 10.0.23.1/30
+                        │         │
+                        │         │ 10.0.23.2/30
+                        │         │ Fa0/0
+                 ┌──────┴─────────┘
+                 │       R3        
+                 │  Remote Branch  
+                 │  3.3.3.3/32     
+                 └───┬─────────┐
+                     │ Fa0/1   │
+                     │         │ 10.0.35.1/30
+                     │         │
+                     │         │ 10.0.35.2/30
+                     │         │ Fa0/0
+              ┌──────┴─────────┘
+              │       R5        
+              │   Stub Network  
+              │  5.5.5.5/32     
+              └─────────────────┘
+                                  ┌─────────────────┐
+                                  │       R6        │
+                                  │  VPN Endpoint   │
+                                  │  6.6.6.6/32     │
+                                  └────────┬────────┘
+                                           │ Gi3/0 (Tunnel)
+```
+
+### Scenario Narrative
+The **Skynet Global** network is entering its final phase of infrastructure modernization. To support the "NextGen Network" initiative, the entire EIGRP domain must be transitioned to a **Dual-Stack (IPv4/IPv6)** environment. 
+
+The CTO has mandated the use of **EIGRP Named Mode** (also known as Multi-AF EIGRP) to simplify configuration and enable support for both address families under a single virtual instance. Your objective is to migrate all routers from the existing EIGRP Classic Mode to Named Mode without causing prolonged downtime, and then enable IPv6 routing across the entire topology.
+
+### Device Role Table
+| Device | Role | Platform | Loopback0 | New in Lab 09 |
+|--------|------|----------|-----------|---------------|
+| R1 | Hub / Migration Lead | c7200 | 1.1.1.1/32 | No |
+| R2 | Branch Router | c3725 | 2.2.2.2/32 | No |
+| R3 | Remote Branch | c3725 | 3.3.3.3/32 | No |
+| R4 | CyberDyne OSPF | c3725 | 4.4.4.4/32 | No |
+| R5 | Stub Network | c3725 | 5.5.5.5/32 | No |
+| R6 | VPN Endpoint | c7200 | 6.6.6.6/32 | No |
+| R7 | Summary Boundary | c3725 | 7.7.7.7/32 | **Yes** |
+
+---
+
+## 3. Hardware & Environment Specifications
+
+### Router Platform Table
+| Device | Model | RAM | Image Name |
+|--------|-------|-----|------------|
+| R1 | c7200 | 512 MB | `c7200-adventerprisek9-mz.153-3.XB12.image` |
+| R2-R5, R7 | c3725 | 256 MB | `c3725-adventerprisek9-mz.124-15.T14.image` |
+| R6 | c7200 | 512 MB | `c7200-adventerprisek9-mz.153-3.XB12.image` |
+
+---
+
+## 4. Base Configuration
+
+> ⚠️ **This lab builds on Lab 08.** Ensure that the GRE tunnel and previous redistribution/security settings are functional.
+
+### R7 (Summary Boundary - Integration)
+```bash
+enable
+configure terminal
+hostname R7
+interface Loopback0
+ ip address 7.7.7.7 255.255.255.255
+interface FastEthernet0/0
+ ip address 10.0.17.2 255.255.255.252
+ no shutdown
+router eigrp 100
+ network 7.7.7.7 0.0.0.0
+ network 10.0.17.0 0.0.0.3
+end
+```
+
+---
+
+## 5. Lab Challenge: NextGen Dual-Stack Migration
+
+### Objective 1: Transition to EIGRP Named Mode (R1)
+Convert the existing EIGRP Classic configuration on R1 to Named Mode.
+- Create a virtual instance named `SKYNET_CORE`.
+- Migrate the IPv4 AS 100 settings into the `address-family ipv4 autonomous-system 100` sub-mode.
+- Verify that EIGRP neighbors re-establish and all routes are present.
+
+### Objective 2: Enable EIGRP for IPv6 (All Routers)
+Deploy IPv6 addressing and EIGRP routing.
+- **Addressing Scheme:** Use `2001:DB8:ACAD:<Device#>#::/64` for loopbacks and `2001:DB8:ACAD:<LinkID>::/64` for links.
+- Enable `ipv6 unicast-routing` globally.
+- Configure EIGRP Named Mode on all routers using the same instance name `SKYNET_CORE`.
+- Establish IPv6 adjacencies over all active links (including the GRE Tunnel between R1 and R6).
+
+### Objective 3: Dual-Stack Verification
+- Verify that every router has a full IPv4 and IPv6 routing table.
+- Confirm reachability to all loopbacks via both protocols.
+- Use `show ip eigrp neighbors` and `show ipv6 eigrp neighbors` to confirm dual-stack adjacency.
+
+### Objective 4: Optimization & Advanced AF Features
+- On **R7**, configure a summary route for the 10.0.0.0/8 range towards R1 using the AF sub-mode commands.
+- On **R5**, verify that the stub configuration is active for both IPv4 and IPv6 families.
+
+---
+
+## 6. Verification & Analysis
+
+| Command | Expected Outcome |
+|---------|------------------|
+| `show eigrp address-family ipv4 neighbors` | Verify IPv4 neighbors in Named Mode. |
+| `show eigrp address-family ipv6 neighbors` | Verify IPv6 neighbors in Named Mode. |
+| `show ipv6 route eigrp` | Confirm IPv6 routes are learned across the domain. |
+| `ping ipv6 <address>` | Successful end-to-end reachability. |
+
+---
+
+## 7. Verification Cheatsheet
+
+### 7.1 Verify Named Mode Multi-AF (R1)
+```bash
+R1# show eigrp address-family ipv4 neighbors
+EIGRP-IPv4 VR(SKYNET_CORE) Address-Family Neighbors for AS(100)
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+0   10.0.12.2               Fa1/0                    12 00:10:25   15   200  0  55
+...
+R1# show eigrp address-family ipv6 neighbors
+EIGRP-IPv6 VR(SKYNET_CORE) Address-Family Neighbors for AS(100)
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+0   FE80::C802:12FF:FE34:0  Fa1/0                    14 00:05:12   20   200  0  12
+```
+
+### 7.2 Verify IPv6 Route Learning
+```bash
+R3# show ipv6 route eigrp
+...
+D   2001:DB8:ACAD:1::1/128 [90/130816]
+     via FE80::C801:23FF:FE45:0, FastEthernet0/0
+```
+
+---
+
+## 8. Troubleshooting Scenario
+
+### The Fault
+After enabling IPv6 on R6, the router cannot form an EIGRP adjacency with R1 over the GRE tunnel, even though the IPv4 adjacency is perfectly stable.
+
+### The Mission
+1. Check if an IPv6 address was assigned to the `Tunnel8` interface.
+2. Verify if `ipv6 unicast-routing` is enabled on R6.
+3. Ensure the `address-family ipv6` is active under the EIGRP Named Mode instance on both sides.
+4. Check if any previous MTU/MSS settings are interfering with IPv6 neighbor discovery packets (which are larger than IPv4).
+
+---
+
+## 9. Solutions (Spoiler Alert!)
+
+### Objective 1: Migration to Named Mode (R1)
+```bash
+router eigrp SKYNET_CORE
+ address-family ipv4 autonomous-system 100
+  topology base
+  exit-af-topology
+  network 1.1.1.1 0.0.0.0
+  network 10.0.12.0 0.0.0.3
+  ...
+```
+
+### Objective 2: IPv6 Named Mode (General)
+```bash
+ipv6 unicast-routing
+router eigrp SKYNET_CORE
+ address-family ipv6 autonomous-system 100
+  topology base
+  exit-af-topology
+!
+interface FastEthernet0/0
+ ipv6 address 2001:DB8:ACAD:12::1/64
+ ipv6 enable
+```
+
+---
+
+## 10. Lab Completion Checklist
+
+- [ ] R1 migrated to Named Mode.
+- [ ] IPv6 connectivity established globally.
+- [ ] Dual-stack EIGRP adjacencies verified on all links.
+- [ ] GRE Tunnel supports both IPv4 and IPv6 traffic.
+- [ ] Troubleshooting challenge resolved.
