@@ -10,8 +10,8 @@
 - [x] Task: Create `topology.drawio` with active devices. d2444c4
 - [x] Task: Generate `initial-configs/`. 5ce0212
 - [x] Task: Draft `workbook.md` following "Challenge-First" format. 5218d15
-- [~] Task: Implement full `solutions/` configurations.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
+- [x] Task: Implement full `solutions/` configurations. b25d82a
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Verification & Quality Assurance
 - [ ] Task: Create Verification Cheatsheet in `workbook.md`.
