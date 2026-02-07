@@ -44,7 +44,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Implement OSPF Lab 01: Basic OSPF Adjacency**
+- [x] **Track: Implement OSPF Lab 01: Basic OSPF Adjacency**
   *Link: [./tracks/ospf_std_01_20260207/](./tracks/ospf_std_01_20260207/)*
 
 ---
