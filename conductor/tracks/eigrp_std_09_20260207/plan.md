@@ -1,9 +1,9 @@
 # Implementation Plan: Implement EIGRP Lab 09
 
-## Phase 1: Lab Design & Topology
+## Phase 1: Lab Design & Topology [checkpoint: a46068f]
 - [x] Task: Review `labs/eigrp/baseline.yaml` for Lab 09 requirements (Full topology). 62b5c18
 - [x] Task: Design Skynet Global "NextGen Network" scenario for IPv6 migration. 58744df
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) 62b5c18
 
 ## Phase 2: Workbook & Config Implementation
 - [ ] Task: Initialize lab directory `labs/eigrp/lab-09-dual-stack-migration/`.
