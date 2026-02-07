@@ -7,8 +7,8 @@
 
 ## Phase 2: Workbook & Config Implementation
 - [x] Task: Initialize lab directory `labs/eigrp/lab-08-eigrp-over-vpn/`. ec50437
-- [~] Task: Create `topology.drawio` with active devices.
-- [ ] Task: Generate `initial-configs/` from Lab 07 solutions.
+- [x] Task: Create `topology.drawio` with active devices. cfe6434
+- [~] Task: Generate `initial-configs/` from Lab 07 solutions.
 - [ ] Task: Draft `workbook.md` following "Challenge-First" format.
 - [ ] Task: Implement full `solutions/` configurations.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
