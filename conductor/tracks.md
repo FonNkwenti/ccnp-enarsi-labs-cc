@@ -44,6 +44,11 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [x] **Track: Add Cabling Tables to all EIGRP and OSPF workbooks**
+  *Link: [./tracks/ccnp_cabling_sync_20260207/](./tracks/ccnp_cabling_sync_20260207/)*
+
+---
+
 - [x] **Track: Implement OSPF Lab 01: Basic OSPF Adjacency**
   *Link: [./tracks/ospf_std_01_20260207/](./tracks/ospf_std_01_20260207/)*
 
