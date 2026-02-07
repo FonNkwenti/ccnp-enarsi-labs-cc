@@ -6,7 +6,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Design' (Protocol in workflow.md) 3466f89
 
 ## Phase 2: Workbook & Config Implementation
-- [ ] Task: Initialize lab directory `labs/ospf/lab-02-*/`.
+- [~] Task: Initialize lab directory `labs/ospf/lab-02-*/`.
 - [ ] Task: Create `topology.drawio` with active devices.
 - [ ] Task: Generate `initial-configs/` from Lab 01 solutions.
 - [ ] Task: Draft `workbook.md` following "Challenge-First" format.
