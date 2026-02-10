@@ -2,7 +2,7 @@
 
 ## Phase 1: Foundation & EIGRP Synchronization
 - [x] Task: Create common Python utilities for fault injection in `labs/common/tools/fault_utils.py` (if applicable) 4cfa25b
-- [ ] Task: Update EIGRP Lab 01 (Basic Adjacency): Create `challenges.md` and `scripts/fault_injector.py`
+- [x] Task: Update EIGRP Lab 01 (Basic Adjacency): Create `challenges.md` and `scripts/fault_injector.py` ad5bd22
 - [ ] Task: Update EIGRP Lab 02 (Path Selection): Create `challenges.md` and `scripts/fault_injector.py`
 - [ ] Task: Update EIGRP Lab 03 (Route Summarization): Create `challenges.md` and `scripts/fault_injector.py`
 - [ ] Task: Update EIGRP Lab 04 (Stub & WAN Optimization): Create `challenges.md` and `scripts/fault_injector.py`
