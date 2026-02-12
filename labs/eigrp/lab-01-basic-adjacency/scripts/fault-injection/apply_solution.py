@@ -9,7 +9,7 @@ This script connects to all active devices and applies the
 correct configuration from the lab solutions.
 """
 
-import telnetlib
+import socket
 import time
 import sys
 
@@ -69,21 +69,23 @@ def restore_device(device_name, config):
     print(f"\n[*] Restoring {device_name} ({host}:{port})...")
     
     try:
-        tn = telnetlib.Telnet(host, port, timeout=10)
+        tn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tn.settimeout(5)
+        tn.connect((host, port))
         print(f"[+] Connected to {device_name}")
         
         # Press Enter to get prompt
-        tn.write(b"\n")
+        tn.sendall(b"\r\n")
         time.sleep(1)
         
         # Enter enable mode
-        tn.write(b"enable\n")
+        tn.sendall(b"enable\n")
         time.sleep(1)
         
         # Apply correct configuration
         for cmd in config:
             print(f"    {cmd}")
-            tn.write(f"{cmd}\n".encode('ascii'))
+            tn.sendall(f"{cmd}\n".encode('ascii'))
             time.sleep(0.5)
         
         print(f"[+] {device_name} restored successfully!")

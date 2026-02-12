@@ -19,8 +19,17 @@ The output will be a comprehensive set of files:
 1.  **workbook.md** - Student workbook with concepts, topology, cabling, and verification.
 2.  **initial-configs/** - Starting configs.
 3.  **solutions/** - Complete configs.
-4.  **topology.drawio** - Visual diagram.
+4.  **topology.drawio** - Visual diagram. **Must follow the drawio style guide** (see `.agent/skills/drawio/SKILL.md` Section 4).
 5.  **setup_lab.py** - (NEW) Python automation script to load initial-configs via Telnet.
+
+## Topology Diagram Requirements
+When generating `topology.drawio`, strictly follow the **Visual Style Guide** in `.agent/skills/drawio/SKILL.md`:
+- **White connection lines** (`strokeColor=#FFFFFF`), never black.
+- **Device labels** positioned to the **left** of router icons.
+- **IP last octet labels** (`.1`, `.2`) placed near each router's interface endpoint.
+- **Title** at the top center of the canvas.
+- **Legend box** (black fill `#000000`, white text `#FFFFFF`) at the bottom-right.
+- Use `generate_topo.py` when possible, or hand-craft XML following the reference snippets in the style guide.
 
 ## Automation Script Requirements (setup_lab.py)
 The script must:

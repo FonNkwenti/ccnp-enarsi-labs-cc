@@ -1,4 +1,4 @@
-import telnetlib
+import socket
 import sys
 import time
 import os
@@ -10,18 +10,17 @@ class LabSetup:
     def push_config(self, host, port, config_file):
         print(f"Connecting to {host}:{port}...")
         try:
-            tn = telnetlib.Telnet(host, port, timeout=5)
+            tn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tn.settimeout(5)
+            tn.connect((host, port))
             
             # Ensure we are at a prompt
-            tn.write(b"
-")
+            tn.sendall(b"\r\n")
             time.sleep(1)
             
             # Enter configuration mode
-            tn.write(b"enable
-")
-            tn.write(b"configure terminal
-")
+            tn.sendall(b"enable\r\n")
+            tn.sendall(b"configure terminal\r\n")
             
             if not os.path.exists(config_file):
                 print(f"  Error: Config file {config_file} not found.")
@@ -30,15 +29,12 @@ class LabSetup:
             with open(config_file, 'r') as f:
                 for line in f:
                     if line.strip() and not line.startswith('!'):
-                        tn.write(line.encode('ascii') + b"
-")
+                        tn.sendall(line.encode('ascii') + b"\r\n")
                         # Small delay to prevent buffer overflow
                         time.sleep(0.1)
             
-            tn.write(b"end
-")
-            tn.write(b"write memory
-")
+            tn.sendall(b"end\r\n")
+            tn.sendall(b"write memory\r\n")
             print(f"  Successfully loaded {config_file}")
             tn.close()
             return True

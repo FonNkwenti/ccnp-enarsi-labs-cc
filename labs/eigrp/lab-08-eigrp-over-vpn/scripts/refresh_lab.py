@@ -1,6 +1,6 @@
 import sys
 import os
-import telnetlib
+import socket
 import time
 
 # Add common tools to path
@@ -13,20 +13,22 @@ class LabRefresher:
     def push_config(self, host, port, config_file):
         print(f"Refreshing {host}:{port} with {config_file}...")
         try:
-            tn = telnetlib.Telnet(host, port, timeout=5)
-            tn.write(b"\n")
+            tn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            tn.settimeout(5)
+            tn.connect((host, port))
+            tn.sendall(b"\r\n")
             time.sleep(0.5)
-            tn.write(b"enable\n")
-            tn.write(b"configure terminal\n")
+            tn.sendall(b"enable\n")
+            tn.sendall(b"configure terminal\n")
             
             with open(config_file, 'r') as f:
                 for line in f:
                     if line.strip() and not line.startswith('!'):
-                        tn.write(line.encode('ascii') + b"\n")
+                        tn.sendall(line.encode('ascii') + b"\r\n")
                         time.sleep(0.1)
             
-            tn.write(b"end\n")
-            tn.write(b"write memory\n")
+            tn.sendall(b"end\n")
+            tn.sendall(b"write memory\n")
             tn.close()
             print(f"  Successfully refreshed.")
             return True

@@ -4,7 +4,7 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Fault Injection Scripts — Hide Commands from Student Terminal Output**
+- [x] **Track: Fault Injection Scripts — Hide Commands from Student Terminal Output**
   *Link: [./tracks/fault_script_log_cleanup_20260212/](./tracks/fault_script_log_cleanup_20260212/)*
 
 ---

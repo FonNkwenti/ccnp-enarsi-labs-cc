@@ -101,6 +101,7 @@ You are a CCNP ENCOR curriculum designer. Create a comprehensive lab topics blue
 - Optional devices (up to 7 total) for advanced scenarios
 - Pre-reserve IP addresses for all potential devices
 - Each lab explicitly declares which devices are active
+- All topology diagrams must follow the drawio Visual Style Guide (`.agent/skills/drawio/SKILL.md` Section 4)
 
 **OUTPUT FILES:**
 1. README.md - Chapter overview and blueprint coverage

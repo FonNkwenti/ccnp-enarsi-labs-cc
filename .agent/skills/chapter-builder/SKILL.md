@@ -65,6 +65,15 @@ Generate all labs for [CHAPTER] chapter.
 | 04 | Lab 03 solutions/ | + R5 |
 | ... | ... | ... |
 
+## Topology Diagram Requirements
+All generated `topology.drawio` files **must** follow the Visual Style Guide in `.agent/skills/drawio/SKILL.md` Section 4:
+- White connection lines (`strokeColor=#FFFFFF`), never black.
+- Device labels to the left of icons.
+- IP last octet labels (`.1`, `.2`) near each router interface.
+- Title at top center, legend box (black fill, white text) at bottom-right.
+
+Use `.agent/skills/drawio/scripts/generate_topo.py` for automated generation.
+
 ## Validation Checklist
 
 After generating labs, verify:
@@ -73,6 +82,7 @@ After generating labs, verify:
 - [ ] New devices are only added when declared
 - [ ] No configs are removed between labs
 - [ ] topology.drawio shows correct devices per lab
+- [ ] topology.drawio follows the drawio Visual Style Guide (white links, left labels, IP octets, legend)
 
 ## Example Invocation
 

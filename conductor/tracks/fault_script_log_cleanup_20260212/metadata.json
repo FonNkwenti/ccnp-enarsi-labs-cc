@@ -1,8 +1,9 @@
 {
   "track_id": "fault_script_log_cleanup_20260212",
   "title": "Fault Injection Scripts — Hide Commands from Student Terminal Output",
-  "status": "pending",
+  "status": "complete",
   "created": "2026-02-12",
+  "completed": "2026-02-12",
   "scope": "bug_fix",
   "files_changed": [
     "labs/common/tools/fault_utils.py",

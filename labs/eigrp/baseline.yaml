@@ -232,3 +232,21 @@ labs:
       - Configure EIGRP for IPv6
       - Implement dual-stack
       - Validate migration strategy
+
+# =============================================================================
+# TUNNEL OVERLAYS - Logical overlay connections per lab
+# =============================================================================
+tunnel_overlays:
+  - lab: 8
+    type: gre
+    source: R1:Tunnel8
+    target: R6:Tunnel8
+    subnet: 172.16.16.0/30
+    description: GRE Tunnel for EIGRP over VPN
+
+  - lab: 9
+    type: gre
+    source: R1:Tunnel8
+    target: R6:Tunnel8
+    subnet: 172.16.16.0/30
+    description: GRE Tunnel for EIGRP (Dual-Stack)

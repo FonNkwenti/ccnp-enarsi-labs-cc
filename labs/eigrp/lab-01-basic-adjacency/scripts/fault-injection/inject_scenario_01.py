@@ -10,7 +10,7 @@ This script connects to R2 via console and changes the EIGRP AS number
 from 100 to 200, preventing adjacency formation with R1.
 """
 
-import telnetlib
+import socket
 import time
 import sys
 
@@ -40,15 +40,17 @@ def inject_fault():
     print(f"[*] Connecting to {DEVICE_NAME} on {CONSOLE_HOST}:{CONSOLE_PORT}...")
     
     try:
-        tn = telnetlib.Telnet(CONSOLE_HOST, CONSOLE_PORT, TIMEOUT)
+        tn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tn.settimeout(5)
+        tn.connect((CONSOLE_HOST, CONSOLE_PORT))
         print(f"[+] Connected to {DEVICE_NAME}")
         
         # Press Enter to get prompt
-        tn.write(b"\n")
+        tn.sendall(b"\r\n")
         time.sleep(1)
         
         # Enter enable mode
-        tn.write(b"enable\n")
+        tn.sendall(b"enable\n")
         time.sleep(1)
         
         # Apply fault commands
@@ -56,7 +58,7 @@ def inject_fault():
         print(f"[*] Changing EIGRP AS from 100 to 200 (FAULT)")
         for cmd in FAULT_COMMANDS:
             print(f"    {cmd}")
-            tn.write(f"{cmd}\n".encode('ascii'))
+            tn.sendall(f"{cmd}\n".encode('ascii'))
             time.sleep(0.5)
         
         print(f"[+] Fault injected successfully on {DEVICE_NAME}!")
