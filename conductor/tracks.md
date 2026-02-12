@@ -4,6 +4,11 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
+- [x] **Track: refresh_lab.py — Load Initial Configs Instead of Solutions**
+  *Link: [./tracks/refresh_initial_configs_20260212/](./tracks/refresh_initial_configs_20260212/)*
+
+---
+
 - [x] **Track: Fault Injection Scripts — Hide Commands from Student Terminal Output**
   *Link: [./tracks/fault_script_log_cleanup_20260212/](./tracks/fault_script_log_cleanup_20260212/)*
 

@@ -44,10 +44,10 @@ class LabRefresher:
 
 if __name__ == "__main__":
     devices = [
-        ("R1", 5001, "solutions/R1.cfg"),
-        ("R2", 5002, "solutions/R2.cfg"),
-        ("R3", 5003, "solutions/R3.cfg")
+        ("R1", 5001, "initial-configs/R1.cfg"),
+        ("R2", 5002, "initial-configs/R2.cfg"),
+        ("R3", 5003, "initial-configs/R3.cfg")
     ]
     refresher = LabRefresher(devices)
     refresher.run()
-    print("\nLab 01 has been refreshed to the 'Solution' state.")
+    print("\nLab 01 has been refreshed to the initial config state.")
