@@ -93,20 +93,6 @@
                 <mxCell id="octet_107" value=".2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" connectable="0" vertex="1" parent="1">
                     <mxGeometry x="290" y="210" as="geometry"/>
                 </mxCell>
-                <mxCell id="link_R1_R3" value="" style="endArrow=none;html=1;strokeWidth=2;strokeColor=#FFFFFF;fillColor=#f5f5f5;" parent="1" source="R1" target="R3" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="link_R1_R3_lbl" value="Fa1/1 - Fa0/1&#10;10.0.13.0/30" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="link_R1_R3" vertex="1" connectable="0">
-                    <mxGeometry relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
-                </mxCell>
-                <mxCell id="octet_108" value=".1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" connectable="0" vertex="1" parent="1">
-                    <mxGeometry x="430" y="260" as="geometry"/>
-                </mxCell>
-                <mxCell id="octet_109" value=".2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" connectable="0" vertex="1" parent="1">
-                    <mxGeometry x="450" y="590" as="geometry"/>
-                </mxCell>
                 <mxCell id="tunnel_R1_R6_0" value="" style="endArrow=none;html=1;strokeWidth=1;strokeColor=#FFFFFF;fillColor=none;dashed=1;dashPattern=1 4;curved=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="R1" target="R6">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
