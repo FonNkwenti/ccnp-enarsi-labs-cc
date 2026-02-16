@@ -14,13 +14,16 @@ Store diagrams in the following directories based on their type:
 - **Flow Diagrams**: `labs/[chapter]/[lab-folder]/flow-[description].drawio`
   - Use for packet flows, process charts, and logic flows.
 
-## 2. File Formats
+## 2. File Formats & Deliverables
 
-For every diagram, you must maintain two files with the **exact same basename**:
+For every diagram, you must maintain and deliver two files with the **exact same basename**:
 
 1.  **Source File (`.drawio`)**: The editable XML format.
-2.  **Exported Image (`.png`)**: The visual representation for documentation.
-    - *Note:* When exporting to PNG, ensure "Include path" or "copy of my drive" options are unselected if using the web version, but for local usage, a standard transparent background PNG is preferred.
+2.  **Exported Image (`.png`)**: A high-resolution visual representation for documentation.
+    - **Scale**: 200% (Scale 2.0) for high DPI.
+    - **Background**: Transparent.
+    - **Quality**: Lossless.
+    - **Automation**: Use `drawio-desktop` CLI or automated scripts when possible.
 
 ## 3. Naming Conventions
 
