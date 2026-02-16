@@ -1,7 +1,11 @@
 import sys
 import os
 import argparse
+import subprocess
 from datetime import datetime
+
+# --- Constants for Export ---
+DRAWIO_EXECUTABLE = "/Applications/draw.io.app/Contents/MacOS/draw.io"
 
 # --- Simple YAML Parser (Subset for baseline.yaml) ---
 def parse_simple_yaml(file_path):
@@ -99,7 +103,6 @@ DRAWIO_FOOTER = """      </root>
 """
 
 # --- Style Guide Compliant Styles ---
-# See .agent/skills/drawio/SKILL.md Section 4 for full spec.
 STYLE_ROUTER = "shape=mxgraph.cisco.routers.router;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;"
 STYLE_LINK_SOLID = "endArrow=none;html=1;strokeWidth=2;strokeColor=#FFFFFF;fillColor=#f5f5f5;"
 STYLE_LINK_DASHED = "endArrow=none;html=1;strokeWidth=2;strokeColor=#FFFFFF;fillColor=#f5f5f5;dashed=1;"
@@ -108,15 +111,14 @@ STYLE_DEVICE_LABEL = "text;html=1;strokeColor=none;fillColor=none;align=center;v
 STYLE_OCTET_LABEL = "edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;"
 STYLE_LEGEND = "rounded=1;whiteSpace=wrap;html=1;fillColor=#000000;strokeColor=#FFFFFF;fontColor=#FFFFFF;fontSize=10;align=left;verticalAlign=top;spacingLeft=8;spacingTop=8;"
 
-# Tunnel overlay colors by type (see SKILL.md Section 4.9)
 TUNNEL_COLORS = {
-    "gre":    "#FFFFFF",   # White
-    "mpls":   "#FF6600",   # Orange
-    "ipsec":  "#FF0000",   # Red
-    "vxlan":  "#00AAFF",   # Cyan
-    "l2tp":   "#AA00FF",   # Purple
+    "gre":    "#FFFFFF",
+    "mpls":   "#FF6600",
+    "ipsec":  "#FF0000",
+    "vxlan":  "#00AAFF",
+    "l2tp":   "#AA00FF",
 }
-TUNNEL_COLOR_DEFAULT = "#FFFF00"   # Yellow for unknown
+TUNNEL_COLOR_DEFAULT = "#FFFF00"
 
 TUNNEL_LEGEND_LABELS = {
     "gre":   "GRE",
@@ -126,9 +128,7 @@ TUNNEL_LEGEND_LABELS = {
     "l2tp":  "L2TP",
 }
 
-
 def get_tunnel_style(tunnel_type):
-    """Return Draw.io edge style string for a tunnel overlay."""
     color = TUNNEL_COLORS.get(tunnel_type.lower(), TUNNEL_COLOR_DEFAULT)
     return (
         f"endArrow=none;html=1;strokeWidth=1;strokeColor={color};fillColor=none;"
@@ -137,9 +137,7 @@ def get_tunnel_style(tunnel_type):
         f"entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
     )
 
-
 def generate_tunnel_xml(tunnel, tunnel_idx, coords):
-    """Render a tunnel overlay as a curved arc above the physical topology."""
     src_dev = tunnel['source'].split(':')[0]
     dst_dev = tunnel['target'].split(':')[0]
     src_int = tunnel['source'].split(':')[1]
@@ -150,17 +148,14 @@ def generate_tunnel_xml(tunnel, tunnel_idx, coords):
     sx, sy = coords.get(src_dev, (400, 200))
     dx, dy = coords.get(dst_dev, (200, 200))
 
-    # Arc waypoints: curve above both devices
     arc_y  = min(sy, dy) - 100
-    wp1_x  = sx + 39   # center of source icon
-    wp2_x  = dx + 39   # center of target icon
+    wp1_x  = sx + 39
+    wp2_x  = dx + 39
 
     style  = get_tunnel_style(ttype)
     tid    = f"tunnel_{src_dev}_{dst_dev}_{tunnel_idx}"
     label  = f"{src_int} - {dst_int}&#10;{subnet}&#10;[{ttype.upper()}]"
 
-    # Tunnel endpoint octet label positions (SKILL.md Section 4.9.4)
-    # Place near the top of each device where the arc exits
     src_octet_x = sx + 44
     src_octet_y = sy - 15
     dst_octet_x = dx + 44
@@ -185,28 +180,20 @@ def generate_tunnel_xml(tunnel, tunnel_idx, coords):
         </mxCell>
 """
 
-# Base Coordinates for Standard Topology (Hub-and-Spoke + Add-ons)
 BASE_COORDS = {
-    "R1": (400, 200),  # Hub
-    "R2": (400, 400),  # Branch
-    "R3": (400, 600),  # Remote Branch
-    "R4": (600, 200),  # OSPF Domain (Right of R1)
-    "R5": (400, 800),  # Stub (Below R3)
-    "R6": (200, 200),  # VPN Endpoint (Left of R1)
-    "R7": (600, 400),  # Summary Boundary (Right of R2/Link from R1)
+    "R1": (400, 200),
+    "R2": (400, 400),
+    "R3": (400, 600),
+    "R4": (600, 200),
+    "R5": (400, 800),
+    "R6": (200, 200),
+    "R7": (600, 400),
 }
 
-# Vertical chain devices (same X column) — used for bypass detection
 VERTICAL_CHAIN = ["R1", "R2", "R3", "R5"]
 
-
 def compute_coords(device_names, links):
-    """Compute layout coordinates, offsetting intermediate devices when bypass
-    links exist to prevent connection lines from visually crossing through
-    devices.  See SKILL.md Section 4.8."""
     coords = {k: v for k, v in BASE_COORDS.items()}
-
-    # Build set of link endpoints
     link_pairs = set()
     for link in links:
         src = link['source'].split(':')[0]
@@ -215,46 +202,28 @@ def compute_coords(device_names, links):
             link_pairs.add((src, dst))
             link_pairs.add((dst, src))
 
-    # Detect bypass links in the vertical chain.
-    # A bypass exists when two chain devices are linked but have intermediate
-    # chain devices between them (e.g., R1-R3 bypasses R2).
     chain_present = [d for d in VERTICAL_CHAIN if d in device_names]
-
     for i, src in enumerate(chain_present):
         for j in range(i + 2, len(chain_present)):
             dst = chain_present[j]
             if (src, dst) in link_pairs:
-                # Bypass detected — offset all intermediate devices
                 for k in range(i + 1, j):
                     mid = chain_present[k]
                     bx, by = coords[mid]
-                    # Shift right by 100px, unless right side is occupied
                     right_occupied = any(
                         coords.get(d, (0, 0))[0] > bx
                         for d in device_names if d != mid and d in coords
                     )
                     if right_occupied:
-                        coords[mid] = (bx - 100, by)  # shift left
+                        coords[mid] = (bx - 100, by)
                     else:
-                        coords[mid] = (bx + 100, by)  # shift right
-
+                        coords[mid] = (bx + 100, by)
     return coords
 
-
 def get_label_side(device_name, coords, all_links, all_device_names):
-    """Determine which side to place a device's label box on.
-
-    Rule (SKILL.md Section 4.3.1):
-    - If ALL physical neighbors are to the LEFT  (nx < device_x) → place RIGHT
-    - If ALL physical neighbors are to the RIGHT (nx > device_x) → place LEFT
-    - Mixed or same-column only → default LEFT
-
-    Returns 'left' or 'right'.
-    """
     dx, _ = coords.get(device_name, (400, 400))
     neighbors_left = 0
     neighbors_right = 0
-
     for link in all_links:
         src = link['source'].split(':')[0]
         dst = link['target'].split(':')[0]
@@ -265,20 +234,13 @@ def get_label_side(device_name, coords, all_links, all_device_names):
             neighbor = src
         if neighbor:
             nx, _ = coords.get(neighbor, (400, 400))
-            if nx < dx:
-                neighbors_left += 1
-            elif nx > dx:
-                neighbors_right += 1
-
+            if nx < dx: neighbors_left += 1
+            elif nx > dx: neighbors_right += 1
     if neighbors_left > 0 and neighbors_right == 0:
         return 'right'
     return 'left'
 
-
 def get_last_octet(subnet, position):
-    """Extract the host address last octet from a subnet.
-    position: 1 for source (.1), 2 for target (.2)
-    """
     base = subnet.split('/')[0]
     parts = base.split('.')
     host = int(parts[3]) + position
@@ -286,195 +248,89 @@ def get_last_octet(subnet, position):
 
 def generate_xml(devices, links, lab_title, lab_info=None, coords=None,
                  tunnel_overlays=None):
-    if coords is None:
-        coords = BASE_COORDS
-    if tunnel_overlays is None:
-        tunnel_overlays = []
+    if coords is None: coords = BASE_COORDS
+    if tunnel_overlays is None: tunnel_overlays = []
     timestamp = datetime.now().isoformat()
     xml_content = DRAWIO_HEADER.format(timestamp=timestamp)
-    octet_id_counter = 100  # ID counter for octet labels
+    octet_id_counter = 100
 
-    # 1. Add Title (top center)
     xml_content += f"""        <mxCell id="title" value="{lab_title}" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1" vertex="1" parent="1">
           <mxGeometry x="200" y="40" width="400" height="40" as="geometry" />
         </mxCell>
 """
 
-    # 2. Add Devices with smart label placement (SKILL.md Section 4.3.1)
     device_names_set = [d['name'] for d in devices]
     for device in devices:
-        name = device['name']
-        role = device.get('role', 'Router')
-        lo0 = device.get('loopback0', 'N/A')
-
-        x, y = coords.get(name, (100, 100))
-
-        # Icon
-        xml_content += f"""        <mxCell id="{name}" value="" style="{STYLE_ROUTER}" vertex="1" parent="1">
-          <mxGeometry x="{x}" y="{y}" width="78" height="53" as="geometry" />
-        </mxCell>
-"""
-
-        # Label — placed on the empty side (no connection lines)
+        name, x, y = device['name'], *coords.get(device['name'], (100, 100))
+        role, lo0 = device.get('role', 'Router'), device.get('loopback0', 'N/A')
+        xml_content += f'        <mxCell id="{name}" value="" style="{STYLE_ROUTER}" vertex="1" parent="1"><mxGeometry x="{x}" y="{y}" width="78" height="53" as="geometry" /></mxCell>\n'
         label_text = f"{name}&#10;{role}&#10;{lo0}"
         side = get_label_side(name, coords, links, device_names_set)
         label_x = x + 83 if side == 'right' else x - 105
-        label_y = y - 7
-        xml_content += f"""        <mxCell id="{name}_lbl" value="{label_text}" style="{STYLE_DEVICE_LABEL}" vertex="1" parent="1">
-          <mxGeometry x="{label_x}" y="{label_y}" width="100" height="60" as="geometry" />
-        </mxCell>
-"""
+        xml_content += f'        <mxCell id="{name}_lbl" value="{label_text}" style="{STYLE_DEVICE_LABEL}" vertex="1" parent="1"><mxGeometry x="{label_x}" y="{y-7}" width="100" height="60" as="geometry" /></mxCell>\n'
 
-    # 3. Add Links (white lines) with edge labels and IP octet annotations
     for link in links:
-        src = link['source'].split(':')[0]
-        dst = link['target'].split(':')[0]
-
-        # Only draw link if both devices exist in this topology
-        device_names = [d['name'] for d in devices]
-        if src in device_names and dst in device_names:
-            link_id = f"link_{src}_{dst}"
-            src_int = link['source'].split(':')[1]
-            dst_int = link['target'].split(':')[1]
-            subnet = link.get('subnet', 'N/A')
-
+        src, dst = link['source'].split(':')[0], link['target'].split(':')[0]
+        if src in device_names_set and dst in device_names_set:
+            link_id, src_int, dst_int, subnet = f"link_{src}_{dst}", link['source'].split(':')[1], link['target'].split(':')[1], link.get('subnet', 'N/A')
             style = STYLE_LINK_DASHED if "Tunnel" in src_int or "Tunnel" in dst_int else STYLE_LINK_SOLID
-
-            # Connection line
-            xml_content += f"""        <mxCell id="{link_id}" value="" style="{style}" edge="1" parent="1" source="{src}" target="{dst}">
-              <mxGeometry relative="1" as="geometry" />
-            </mxCell>
-            <mxCell id="{link_id}_lbl" value="{src_int} - {dst_int}&#10;{subnet}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="{link_id}">
-              <mxGeometry x="0" y="0" relative="1" as="geometry">
-                <mxPoint as="offset" />
-              </mxGeometry>
-            </mxCell>
-"""
-            # IP last octet labels near each router interface
+            xml_content += f'        <mxCell id="{link_id}" value="" style="{style}" edge="1" parent="1" source="{src}" target="{dst}"><mxGeometry relative="1" as="geometry" /></mxCell>\n'
+            xml_content += f'        <mxCell id="{link_id}_lbl" value="{src_int} - {dst_int}&#10;{subnet}" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" vertex="1" connectable="0" parent="{link_id}"><mxGeometry x="0" y="0" relative="1" as="geometry"><mxPoint as="offset" /></mxGeometry></mxCell>\n'
             src_x, src_y = coords.get(src, (100, 100))
             dst_x, dst_y = coords.get(dst, (100, 100))
-            src_octet = get_last_octet(subnet, 1)
-            dst_octet = get_last_octet(subnet, 2)
-
-            # Position octets near the router side of the link
-            # Offset to the right of the icon (+50px from icon x)
-            octet_x = src_x + 50
-            # Y near the interface exit (toward the target)
             src_octet_y = src_y + 60 if dst_y > src_y else src_y - 10
             dst_octet_y = dst_y - 10 if dst_y > src_y else dst_y + 60
-            dst_octet_x = dst_x + 50
-
-            xml_content += f"""        <mxCell id="octet_{octet_id_counter}" value="{src_octet}" style="{STYLE_OCTET_LABEL}" vertex="1" connectable="0" parent="1">
-              <mxGeometry x="{octet_x}" y="{src_octet_y}" as="geometry" />
-            </mxCell>
-"""
+            xml_content += f'        <mxCell id="octet_{octet_id_counter}" value="{get_last_octet(subnet, 1)}" style="{STYLE_OCTET_LABEL}" vertex="1" connectable="0" parent="1"><mxGeometry x="{src_x+50}" y="{src_octet_y}" as="geometry" /></mxCell>\n'
             octet_id_counter += 1
-            xml_content += f"""        <mxCell id="octet_{octet_id_counter}" value="{dst_octet}" style="{STYLE_OCTET_LABEL}" vertex="1" connectable="0" parent="1">
-              <mxGeometry x="{dst_octet_x}" y="{dst_octet_y}" as="geometry" />
-            </mxCell>
-"""
+            xml_content += f'        <mxCell id="octet_{octet_id_counter}" value="{get_last_octet(subnet, 2)}" style="{STYLE_OCTET_LABEL}" vertex="1" connectable="0" parent="1"><mxGeometry x="{dst_x+50}" y="{dst_octet_y}" as="geometry" /></mxCell>\n'
             octet_id_counter += 1
 
-    # 4. Add Tunnel Overlays (curved colored dotted arcs above physical topology)
-    device_names = [d['name'] for d in devices]
     active_tunnel_types = set()
     for idx, tunnel in enumerate(tunnel_overlays):
-        src_dev = tunnel['source'].split(':')[0]
-        dst_dev = tunnel['target'].split(':')[0]
-        if src_dev in device_names and dst_dev in device_names:
+        if tunnel['source'].split(':')[0] in device_names_set and tunnel['target'].split(':')[0] in device_names_set:
             xml_content += generate_tunnel_xml(tunnel, idx, coords)
             active_tunnel_types.add(tunnel.get('type', 'gre').lower())
 
-    # 5. Add Legend Box (black fill, white text, bottom-right)
     legend_content = "Legend"
-    if lab_info:
-        legend_content += f"&#10;{lab_info}"
+    if lab_info: legend_content += f"&#10;{lab_info}"
     legend_content += "&#10;&#x2014;&#x2014; Physical Link"
-    # Add tunnel type entries if any tunnels are present
     for ttype in sorted(active_tunnel_types):
-        label = TUNNEL_LEGEND_LABELS.get(ttype, ttype.upper())
-        legend_content += f"&#10;....... {label}"
-
-    # Determine legend Y based on lowest device
+        legend_content += f"&#10;....... {TUNNEL_LEGEND_LABELS.get(ttype, ttype.upper())}"
     max_y = max(coords.get(d['name'], (0, 0))[1] for d in devices)
-    legend_y = max_y + 140
-    legend_h = 80 + 15 * len(active_tunnel_types)
-
-    xml_content += f"""        <mxCell id="legend" value="{legend_content}" style="{STYLE_LEGEND}" vertex="1" parent="1">
-          <mxGeometry x="600" y="{legend_y}" width="180" height="{legend_h}" as="geometry" />
-        </mxCell>
-"""
-
+    xml_content += f'        <mxCell id="legend" value="{legend_content}" style="{STYLE_LEGEND}" vertex="1" parent="1"><mxGeometry x="600" y="{max_y+140}" width="180" height="{80+15*len(active_tunnel_types)}" as="geometry" /></mxCell>\n'
     xml_content += DRAWIO_FOOTER
     return xml_content
+
+def export_to_png(drawio_file):
+    output_png = os.path.splitext(drawio_file)[0] + ".png"
+    print(f"Exporting {drawio_file} to {output_png}...")
+    try:
+        subprocess.run([DRAWIO_EXECUTABLE, "-x", "-f", "png", "-t", "-s", "2", drawio_file, "-o", output_png], check=True)
+        return True
+    except Exception as e:
+        print(f"Export failed: {e}")
+        return False
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Draw.io XML from baseline.yaml")
     parser.add_argument("--baseline", required=True, help="Path to baseline.yaml")
-    parser.add_argument("--lab", required=True, type=int, help="Lab number to generate for")
-    parser.add_argument("--output", required=True, help="Output path for topology.drawio")
-
+    parser.add_argument("--lab", required=True, type=int, help="Lab number")
+    parser.add_argument("--output", required=True, help="Output .drawio path")
+    parser.add_argument("--export", action="store_true", help="Automatically export to PNG")
     args = parser.parse_args()
 
-    # Use internal parser
     data = parse_simple_yaml(args.baseline)
-
-    # 1. Determine Active Devices
-    active_devices = []
-
-    # Get Lab Definition
     lab_def = next((l for l in data['labs'] if int(l['number']) == args.lab), None)
+    if not lab_def: print(f"Error: Lab {args.lab} not found."); sys.exit(1)
 
-    if not lab_def:
-        print(f"Error: Lab {args.lab} not found in baseline.")
-        sys.exit(1)
-
-    required_device_names = lab_def.get('devices', [])
-
-    # Filter Devices
-    all_devices = data['core_topology']['devices'] + data.get('optional_devices', [])
-    for d in all_devices:
-        if d['name'] in required_device_names:
-            active_devices.append(d)
-
-    # 2. Determine Active Links
-    active_links = []
-    all_links = data['core_topology']['links'] + data.get('optional_links', [])
-
-    for link in all_links:
-        src = link['source'].split(':')[0]
-        dst = link['target'].split(':')[0]
-        if src in required_device_names and dst in required_device_names:
-            active_links.append(link)
-
-    # 3. Build lab info string for legend
-    chapter = data.get('chapter', '')
-    lab_info = f"{chapter} Lab {args.lab}"
-
-    # 4. Compute layout coordinates (handles bypass link offset)
-    layout_coords = compute_coords(required_device_names, active_links)
-
-    # 5. Filter tunnel overlays for this lab
-    active_tunnels = [
-        t for t in data.get('tunnel_overlays', [])
-        if str(t.get('lab', '')) == str(args.lab)
-    ]
-
-    # 6. Generate XML
-    xml_output = generate_xml(
-        active_devices,
-        active_links,
-        f"Lab {args.lab}: {lab_def['title']}",
-        lab_info=lab_info,
-        coords=layout_coords,
-        tunnel_overlays=active_tunnels,
-    )
-
-    # 7. Write File
-    with open(args.output, 'w') as f:
-        f.write(xml_output)
-
-    print(f"Successfully generated topology for Lab {args.lab} with {len(active_devices)} routers.")
+    active_devices = [d for d in (data['core_topology']['devices'] + data.get('optional_devices', [])) if d['name'] in lab_def.get('devices', [])]
+    active_links = [l for l in (data['core_topology']['links'] + data.get('optional_links', [])) if l['source'].split(':')[0] in lab_def.get('devices', []) and l['target'].split(':')[0] in lab_def.get('devices', [])]
+    
+    xml_output = generate_xml(active_devices, active_links, f"Lab {args.lab}: {lab_def['title']}", lab_info=f"{data.get('chapter', '')} Lab {args.lab}", coords=compute_coords([d['name'] for d in active_devices], active_links), tunnel_overlays=[t for t in data.get('tunnel_overlays', []) if str(t.get('lab', '')) == str(args.lab)])
+    
+    with open(args.output, 'w') as f: f.write(xml_output)
+    print(f"Generated {args.output}")
+    if args.export: export_to_png(args.output)
 
 if __name__ == "__main__":
     main()
