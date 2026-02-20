@@ -67,8 +67,7 @@ You are a CCNP ENCOR lab developer. Create a detailed lab workbook and setup scr
 5. Lab Challenge: Core Implementation
 6. Verification & Analysis
 7. Verification Cheatsheet
-8. **Troubleshooting Scenarios** (REQUIRED - minimum 3 scenarios)
-9. **Solutions (Spoiler Alert!)** (REQUIRED - must cover ALL objectives)
+8. **Solutions (Spoiler Alert!)** (REQUIRED - must cover ALL objectives)
 
 ### Solutions Section Requirements:
 
@@ -79,7 +78,7 @@ You are a CCNP ENCOR lab developer. Create a detailed lab workbook and setup scr
 ### Example Format:
 
 ```markdown
-## 9. Solutions (Spoiler Alert!)
+## 8. Solutions (Spoiler Alert!)
 
 > Try to complete the lab challenge without looking at these steps first!
 
@@ -107,102 +106,7 @@ show ip route ospf
 </details>
 ```
 
-10. Lab Completion Checklist
-```
-
-## Troubleshooting Scenarios Requirements
-
-**MANDATORY:** Each workbook MUST include at least **3 troubleshooting scenarios** in a dedicated section before the Solutions section.
-
-### Each Scenario Must Include:
-
-1. **Scenario Number & Title**: Clear identification (e.g., "Scenario 1: AS Number Mismatch")
-
-2. **Problem Statement**: 
-   - Brief description of the symptoms observed by the student
-   - What appears to be broken (e.g., "R2 cannot form adjacency with R1")
-   - Any error messages or missing outputs
-
-3. **Mission**:
-   - Clear directive on what the student needs to accomplish
-   - Specific troubleshooting steps to follow
-   - Which devices to investigate
-
-4. **Success Criteria / Acceptance Criteria**:
-   - Measurable outcomes that prove the issue is resolved
-   - Specific commands and their expected outputs
-   - Performance or connectivity tests to validate the fix
-
-5. **Solution** (with Spoiler Protection):
-   - Use a collapsible section or clear spoiler warning
-   - Provide the exact configuration fix required
-   - Explain WHY the misconfiguration caused the problem
-   - Include verification commands showing the resolved state
-
-### Scenario Categories to Include:
-
-Target common misconfigurations such as:
-- **Protocol Parameter Mismatches**: AS numbers, K-values, authentication keys, timers
-- **Interface Issues**: Shutdown interfaces, passive interface misconfigurations, wrong IP addresses
-- **Network Advertisement Errors**: Missing network statements, wrong wildcard masks, route filtering
-- **Authentication Problems**: Mismatched keys, incorrect key-chains, missing authentication
-- **Redistribution Issues**: Missing redistributions, wrong metrics, route loops
-
-### Example Format:
-
-```markdown
-## 8. Troubleshooting Scenarios
-
-> 🔧 **Practice Makes Perfect**: These scenarios test your ability to diagnose and resolve common EIGRP misconfigurations. Try to solve them WITHOUT looking at the solutions first!
-
-### Scenario 1: Autonomous System Mismatch
-
-**Problem Statement:**
-After a recent configuration change, R2 is no longer forming an adjacency with R1. The output of `show ip eigrp neighbors` on R1 shows no neighbor on Fa1/0. R2's configuration shows `router eigrp 200` instead of the expected AS 100.
-
-**Mission:**
-1. Identify why the adjacency failed using appropriate debug or show commands
-2. Correct the misconfiguration to align with the design requirements (AS 100)
-3. Verify that the adjacency is re-established
-4. Confirm that routes are being exchanged properly
-
-**Success Criteria:**
-- [ ] `show ip eigrp neighbors` on R1 displays R2 as a neighbor on Fa1/0
-- [ ] `show ip route eigrp` on R1 shows routes learned from R2
-- [ ] End-to-end ping from R1's Loopback0 to R2's Loopback0 succeeds
-
-**Solution:**
-
-<details>
-<summary>⚠️ SPOILER ALERT - Click to reveal solution</summary>
-
-**Root Cause:** EIGRP routers only form adjacencies when they are configured with matching Autonomous System numbers. R2 was configured with AS 200 while R1 uses AS 100.
-
-**Fix:**
-```bash
-R2# configure terminal
-R2(config)# no router eigrp 200
-R2(config)# router eigrp 100
-R2(config-router)# eigrp router-id 2.2.2.2
-R2(config-router)# network 2.2.2.2 0.0.0.0
-R2(config-router)# network 10.0.12.0 0.0.0.3
-R2(config-router)# network 10.0.23.0 0.0.0.3
-R2(config-router)# passive-interface Loopback0
-R2(config-router)# no auto-summary
-R2(config-router)# end
-```
-
-**Verification:**
-```bash
-R1# show ip eigrp neighbors
-EIGRP-IPv4 Neighbors for AS 100
-H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
-                                                   (sec)         (ms)       Cnt Num
-0   10.0.12.2               Fa1/0                    13 00:00:12   25   200  0  3
-```
-</details>
-
-### Scenario 2: [Next scenario...]
+9. Lab Completion Checklist
 ```
 
 **Console Access Table** must include: | Device | Port | Connection Command |
@@ -211,13 +115,13 @@ H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  
 
 ## Fault Injection Integration
 
-After generating the workbook with troubleshooting scenarios, the **fault-injector** skill should be invoked to create automated fault injection scripts.
+After generating the workbook, the **fault-injector** skill should be invoked to create automated fault injection scripts based on `challenges.md`.
 
 ### Automatic Integration
 When generating a complete lab, the workflow should be:
-1. Generate workbook.md with troubleshooting scenarios
+1. Generate workbook.md
 2. Invoke the `fault-injector` skill
-3. Fault-injector reads the workbook and console access table
+3. Fault-injector reads `challenges.md` and the console access table
 4. Generates Python scripts in `scripts/fault-injection/` directory
 5. Updates workbook with instructions for running the scripts
 
@@ -229,31 +133,11 @@ The fault-injector skill creates:
 - `scripts/fault-injection/apply_solution.py` - Restore all devices
 - `scripts/fault-injection/README.md` - Usage instructions
 
-### Workbook Updates
-Each troubleshooting scenario should include a subsection:
-
-```markdown
-#### Automated Fault Injection
-
-To automatically inject this fault into your lab environment:
-
-\`\`\`bash
-cd scripts/fault-injection
-python3 inject_scenario_01.py
-\`\`\`
-
-To restore the correct configuration after troubleshooting:
-
-\`\`\`bash
-python3 apply_solution.py
-\`\`\`
-```
-
 ### Additional Workbook Section
 Add a new section before "Lab Completion Checklist":
 
 ```markdown
-## 11. Automated Fault Injection (Optional)
+## 10. Automated Fault Injection (Optional)
 
 This lab includes automated scripts to inject troubleshooting scenarios into your running GNS3 environment.
 
