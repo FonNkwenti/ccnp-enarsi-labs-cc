@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 from fault_utils import FaultInjector
 
 def inject():
-    """AS Number Mismatch for IPv6 AF on R2"""
+    """AS Number Mismatch for IPv6 AF under Named Mode on R1 (c7200)"""
     commands = [
         "router eigrp SKYNET_CORE",
         " no address-family ipv6 autonomous-system 100",
@@ -14,7 +14,7 @@ def inject():
         "  exit-af-topology"
     ]
     injector = FaultInjector()
-    injector.execute_commands(5002, commands, "Challenge 2")
+    injector.execute_commands(5001, commands, "Challenge 2")
     print("\nChallenge 2 fault injected successfully.")
     print("Refer to challenges.md for the symptom and goal.")
 

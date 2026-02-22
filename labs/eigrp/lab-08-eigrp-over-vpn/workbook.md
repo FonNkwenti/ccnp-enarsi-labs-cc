@@ -288,8 +288,8 @@ interface Tunnel8
 
 ## 10. Lab Completion Checklist
 
-- [ ] GRE Tunnel UP/UP between R1 and R6.
-- [ ] EIGRP adjacency established over Tunnel8.
-- [ ] R6 loopback (6.6.6.6) reachable from R1 via tunnel.
-- [ ] MTU (1400) and MSS (1360) applied to tunnel interfaces.
-- [ ] Troubleshooting challenge resolved.
+- [x] GRE Tunnel UP/UP between R1 and R6.
+- [x] EIGRP adjacency established over Tunnel8.
+- [x] R6 loopback (6.6.6.6) reachable from R1 via tunnel.
+- [x] MTU (1400) and MSS (1360) applied to tunnel interfaces.
+- [x] Troubleshooting challenge resolved.

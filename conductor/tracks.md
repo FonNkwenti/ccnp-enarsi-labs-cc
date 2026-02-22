@@ -9,7 +9,12 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Implement OSPF Lab 05: OSPF Special Area Types**
+- [~] **Track: Draw.io PNG Export Automation**
+  *Link: [./tracks/drawio_png_export_20260216/](./tracks/drawio_png_export_20260216/)*
+
+---
+
+- [x] **Track: Implement OSPF Lab 05: OSPF Special Area Types**
   *Link: [./tracks/ospf_std_05_20260207/](./tracks/ospf_std_05_20260207/)*
 
 ---

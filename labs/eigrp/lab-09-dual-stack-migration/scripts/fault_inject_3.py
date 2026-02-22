@@ -5,11 +5,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 from fault_utils import FaultInjector
 
 def inject():
-    """Disable IPv6 on Tunnel interface on R6"""
+    """Disable IPv6 on Tunnel8 interface on R6 (c7200)"""
     commands = [
         "interface Tunnel8",
         " no ipv6 enable",
-        " no ipv6 address 2001:DB8:ACAD:16::2/64"
+        " no ipv6 address 2001:DB8:ACAD:88::2/64"
     ]
     injector = FaultInjector()
     injector.execute_commands(5006, commands, "Challenge 3")

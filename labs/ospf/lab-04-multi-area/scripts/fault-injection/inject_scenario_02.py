@@ -13,8 +13,7 @@ def inject():
     ]
     injector = FaultInjector()
     injector.execute_commands(5002, commands, "Challenge 2")
-    print("
-Scenario 2 fault injected successfully.")
+    print("\nScenario 2 fault injected successfully.")
     print("Refer to challenges.md for the symptom and goal.")
 
 if __name__ == "__main__":

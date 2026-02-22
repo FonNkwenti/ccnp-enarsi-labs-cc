@@ -44,8 +44,7 @@ def batch_export(root_dir, scale=2):
                 else:
                     fail_count += 1
                     
-    print(f"
-Batch export complete.")
+    print("\nBatch export complete.")
     print(f"Successfully exported: {success_count}")
     print(f"Failed: {fail_count}")
 

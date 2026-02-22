@@ -39,6 +39,8 @@ core_topology:
       slots:
         - slot: 0
           adapter: GT96100-FE
+        - slot: 1
+          adapter: NM-1FE-TX
 
   links:
     - id: L1
@@ -94,6 +96,9 @@ optional_devices:
     console_port: 5007
     available_from: 5
     purpose: Stub and Totally Stubby area testing
+    slots:
+      - slot: 0
+        adapter: GT96100-FE
 
 optional_links:
   - id: L4

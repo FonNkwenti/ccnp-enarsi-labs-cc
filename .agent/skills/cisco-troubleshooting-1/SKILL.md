@@ -1,11 +1,16 @@
 ---
 name: cisco-troubleshooting
-description: Systematically diagnose and resolve Cisco network faults using structured troubleshooting methodologies (Top-Down, Bottom-Up, Divide & Conquer, Follow Traffic Path, Compare Configurations). Produces detailed resolution reports documenting the entire diagnostic process from problem definition through root cause analysis and verification.
+description: Systematically diagnose and resolve Cisco network faults using structured troubleshooting methodologies (Top-Down, Bottom-Up, Divide & Conquer, Follow Traffic Path, Compare Configurations). Connects to live GNS3 routers via Netmiko utilities and uses lab workbook/challenge context for informed diagnosis.
 ---
 
 # Cisco Network Troubleshooting Skill
 
 This skill implements the **Structured Troubleshooting Process** from Cisco curriculum, avoiding haphazard "shoot from the hip" attempts. Every fault follows a rigorous four-phase lifecycle that ensures systematic problem resolution and comprehensive documentation.
+
+It integrates with the project's **GNS3 lab environment** by:
+- Reading `workbook.md` and `challenges.md` for lab context, objectives, and expected behavior
+- Connecting to live routers via the Netmiko-based utilities in `labs/common/tools/`
+- Using `initial-configs/` and `solutions/` as reference baselines
 
 ## Core Principles
 
@@ -14,36 +19,88 @@ This skill implements the **Structured Troubleshooting Process** from Cisco curr
 - **Documented process**: Maintain a clear audit trail of all actions
 - **Methodology-driven**: Select the right approach for each problem type
 - **Verification-focused**: Confirm resolution before closing the incident
+- **Context-aware**: Always read the lab's workbook/challenges before diagnosing
+
+---
+
+## Phase 0: Lab Context Gathering
+
+**Objective**: Understand the lab environment, topology, and objectives before diagnosing.
+
+**This phase is MANDATORY before proceeding to Phase I.**
+
+### Step 1: Identify the Lab Path
+
+Determine the lab directory from the user's description. Format: `labs/<chapter>/lab-NN-<slug>/`
+
+### Step 2: Read Lab Context Files
+
+Read the following files to understand what the lab is about, what the expected working state looks like, and what the student is trying to achieve:
+
+1. **`workbook.md`** — Read for:
+   - Topology and scenario description
+   - Lab objectives and challenge tasks
+   - Hardware & Environment Specifications (Cabling & Connectivity Table, Console Access Table)
+   - Verification commands and expected outputs
+   - Troubleshooting scenarios (if the fault was injected via a scenario script)
+   - Solutions section (use ONLY as a reference for expected state — do NOT reveal to the user unless asked)
+
+2. **`challenges.md`** — Read for:
+   - Standalone challenge exercises and acceptance criteria
+   - Specific symptoms described in troubleshooting tickets
+
+3. **`initial-configs/`** — The baseline starting state for each router. Useful for understanding what was pre-configured vs. what the student should have added.
+
+4. **`solutions/`** — The expected end-state configurations. Use as a private reference to understand what "correct" looks like. **Do NOT show solution configs to the user unless explicitly asked.**
+
+### Step 3: Build Device Console Map
+
+Parse the Console Access Table from `workbook.md` to build the device-to-port mapping:
+
+```
+Device → Console Port
+R1     → 5001
+R2     → 5002
+R3     → 5003
+R7     → 5007
+...
+```
+
+This map is used by the Netmiko utilities to connect to routers in Phase III.
 
 ---
 
 ## Phase I: Problem Definition & Assessment
 
-**Objective**: Transform vague symptoms into a precise technical problem statement.
+**Objective**: Transform vague symptoms into a precise technical problem statement, informed by the lab context gathered in Phase 0.
 
 ### Process
 
 1. **Gather Initial Report**
    - What are the exact symptoms? (e.g., "cannot access web server" not "network is broken")
-   - Who is affected? (specific users, devices, subnets)
-   - When did it start? (timeline, recent changes)
-   - What changed recently? (configurations, hardware, software)
+   - Who is affected? (specific devices, interfaces, subnets)
+   - When did it start? (after which configuration step)
+   - What changed recently? (what config did the student apply)
+   - Cross-reference the user's description against `workbook.md` objectives — which objective is failing?
 
 2. **Clarify Ambiguities**
    - Ask specific questions to eliminate vague descriptions
+   - Use lab context to ask targeted questions:
+     - "Are you working on Objective 2 (OSPF area configuration)?"
+     - "Which router are you configuring — R2 or R3?"
+     - "Did you complete the previous objective before starting this one?"
    - Example transformations:
-     - "The network is down" → "User A at 10.1.1.10 cannot ping the default gateway 10.1.1.1"
-     - "Internet is slow" → "HTTP downloads from external servers take >30 seconds vs. normal 2 seconds"
-     - "Can't connect" → "SSH connection to router 192.168.1.1 times out after 3 attempts"
+     - "It's not working" → "R3 is not forming an OSPF adjacency with R1 on Fa0/0"
+     - "Routes are missing" → "R2's routing table shows no EIGRP routes from R5"
 
 3. **Document Problem Statement**
    Create a clear, technical problem statement including:
    - **Symptoms**: Specific observable failures
-   - **Scope**: Affected devices/users/services
-   - **Timeline**: When it started, when it occurs
-   - **Baseline**: What normal behavior looks like
+   - **Scope**: Affected devices and interfaces (from topology)
+   - **Lab Objective**: Which workbook objective this relates to
+   - **Baseline**: What the expected working state looks like (from solutions/ or workbook verification section)
 
-**Output**: A crisp problem statement ready for methodological analysis.
+**Output**: A crisp problem statement ready for methodological analysis, grounded in lab context.
 
 ---
 
@@ -200,11 +257,71 @@ Is this a multi-hop routing/path issue?
 
 ## Phase III: Diagnostic Execution
 
-**Objective**: Systematically gather evidence, test hypotheses, and isolate the root cause.
+**Objective**: Systematically gather evidence, test hypotheses, and isolate the root cause using live router connections.
+
+### Connecting to GNS3 Routers
+
+Use the project's Netmiko utilities in `labs/common/tools/` to connect to live routers and run diagnostic commands.
+
+#### Option A: Direct Netmiko Connection (for running show commands)
+
+Use `telnet localhost <port>` via the shell to connect to a router's console and run commands interactively:
+
+```bash
+# Connect to R1's console (port from Console Access Table)
+telnet localhost 5001
+```
+
+Or use the `labs/common/tools/lab_utils.py` `LabSetup._connect()` pattern programmatically:
+
+```python
+from netmiko import ConnectHandler
+
+conn = ConnectHandler(
+    device_type="cisco_ios_telnet",
+    host="127.0.0.1",
+    port=5001,  # Console port from workbook
+    username="",
+    password="",
+    secret="",
+    timeout=10,
+)
+output = conn.send_command("show ip route")
+print(output)
+conn.disconnect()
+```
+
+#### Option B: FaultInjector Utility (for applying config changes)
+
+Use `labs/common/tools/fault_utils.py` `FaultInjector` class to push configuration commands:
+
+```python
+import sys
+sys.path.insert(0, "labs/common/tools")
+from fault_utils import FaultInjector
+
+injector = FaultInjector()
+# Execute show commands or config changes on a device
+injector.execute_commands(5001, ["show ip ospf neighbor"], "Diagnostic check on R1")
+```
+
+#### Option C: LabRefresher Utility (for resetting to baseline)
+
+Use `labs/common/tools/lab_utils.py` `LabRefresher` class to reset a device back to its initial-config state:
+
+```python
+import sys
+sys.path.insert(0, "labs/common/tools")
+from lab_utils import LabRefresher
+
+devices = [("R1", 5001, "labs/ospf/lab-05-special-areas/initial-configs/R1.cfg")]
+refresher = LabRefresher(devices)
+refresher.run()
+```
 
 ### Step 1: Gather Information
 
-Collect data using appropriate tools:
+Connect to the relevant routers (identified in Phase 0) and collect data using appropriate commands:
 
 #### CLI Commands (Cisco IOS)
 ```
@@ -244,14 +361,24 @@ debug ip packet
 debug eigrp packets
 ```
 
-#### Network Tools
-- **ping**: Test Layer 3 connectivity
-- **traceroute**: Identify path and failure point
-- **telnet/SSH**: Test Layer 4 (Transport) connectivity to specific ports
-- **nslookup/dig**: Test DNS resolution
-- **NetFlow/IPFIX**: Analyze traffic patterns
-- **SNMP**: Monitor device health and statistics
-- **Packet capture**: Wireshark/tcpdump for deep analysis
+#### Gathering Evidence from Multiple Routers
+
+When diagnosing adjacency or reachability issues, connect to **both sides** of the link. Use the Console Access Table from Phase 0 to connect to each device:
+
+```bash
+# Check OSPF neighbor state on both sides
+telnet localhost 5001   # R1 — run: show ip ospf neighbor
+telnet localhost 5002   # R2 — run: show ip ospf neighbor
+```
+
+Compare the output from both sides to identify mismatches (timers, authentication, area IDs, network statements, etc.).
+
+#### Comparing Against Expected State
+
+Cross-reference live router output against:
+- **`initial-configs/`** — what was pre-configured (baseline)
+- **`solutions/`** — what the correct end-state should look like (private reference)
+- **`workbook.md` Verification section** — expected command outputs
 
 ### Step 2: Establish Baseline Behavior
 
@@ -630,7 +757,7 @@ Every resolution should feed back into organizational learning:
 Use this skill whenever you encounter:
 
 - Network connectivity issues
-- Routing protocol problems  
+- Routing protocol problems
 - Configuration troubleshooting
 - Performance degradation
 - Service outages
@@ -639,6 +766,7 @@ Use this skill whenever you encounter:
 - WAN connectivity problems
 - ACL or firewall blocking
 - Any situation requiring systematic network diagnosis
+- A student's lab configuration isn't producing expected results
 
 **Do NOT use** for:
 - Initial network design (use design skills)
@@ -647,6 +775,37 @@ Use this skill whenever you encounter:
 - Routine monitoring (use monitoring skills)
 
 This skill is specifically for **reactive troubleshooting** of existing network faults.
+
+---
+
+## Lab-Aware Troubleshooting Quick Reference
+
+### File Locations
+| Resource | Path |
+|----------|------|
+| Netmiko utilities | `labs/common/tools/lab_utils.py` |
+| Fault injection utility | `labs/common/tools/fault_utils.py` |
+| Lab workbook | `labs/<chapter>/lab-NN-<slug>/workbook.md` |
+| Challenges | `labs/<chapter>/lab-NN-<slug>/challenges.md` |
+| Initial configs (baseline) | `labs/<chapter>/lab-NN-<slug>/initial-configs/` |
+| Solution configs (reference) | `labs/<chapter>/lab-NN-<slug>/solutions/` |
+| Chapter baseline | `labs/<chapter>/baseline.yaml` |
+
+### Diagnostic Workflow Summary
+```
+1. READ workbook.md / challenges.md for context
+2. PARSE Console Access Table for device ports
+3. CONNECT to routers via telnet localhost:<port>
+4. COMPARE live state against initial-configs/ and solutions/
+5. DIAGNOSE using structured methodology (Phases I-IV)
+6. REPORT findings with evidence
+```
+
+### Privacy Rules
+- **DO NOT** reveal solution configs unless the user explicitly asks
+- When the user says "don't fix it for me", only explain the root cause conceptually
+- Use solutions/ only as a private reference to understand what "correct" looks like
+- Reference the workbook's verification commands to show what the user should expect
 
 ---
 

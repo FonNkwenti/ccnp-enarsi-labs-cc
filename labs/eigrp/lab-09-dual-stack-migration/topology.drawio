@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="topology-diagram" name="Network Topology">
-        <mxGraphModel dx="921" dy="857" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="619" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -8,16 +8,16 @@
                     <mxGeometry x="200" y="40" width="400" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="R6" value="" style="shape=mxgraph.cisco.routers.router;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;" parent="1" vertex="1">
-                    <mxGeometry x="200" y="200" width="78" height="53" as="geometry"/>
+                    <mxGeometry x="169" y="200" width="78" height="53" as="geometry"/>
                 </mxCell>
                 <mxCell id="R6_lbl" value="R6&#10;VPN Tunnel Endpoint&#10;6.6.6.6/32" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" parent="1" vertex="1">
-                    <mxGeometry x="80" y="193" width="120" height="60" as="geometry"/>
+                    <mxGeometry x="49" y="193" width="120" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="R1" value="" style="shape=mxgraph.cisco.routers.router;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;" parent="1" vertex="1">
                     <mxGeometry x="400" y="200" width="78" height="53" as="geometry"/>
                 </mxCell>
                 <mxCell id="R1_lbl" value="R1&#10;Hub Router&#10;1.1.1.1/32" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1" parent="1" vertex="1">
-                    <mxGeometry x="400" y="140" width="100" height="60" as="geometry"/>
+                    <mxGeometry x="387" y="140" width="100" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="R4" value="" style="shape=mxgraph.cisco.routers.router;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;" parent="1" vertex="1">
                     <mxGeometry x="600" y="200" width="78" height="53" as="geometry"/>
@@ -98,7 +98,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="octet_R6_right" value=".2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="1" vertex="1" connectable="0">
-                    <mxGeometry x="288" y="218" as="geometry"/>
+                    <mxGeometry x="257" y="218" as="geometry"/>
                 </mxCell>
                 <mxCell id="octet_R1_left" value=".1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10;" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="390" y="218" as="geometry"/>

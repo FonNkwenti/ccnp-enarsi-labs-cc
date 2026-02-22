@@ -6,8 +6,8 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Tooling' (Protocol in workflow.md) [verified]
 
 ## Phase 2: Automation Implementation
-- [ ] Task: Create a Python utility `labs/common/tools/export_diagrams.py` to batch convert all `.drawio` files.
-- [ ] Task: Update `generate_topo.py` to optionally trigger an export after generation.
+- [x] Task: Create a Python utility `labs/common/tools/export_diagrams.py` to batch convert all `.drawio` files. f22e278
+- [x] Task: Update `generate_topo.py` to optionally trigger an export after generation.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Implementation' (Protocol in workflow.md)
 
 ## Phase 3: Repository-wide Export

@@ -29,8 +29,7 @@ def apply():
     injector.execute_commands(5002, r2_commands, "Restore R2")
     injector.execute_commands(5003, r3_commands, "Restore R3")
     
-    print("
-Lab configuration restored successfully.")
+    print("\nLab configuration restored successfully.")
 
 if __name__ == "__main__":
     apply()
