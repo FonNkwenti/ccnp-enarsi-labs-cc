@@ -2,7 +2,6 @@
 .venv/
 .env
 *.log
-.gemini/
 *.ghost
 *.image
 **/*.ghost
