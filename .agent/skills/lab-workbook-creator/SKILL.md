@@ -13,8 +13,9 @@ Converts a lab topic entry from `baseline.yaml` into a full DeepSeek Standard la
 
 Before generating anything, read:
 1. `labs/[chapter]/baseline.yaml` — active devices, IPs, console ports, lab objectives
-2. Previous lab's `solutions/` (if this is not Lab 01) — becomes this lab's `initial-configs/`
-3. `specs/[chapter]/chapter-spec.md` — exam bullet context for the lab's objectives
+2. Check `baseline.yaml labs[N].type` — if `capstone_i` or `capstone_ii`, set `clean_slate: true` for this lab
+3. Previous lab's `solutions/` (if this is not Lab 01 AND `clean_slate` is not true) — becomes this lab's `initial-configs/`
+4. `specs/[chapter]/chapter-spec.md` — exam bullet context for the lab's objectives
 
 Identify which devices are active for this lab number from `baseline.yaml labs[N].devices`.
 
@@ -213,8 +214,29 @@ Triangle (hub + two branches) example:
 --# Step 3: Generate initial-configs/
 
 - **Lab 01:** Generate base IP addressing from `baseline.yaml core_topology` (IP config only — no routing protocol config).
-- **Lab N (N > 1):** Copy exactly from Lab (N-1) `solutions/`. Do not modify.
+- **Lab N (N > 1, not capstone):** Copy exactly from Lab (N-1) `solutions/`. Do not modify.
+- **Capstone I or Capstone II (`clean_slate: true`):** Generate from `baseline.yaml core_topology` IP addressing only — do NOT copy previous lab solutions. All routing protocol config is absent; the student configures everything from scratch.
 - One `.cfg` file per active device, named `[Device].cfg`.
+
+**Capstone workbook Section 5 format:**
+
+For `capstone_i`, Section 5 heading and opening must be:
+```markdown
+## 5. Lab Challenge: Full Protocol Mastery
+
+> This is a capstone lab. No step-by-step guidance is provided.
+> Configure the complete [Protocol] solution from scratch — IP addressing is pre-configured; everything else is yours to build.
+> All blueprint bullets for this chapter must be addressed.
+```
+
+For `capstone_ii`, Section 5 heading and opening must be:
+```markdown
+## 5. Lab Challenge: Comprehensive Troubleshooting
+
+> This is a capstone lab. The network is pre-broken.
+> Diagnose and resolve 5+ concurrent faults spanning all blueprint bullets.
+> No step-by-step guidance is provided — work from symptoms only.
+```
 
 --# Step 4: Generate solutions/
 
@@ -265,6 +287,10 @@ Use `assets/troubleshooting_scenarios_template.md` as the template for Section 8
 --# Troubleshooting tickets in wrong section
 - **Cause:** Tickets placed inside Section 8 (Solutions) instead of Section 9.
 - **Solution:** Section 8 contains only lab objective solution configs. Move all tickets to Section 9 (Troubleshooting Scenarios), which opens with the inject/restore workflow block.
+
+--# Capstone initial-configs incorrectly chain from previous lab
+- **Cause:** `clean_slate: true` was not checked before generating initial-configs; previous lab's solutions were copied as usual.
+- **Solution:** For any lab with `type: capstone_i` or `type: capstone_ii`, always regenerate initial-configs from `baseline.yaml core_topology` IP addressing only. Never copy from a previous lab's solutions for a capstone.
 
 -# Examples
 

@@ -14,8 +14,8 @@ Generates the strategic plan for a lab chapter, ensuring all exam objectives are
 Confirm the following before generating:
 1. **Technology** — e.g., EIGRP, OSPF, BGP, Redistribution
 2. **Exam Objectives** — list the ENARSI blueprint bullets to cover (see `specs/[chapter]/chapter-spec.md`)
-3. **Target Lab Count** — default: 8–10 labs
-4. **Progression** — Foundation → Intermediate → Advanced → Integration
+3. **Target Lab Count** — determined by blueprint coverage. Minimum labs = what is needed to cover all objectives progressively. The last 2 labs are ALWAYS Capstone I and Capstone II.
+4. **Progression** — Foundation → Intermediate → Advanced → Capstone I → Capstone II
 
 --# Step 2: Generate Chapter Blueprint
 
@@ -26,6 +26,26 @@ Design the lab series with:
 - Time estimates: 45–120 minutes per lab
 - Each lab explicitly declares which devices are active
 - **Topology size**: minimum 3 devices, maximum 15 devices total across core + optional
+
+--# Step 2b: Capstone Design Rules
+
+Every chapter ends with exactly 2 capstone labs. These are always the last 2 labs in the series:
+
+**Capstone I — Full Protocol Configuration Challenge**
+- `type: capstone_i`
+- `clean_slate: true` (initial-configs from `core_topology` IP addressing only, NOT chained from previous lab)
+- All blueprint bullets for the chapter must be addressed in a single challenge
+- Difficulty: Advanced, time_minutes: 120
+- Devices: all core + all optional that have been introduced
+- Section 5 (Challenge): "Configure the complete [Protocol] solution from scratch. No step-by-step guidance. All blueprint bullets must be addressed."
+
+**Capstone II — Comprehensive Troubleshooting**
+- `type: capstone_ii`
+- `clean_slate: true` (initial-configs from `core_topology` IP addressing only, NOT chained from previous lab)
+- 5+ concurrent faults spanning all blueprint bullets; students diagnose from a broken network
+- Difficulty: Advanced, time_minutes: 120
+- Devices: all core + all optional that have been introduced
+- Section 5 (Challenge): "The network is pre-broken. Diagnose and resolve 5+ concurrent faults spanning all blueprint bullets."
 
 --# Step 3: Write baseline.yaml
 
@@ -80,6 +100,27 @@ labs:
     title: [Lab Title]
     devices: [R1, R2, R3]
     extends: 1
+  # ... objective labs ...
+  - number: N-1
+    title: "[Protocol] Full Protocol Mastery — Capstone I"
+    type: capstone_i
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: all
+    devices: [all active devices]
+    objectives:
+      - [comprehensive config objectives covering all blueprint bullets]
+  - number: N
+    title: "[Protocol] Comprehensive Troubleshooting — Capstone II"
+    type: capstone_ii
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: all
+    devices: [all active devices]
+    objectives:
+      - [5+ concurrent fault diagnosis objectives spanning all blueprint bullets]
 ```
 
 --# Step 4: Backfill chapter-spec.md
@@ -100,6 +141,7 @@ Before finishing, confirm:
 - [ ] Platform choices respect Apple Silicon constraints — c7200 or c3725 only (see `gns3` skill)
 - [ ] All topology diagrams follow the drawio Visual Style Guide (invoke the `drawio` skill)
 - [ ] IP addresses are pre-reserved for all optional devices even if not active in early labs
+- [ ] The last 2 labs are Capstone I (`type: capstone_i`) and Capstone II (`type: capstone_ii`), both with `clean_slate: true`
 
 -# Continuity Rules
 

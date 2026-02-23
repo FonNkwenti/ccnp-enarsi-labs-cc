@@ -155,6 +155,39 @@ optional_devices:
 
 ---
 
+### Chapter Capstones (Capstone I + Capstone II)
+
+**Pattern:** Every chapter ends with exactly 2 capstone labs — Capstone I (configuration challenge) and Capstone II (troubleshooting challenge). Both start from a clean slate.
+
+**Why two capstones:**
+- Objective labs teach individual concepts. Capstones validate end-to-end mastery.
+- Configuration and troubleshooting are distinct skills — separating them lets you test each cleanly.
+- Students who passed all objective labs may still fail the capstone. That's the point.
+
+**Why clean slate (not chained from previous lab):**
+- Chaining builds muscle memory (incremental config). Capstone tests recall (full config from memory).
+- A broken config in Lab N-1 would corrupt the capstone starting state.
+- The capstone represents a real exam scenario: "Here is a blank router, here are the requirements."
+
+**Capstone I — Configuration Challenge:**
+- `type: capstone_i`, `clean_slate: true` in baseline.yaml
+- Initial-configs: IP addressing only (from `core_topology`)
+- Section 5 opens with: "No step-by-step guidance. Configure the complete solution. All blueprint bullets must be addressed."
+- Solutions exist (in `<details>`) but students are expected to attempt everything first.
+
+**Capstone II — Troubleshooting Challenge:**
+- `type: capstone_ii`, `clean_slate: true` in baseline.yaml
+- Initial-configs: IP addressing only + 5+ pre-injected faults (broken network state)
+- Section 5 opens with: "The network is pre-broken. Diagnose and resolve 5+ concurrent faults spanning all blueprint bullets."
+- Fault scripts exist for each fault; students can also challenge themselves without injecting.
+
+**Lab count is blueprint-driven:**
+- There is no fixed lab count (8–10 was a rule of thumb, not a rule).
+- The correct count = minimum labs needed to cover all objectives progressively + 2 capstones.
+- Example: 8 objective labs + Capstone I + Capstone II = 10 total.
+
+---
+
 ## Part 2: Bugs & Pitfalls
 
 ### ASCII Diagram with `/` and `\` Characters
@@ -471,6 +504,26 @@ device = {
 3. **Real-world alignment** — Every enterprise network disables auto-summary.
 
 **Alternative considered:** Leave auto-summary enabled, explain why later. Too confusing; students blame the lab instead of understanding the default.
+
+---
+
+### Why a Mega Capstone (Separate from Chapter Capstones)
+
+**Decision:** After all 7 chapters are complete (all Capstone I + Capstone II approved), a single Mega Capstone lab spans all chapter domains in one integrated topology.
+
+**Rationale:**
+1. **Inter-domain integration** — Chapter capstones prove per-domain mastery. The Mega Capstone proves you can run EIGRP, OSPF, BGP, redistribution, VPN, security, and services simultaneously on the same network.
+2. **Exam realism** — The ENARSI exam doesn't test one domain at a time. Real enterprise networks don't either.
+3. **Gate mechanism** — The Mega Capstone is only accessible after all chapter capstones are approved. This prevents skipping chapters.
+4. **Trigger: `/mega-capstone`** — Only triggered via the `/mega-capstone` slash command, which performs a pre-flight check on all 7 chapter capstone statuses in `memory/progress.md` before generating.
+
+**Design:**
+- ~10 routers, all in `labs/mega-capstone/` (standalone, not chained from any chapter)
+- Composite topology: EIGRP zone (R1-R3) + OSPF zone (R4-R5) + BGP edge (R6) + redistribution boundaries (R4, R6) + DMVPN (R1 hub, R2/R3 spokes) + security (R6 edge ACLs, R4 CoPP) + services (R1 DHCP, R2/R3 IP SLA, SNMP/syslog collector)
+- Section 5: multi-domain configuration challenge (no step-by-step guidance)
+- Section 9: 7+ troubleshooting tickets (one per chapter domain)
+- Fault injection: 7 inject scripts (one per domain)
+- `labs/mega-capstone/baseline.yaml` — standalone topology definition (not chained from any chapter)
 
 ---
 

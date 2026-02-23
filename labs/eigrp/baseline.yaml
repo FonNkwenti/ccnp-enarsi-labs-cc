@@ -237,8 +237,30 @@ labs:
       - "Troubleshoot: floating static routes, split horizon causing incomplete routing in hub-spoke scenario"
 
   - number: 9
-    title: "EIGRP Troubleshooting Integration"
-    slug: "lab-09-troubleshooting-integration"
+    title: "EIGRP Full Protocol Mastery — Capstone I"
+    slug: "lab-09-capstone-i"
+    type: capstone_i
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: ["1.9.a", "1.9.b", "1.9.c", "1.9.d", "1.9.e", "1.9.f", "1.1", "1.2", "1.3", "1.5"]
+    devices: [R1, R2, R3, R4]
+    objectives:
+      - "Configure EIGRP Named Mode (AS 100) from scratch on all four routers — no step-by-step guidance"
+      - "Enable dual-stack (IPv4 + IPv6 address families) across all links and loopbacks"
+      - "Tune EIGRP metrics so that R1→R3 is the preferred path from R2 (verify via show ip eigrp topology)"
+      - "Configure R4 as an EIGRP stub router advertising only connected and summary routes"
+      - "Apply manual summarization on R2 and R3 outbound interfaces for their loopback prefixes"
+      - "Filter R4's stub network from being advertised to R3 using a distribute-list with prefix-list"
+      - "Set EIGRP internal AD to 80 on R1 to prefer EIGRP over any static routes"
+      - "Disable split horizon on R1 fa0/0 and verify R2 now receives R3's loopback via R1"
+      - "Verify complete IPv4 and IPv6 reachability across all four routers"
+
+  - number: 10
+    title: "EIGRP Comprehensive Troubleshooting — Capstone II"
+    slug: "lab-10-capstone-ii"
+    type: capstone_ii
+    clean_slate: true
     difficulty: Advanced
     time_minutes: 120
     blueprint: ["1.9.a", "1.9.b", "1.9.c", "1.9.d", "1.9.e", "1.9.f", "1.1", "1.2", "1.3", "1.5"]
@@ -248,4 +270,5 @@ labs:
       - "Identify and fix incorrect path selection caused by metric manipulation (delay misconfiguration)"
       - "Resolve a broken stub configuration where R4 is incorrectly leaking transit routes"
       - "Fix a summarization black hole causing unreachable loopback prefixes"
+      - "Correct an administrative distance misconfiguration causing a static route to override EIGRP"
       - "Restore full IPv4 and IPv6 reachability across all four routers"

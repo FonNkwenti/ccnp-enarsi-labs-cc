@@ -71,6 +71,10 @@ Use **Cisco official terminology** exclusively (exam-aligned):
 - **Add only, never remove** — no config commands are deleted between labs
 - Optional devices enter at specific lab numbers (declared in `baseline.yaml available_from`)
 - **Topology size**: minimum 3 devices, maximum 15 devices (core + optional combined)
+- **Every chapter ends with Capstone I and Capstone II** (last 2 labs in every chapter):
+  - **Capstone I** — full protocol configuration challenge (clean slate from IP addressing only; all blueprint bullets)
+  - **Capstone II** — comprehensive troubleshooting challenge (clean slate; 5+ concurrent faults spanning all blueprint bullets)
+  - Both capstones start from a clean slate — initial-configs are generated from `core_topology`, NOT from the previous lab's solutions
 
 ## Project Structure
 

@@ -44,25 +44,27 @@ R4 (c3725 Stub/Edge) connects to R1 only, activated from Lab 06.
 | 06 | Stub Routing | Intermediate | 60 min | 1.9.d | R1, R2, R3, R4 |
 | 07 | Filtering & Route Maps | Advanced | 90 min | 1.2, 1.3 | R1, R2, R3, R4 |
 | 08 | AD & Split Horizon | Advanced | 75 min | 1.1, 1.3 | R1, R2, R3, R4 |
-| 09 | Troubleshooting Integration | Advanced | 120 min | All | R1, R2, R3, R4 |
+| 09 | **Capstone I** — Full Protocol Mastery | Advanced | 120 min | All | R1, R2, R3, R4 |
+| 10 | **Capstone II** — Comprehensive Troubleshooting | Advanced | 120 min | All | R1, R2, R3, R4 |
 
 ### Blueprint Coverage
 
 | Blueprint | Lab(s) |
 |---|---|
-| 1.9.a Address families | 02 |
-| 1.9.b Neighbor adjacency | 01, 02 |
-| 1.9.c Loop-free path selection | 04 |
-| 1.9.d Stubs | 06 |
-| 1.9.e Load balancing | 04 |
-| 1.9.f Metrics | 03 |
-| 1.1 Administrative distance | 08 |
-| 1.2 Route maps | 07 |
-| 1.3 Loop prevention | 07, 08 |
-| 1.5 Summarization | 05 |
+| 1.9.a Address families | 02, 09, 10 |
+| 1.9.b Neighbor adjacency | 01, 02, 09, 10 |
+| 1.9.c Loop-free path selection | 04, 09, 10 |
+| 1.9.d Stubs | 06, 09, 10 |
+| 1.9.e Load balancing | 04, 09, 10 |
+| 1.9.f Metrics | 03, 09, 10 |
+| 1.1 Administrative distance | 08, 09, 10 |
+| 1.2 Route maps | 07, 09, 10 |
+| 1.3 Loop prevention | 07, 08, 09, 10 |
+| 1.5 Summarization | 05, 09, 10 |
 
 ## Notes
 
 - EIGRP authentication is deferred to the Infrastructure Security chapter (Section 3.x)
 - Classic mode (Lab 01) is taught first so students understand the legacy config before migrating to named mode (Lab 02)
-- Lab 09 is a capstone troubleshooting lab covering all EIGRP blueprint bullets simultaneously
+- Labs 09–10 are capstones: clean-slate initial-configs (IP addressing only), covering all blueprint bullets
+- Capstone I (Lab 09) = configuration challenge; Capstone II (Lab 10) = troubleshooting challenge

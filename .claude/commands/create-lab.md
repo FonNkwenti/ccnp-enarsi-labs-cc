@@ -4,7 +4,8 @@ Create a detailed lab workbook and all supporting artifacts for: $ARGUMENTS
 
 1. Read `memory/progress.md` — confirm which lab is next and that Lab (N-1) is Approved
 2. Read `labs/<chapter>/baseline.yaml` — devices, IPs, console ports, lab objectives
-3. If Lab N > 1: read `labs/<chapter>/lab-(N-1)-*/solutions/` — these become this lab's `initial-configs/`
+3. **Capstone pre-flight:** Check `baseline.yaml labs[N].type`. If `capstone_i` or `capstone_ii`, initial-configs come from `core_topology` IP addressing only (clean slate) — do NOT use previous lab solutions.
+4. If Lab N > 1 AND not a capstone: read `labs/<chapter>/lab-(N-1)-*/solutions/` — these become this lab's `initial-configs/`
 
 ## Workflow
 
@@ -26,6 +27,7 @@ After the workbook is generated, the `fault-injector` skill runs automatically a
 
 - **One lab per session** — stop after this lab and wait for review
 - **Never remove commands between labs** — initial-configs must include everything from the previous lab's solutions
+- **Capstone labs are generated one at a time** — Capstone I must be Approved before Capstone II is generated
 - Solution configs must be wrapped in `<details>` spoiler blocks in the workbook
 - Console ports follow R1=5001, R2=5002, … RN=500N convention
 

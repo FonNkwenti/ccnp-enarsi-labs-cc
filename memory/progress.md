@@ -16,7 +16,7 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Review Needed | Generated 2026-02-23 — 9 labs, R1/R2/R3 core + R4 from lab-06 |
+| — | baseline.yaml | Review Needed | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
 | 01 | Classic Adjacency | Review Needed | Generated 2026-02-23 |
 | 02 | Named Mode & Dual-Stack | Not generated | |
 | 03 | Metrics & K-Values | Not generated | |
@@ -25,7 +25,8 @@
 | 06 | Stub Routing | Not generated | R4 added |
 | 07 | Filtering & Route Maps | Not generated | |
 | 08 | AD & Split Horizon | Not generated | |
-| 09 | Troubleshooting Integration | Not generated | |
+| 09 | Capstone I — Full Protocol Mastery | Not generated | Clean slate; all blueprint bullets |
+| 10 | Capstone II — Comprehensive Troubleshooting | Not generated | Clean slate; 5+ concurrent faults |
 
 ---
 

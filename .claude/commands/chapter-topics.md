@@ -62,6 +62,10 @@ labs:
 - Each lab explicitly declares which devices are active
 - Platforms: c7200 for hub/ABR/crypto roles, c3725 for branch/spoke roles (see `gns3` skill)
 - Interfaces: FastEthernet/GigabitEthernet only — no TenGig or HundredGig
+- **Every chapter always ends with Capstone I + Capstone II** — these are the last 2 labs in every series
+  - Capstone I: full protocol configuration challenge (clean slate, all blueprint bullets)
+  - Capstone II: comprehensive troubleshooting (clean slate, 5+ concurrent faults, all blueprint bullets)
+  - Both have `type: capstone_i|capstone_ii` and `clean_slate: true` in baseline.yaml
 
 ## After generation
 
