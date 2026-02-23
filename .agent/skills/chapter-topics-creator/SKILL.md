@@ -1,31 +1,40 @@
 ---
 name: chapter-topics-creator
-description: Generates a comprehensive set of lab topics/scenarios for a specific CCNP ENCOR technology chapter, ensuring complete blueprint coverage and creating the baseline.yaml.
+description: Generates a chapter blueprint and baseline.yaml from CCNP ENARSI exam objectives, ensuring complete blueprint coverage and progressive lab difficulty. Use when the user asks to "plan a chapter", "create chapter topics", "start a new chapter", "what labs should I build for [technology]", "generate baseline.yaml", or "how should I structure the [technology] labs".
 ---
 
-# Chapter Lab Topics Creator Skill
+# Chapter Topics Creator Skill
 
-## Purpose
-This skill generates a strategic plan for a lab chapter, ensuring all exam objectives are covered through a progressive series of labs. It also creates the **baseline.yaml** file that defines shared topology and enables lab continuity.
+Generates the strategic plan for a lab chapter, ensuring all exam objectives are covered through a progressive series of labs. Also creates the **baseline.yaml** file that defines shared topology and enables lab chaining continuity.
 
-## Usage
-Provide the following inputs to the agent:
-1.  **Technology**: e.g., "OSPF", "BGP"
-2.  **Blueprint Objectives**: List of specific exam topics to cover.
-3.  **Target Count**: Number of labs desired (default: 8-10).
+-# Instructions
 
-## Output Structure
-The agent will generate:
-1. **README.md** - Chapter overview with blueprint coverage matrix
-2. **baseline.yaml** - Shared topology definition (see schema below)
+--# Step 1: Gather Inputs
 
-## baseline.yaml Schema
+Confirm the following before generating:
+1. **Technology** — e.g., EIGRP, OSPF, BGP, Redistribution
+2. **Exam Objectives** — list the ENARSI blueprint bullets to cover (see `specs/[chapter]/chapter-spec.md`)
+3. **Target Lab Count** — default: 8–10 labs
+4. **Progression** — Foundation → Intermediate → Advanced → Integration
+
+--# Step 2: Generate Chapter Blueprint
+
+Design the lab series with:
+- Full coverage of all provided exam objectives (no bullet left uncovered)
+- Progressive difficulty across labs
+- Real-world enterprise scenarios
+- Time estimates: 45–120 minutes per lab
+- Each lab explicitly declares which devices are active
+
+--# Step 3: Write baseline.yaml
+
+Write `labs/[chapter]/baseline.yaml` using this schema:
 
 ```yaml
 chapter: [TECHNOLOGY]
 version: 1.0
 
-# Core devices - present in ALL labs
+# Core devices — present in ALL labs
 core_topology:
   devices:
     - name: R1
@@ -39,7 +48,7 @@ core_topology:
       target: [Device:Interface]
       subnet: [network/mask]
 
-# Optional devices - added for specific labs
+# Optional devices — added for specific labs
 optional_devices:
   - name: R4
     platform: c7200|c3725
@@ -62,48 +71,64 @@ labs:
     title: [Lab Title]
     difficulty: Foundation|Intermediate|Advanced
     time_minutes: [45-120]
-    devices: [R1, R2, R3]  # List active devices
+    devices: [R1, R2, R3]
     objectives:
       - [objective 1]
       - [objective 2]
   - number: 2
     title: [Lab Title]
     devices: [R1, R2, R3]
-    extends: 1  # Builds on previous lab
+    extends: 1
 ```
 
-## Continuity Rules
+--# Step 4: Write Chapter README
+
+Write `labs/[chapter]/README.md` containing:
+- Chapter overview
+- Blueprint coverage matrix (exam bullet → lab number mapping)
+- Topology diagram (placeholder until `generate-topology` skill is run)
+- Lab progression table with difficulty and time estimates
+
+--# Step 5: Validate
+
+Before finishing, confirm:
+- [ ] Every exam objective provided is covered by at least one lab
+- [ ] All console ports follow the convention: RN = 500N
+- [ ] Platform choices respect Apple Silicon constraints — c7200 or c3725 only (see `gns3` skill)
+- [ ] All topology diagrams follow the drawio Visual Style Guide (invoke the `drawio` skill)
+- [ ] IP addresses are pre-reserved for all optional devices even if not active in early labs
+
+-# Continuity Rules
+
 1. **Core devices** maintain consistent IPs across ALL labs
-2. **Optional devices** are pre-reserved with IPs but only activated when needed
-3. **Labs declare which devices are active** - this determines GNS3 project scope
-4. **Each lab extends the previous** - solutions become next lab's initial configs
+2. **Optional devices** are pre-reserved with IPs but only activated when declared in `labs[N].devices`
+3. **Each lab extends the previous** — solutions become the next lab's initial-configs
+4. **Config chaining rule:** only add commands between labs, never remove
 
-## Prompt Template
+-# Common Issues
 
-```text
-You are a CCNP ENCOR curriculum designer. Create a comprehensive lab topics blueprint for [TECHNOLOGY].
+--# Exam objectives list is incomplete
+- **Cause:** User did not provide a full list, or `specs/[chapter]/chapter-spec.md` has unfilled sections.
+- **Solution:** Read `specs/exam-blueprint.md` for the full ENARSI 300-410 blueprint and cross-reference the chapter section. Ask the user to confirm before generating.
 
-**TECHNOLOGY:** [e.g., OSPF, BGP, Network Security]
-**EXAM OBJECTIVES:** [List from blueprint]
-**NUMBER OF LABS:** [8-10]
-**PROGRESSION:** Foundation → Intermediate → Advanced → Integration
+--# baseline.yaml already exists
+- **Cause:** A previous baseline was generated for this chapter.
+- **Solution:** Stop and ask the user whether to overwrite or extend the existing file. Do not silently overwrite.
 
-**REQUIREMENTS:**
-1. Cover ALL exam objectives
-2. Progressive difficulty
-3. Real-world scenarios
-4. Time estimates (45-120 minutes per lab)
-5. Clear skill progression path
-6. Generate baseline.yaml with expandable topology
+--# Too few labs to cover all objectives
+- **Cause:** Target lab count is too low for the number of objectives.
+- **Solution:** Propose increasing the count, or explain which objectives will be combined into a single lab and why.
 
-**TOPOLOGY GUIDELINES:**
-- Core devices (3 minimum) for foundation labs
-- Optional devices (up to 7 total) for advanced scenarios
-- Pre-reserve IP addresses for all potential devices
-- Each lab explicitly declares which devices are active
-- All topology diagrams must follow the drawio Visual Style Guide (`.agent/skills/drawio/SKILL.md` Section 4)
+--# Platform selection unclear
+- **Cause:** Lab requires features only available on c7200 (crypto, more interfaces) but default is c3725.
+- **Solution:** Use c7200 for Hub/Core routers and when IPsec, GRE, or more than 3 FastEthernet interfaces are needed. Use c3725 for Branch/Spoke roles.
 
-**OUTPUT FILES:**
-1. README.md - Chapter overview and blueprint coverage
-2. baseline.yaml - Topology definition following the schema above
-```
+-# Examples
+
+User: "Plan the OSPF chapter for ENARSI. Cover all OSPF blueprint topics."
+
+Actions:
+1. Read `specs/ospf/chapter-spec.md` for the exam bullets.
+2. Design 8–10 labs with Foundation → Advanced progression.
+3. Write `labs/ospf/baseline.yaml` with 3 core routers (R1, R2, R3) + optional R4, R7.
+4. Write `labs/ospf/README.md` with blueprint coverage matrix.

@@ -1,157 +1,134 @@
 ---
 name: lab-workbook-creator
-description: Creates detailed lab workbooks and automation scripts for loading initial configs into GNS3 routers via Netmiko telnet.
+description: Creates a complete CCNP ENARSI lab workbook, initial-configs, solutions, topology diagram, and setup_lab.py automation script for a single lab. Use when the user asks to "create a lab", "generate lab N", "build [technology] lab", "write a workbook", or when chapter-builder invokes it for each lab in a sequence.
 ---
 
 # Lab Workbook Creator Skill
 
-## Purpose
-This skill converts a high-level lab topic into a detailed student workbook and an automated setup script. It enforces a high-quality standard that prioritizes theoretical context, practical copy-pasteable configurations, and automation for environment readiness.
+Converts a lab topic entry from `baseline.yaml` into a full DeepSeek Standard lab package. Prioritises theoretical context, copy-pasteable Cisco IOS configurations, and GNS3 automation scripts.
 
-## Context-Aware Generation
-This skill reads from the chapter's **baseline.yaml** to ensure consistency:
-- Uses the defined topology and IP addressing.
-- Only includes devices listed for this lab number.
-- Previous lab's solutions become this lab's initial-configs.
+-# Instructions
 
-## Output Structure
-The output will be a comprehensive set of files:
-1.  **workbook.md** - Student workbook with concepts, topology, cabling, and verification.
-2.  **initial-configs/** - Starting configs.
-3.  **solutions/** - Complete configs.
-4.  **topology.drawio** - Visual diagram. **Must follow the drawio style guide** (see `.agent/skills/drawio/SKILL.md` Section 4).
-5.  **setup_lab.py** - (NEW) Python automation script to load initial-configs via Netmiko.
+--# Step 1: Read Inputs
 
-## Topology Diagram Requirements
-When generating `topology.drawio`, strictly follow the **Visual Style Guide** in `.agent/skills/drawio/SKILL.md`:
-- **White connection lines** (`strokeColor=#FFFFFF`), never black.
-- **Device labels** positioned to the **left** of router icons.
-- **IP last octet labels** (`.1`, `.2`) placed near each router's interface endpoint.
-- **Title** at the top center of the canvas.
-- **Legend box** (black fill `#000000`, white text `#FFFFFF`) at the bottom-right.
-- Use `generate_topo.py` when possible, or hand-craft XML following the reference snippets in the style guide.
+Before generating anything, read:
+1. `labs/[chapter]/baseline.yaml` — active devices, IPs, console ports, lab objectives
+2. Previous lab's `solutions/` (if this is not Lab 01) — becomes this lab's `initial-configs/`
+3. `specs/[chapter]/chapter-spec.md` — exam bullet context for the lab's objectives
 
-## Automation Script Requirements (setup_lab.py)
-The script must:
-1.  Use `netmiko` with `device_type='cisco_ios_telnet'` to connect to the console ports defined in `baseline.yaml` or the workbook's Console Access Table.
-2.  Loop through each active router in the lab.
-3.  Load the corresponding `.cfg` file from `initial-configs/`.
-4.  Provide a progress bar or clear logging for each device.
-5.  Let Netmiko handle IOS CLI mode transitions automatically.
+Identify which devices are active for this lab number from `baseline.yaml labs[N].devices`.
 
-## Prompt Template
+--# Step 2: Generate workbook.md
 
-```text
-You are a CCNP ENCOR lab developer. Create a detailed lab workbook and setup script for:
+Write a complete workbook with all required sections:
 
-**LAB NUMBER:** [N]
-**CHAPTER:** [Technology]
-**BASELINE FILE:** [Path to baseline.yaml]
-**PREVIOUS LAB:** [Path to solutions/ or "none"]
+1. **Concepts & Skills Covered** — exam blueprint bullets this lab addresses
+2. **Topology & Scenario** — enterprise narrative framing the lab challenge
+3. **Hardware & Environment Specifications** — cabling table, Console Access Table
+4. **Base Configuration** — what is pre-configured in `initial-configs/`
+5. **Lab Challenge: Core Implementation** — step-by-step objectives for the student
+6. **Verification & Analysis** — expected `show` command outputs per objective
+7. **Verification Cheatsheet** — quick-reference commands for the entire lab
+8. **Solutions (Spoiler Alert!)** — complete solutions wrapped in `<details>` blocks (see format below)
+9. **Lab Completion Checklist** — student self-assessment checkboxes
+10. **Automated Fault Injection (Optional)** — instructions for fault-injection scripts
 
-**CONTEXT REQUIREMENTS:**
-1. Read baseline.yaml for:
-   - Active devices, IPs, and Console Ports (e.g., 5001, 5002).
-   - Lab objectives and links.
-2. Generate all standard workbook sections.
-3. **NEW: Generate setup_lab.py**
-   - Implement a clean Python script using Netmiko (`device_type='cisco_ios_telnet'`) to push initial-configs.
-   - Script should target localhost:[console_port].
-   - Include a 'reset' logic: send 'erase startup-config', 'reload', or simply overwrite running-config.
-
-**REQUIRED SECTIONS in workbook.md:**
-1. Concepts & Skills Covered
-2. Topology & Scenario
-3. Hardware & Environment Specifications
-4. Base Configuration
-5. Lab Challenge: Core Implementation
-6. Verification & Analysis
-7. Verification Cheatsheet
-8. **Solutions (Spoiler Alert!)** (REQUIRED - must cover ALL objectives)
-
-### Solutions Section Requirements:
-
-1. **Complete Coverage**: You MUST provide a step-by-step configuration solution for EVERY objective listed in the "Lab Challenge" section.
-2. **Collapsible Formatting**: Every solution (both configurations and verification commands) MUST be wrapped in a collapsible `<details>` block to prevent students from seeing the answer prematurely.
-3. **Cisco CLI Blocks**: All configurations and command outputs must be inside standard Markdown code blocks (` ```bash `).
-
-### Example Format:
-
+**Solutions section format (required):**
 ```markdown
 ## 8. Solutions (Spoiler Alert!)
 
 > Try to complete the lab challenge without looking at these steps first!
 
-### Objective 1: [Objective Title]
+### Objective 1: [Title]
 
 <details>
 <summary>Click to view [Device] Configuration</summary>
 
 ```bash
-! [Device]
-router ospf 1
- ...
+! R1
+router eigrp ENARSI
+ address-family ipv4 unicast autonomous-system 100
+  ...
 ```
 </details>
-
-### Objective 2: [Objective Title]
 
 <details>
 <summary>Click to view Verification Commands</summary>
 
 ```bash
-! On [Device]
-show ip route ospf
+show ip eigrp neighbors
+show ip route eigrp
 ```
 </details>
 ```
 
-9. Lab Completion Checklist
-```
+**Console Access Table format (required in Section 3):**
 
-**Console Access Table** must include: | Device | Port | Connection Command |
+| Device | Port | Connection Command |
+|--------|------|--------------------|
+| R1 | 5001 | `telnet 127.0.0.1 5001` |
+| R2 | 5002 | `telnet 127.0.0.1 5002` |
 
----
+--# Step 3: Generate initial-configs/
 
-## Fault Injection Integration
+- **Lab 01:** Generate base IP addressing from `baseline.yaml core_topology` (IP config only — no routing protocol config).
+- **Lab N (N > 1):** Copy exactly from Lab (N-1) `solutions/`. Do not modify.
+- One `.cfg` file per active device, named `[Device].cfg`.
 
-After generating the workbook, the **fault-injector** skill should be invoked to create automated fault injection scripts based on `challenges.md`.
+--# Step 4: Generate solutions/
 
-### Automatic Integration
-When generating a complete lab, the workflow should be:
-1. Generate workbook.md
-2. Invoke the `fault-injector` skill
-3. Fault-injector reads `challenges.md` and the console access table
-4. Generates Python scripts in `scripts/fault-injection/` directory
-5. Updates workbook with instructions for running the scripts
+Complete IOS configurations for every active device, implementing all lab objectives. One `.cfg` file per device.
 
-### Fault-Injector Outputs
-The fault-injector skill creates:
-- `scripts/fault-injection/inject_scenario_01.py` - First fault
-- `scripts/fault-injection/inject_scenario_02.py` - Second fault
-- `scripts/fault-injection/inject_scenario_03.py` - Third fault
-- `scripts/fault-injection/apply_solution.py` - Restore all devices
-- `scripts/fault-injection/README.md` - Usage instructions
+--# Step 5: Generate topology.drawio
 
-### Additional Workbook Section
-Add a new section before "Lab Completion Checklist":
+Create the topology diagram following the drawio Visual Style Guide. Invoke the `drawio` skill to ensure compliance:
+- White connection lines (`strokeColor=#FFFFFF`)
+- Device labels on the empty side of the icon
+- IP last octet labels near each interface
+- Title at top center, legend box at bottom-right
 
-```markdown
-## 10. Automated Fault Injection (Optional)
+--# Step 6: Generate setup_lab.py
 
-This lab includes automated scripts to inject troubleshooting scenarios into your running GNS3 environment.
+Use `assets/setup_lab_template.py` as the base template. Customise it for this lab's active devices and console ports from `baseline.yaml`.
 
-**Prerequisites**:
-- GNS3 project must be running
-- All devices accessible via console ports
-- Python 3.x installed
+The script must:
+1. Use `device_type='cisco_ios_telnet'` to connect via console ports
+2. Loop through each active device
+3. Load the corresponding `initial-configs/[Device].cfg`
+4. Log progress clearly per device
 
-**Quick Start**:
-\`\`\`bash
-cd scripts/fault-injection
-python3 inject_scenario_01.py  # Inject first fault
-python3 apply_solution.py      # Restore configuration
-\`\`\`
+--# Step 7: Invoke fault-injector skill
 
-See `scripts/fault-injection/README.md` for detailed usage instructions.
-```
+After generating the workbook, invoke the `fault-injector` skill to create `scripts/fault-injection/` scripts based on the troubleshooting scenarios in the workbook.
+
+Use `assets/troubleshooting_scenarios_template.md` as the template for Section 8 troubleshooting content.
+
+-# Common Issues
+
+--# baseline.yaml not found
+- **Cause:** Chapter has not been planned yet.
+- **Solution:** Stop. Ask the user to run the `chapter-topics` skill first to generate `labs/[chapter]/baseline.yaml`.
+
+--# No previous lab solutions to chain from (Lab N > 1)
+- **Cause:** Lab (N-1) has not been generated yet.
+- **Solution:** Stop. Labs must be generated in sequence. Generate Lab (N-1) first, or ask the user whether to generate from the baseline instead (treating it as Lab 01 style).
+
+--# Device in baseline.yaml has no console port defined
+- **Cause:** Incomplete baseline.yaml.
+- **Solution:** Fall back to default convention (R1=5001, RN=500N). Flag the gap to the user.
+
+--# Solutions section incomplete
+- **Cause:** Not all lab objectives have a corresponding solution block.
+- **Solution:** Every objective listed in Section 5 (Lab Challenge) must have a `<details>` solution block in Section 8. Go back and complete before finishing.
+
+-# Examples
+
+User: "Generate EIGRP Lab 03 for the ENARSI series."
+
+Actions:
+1. Read `labs/eigrp/baseline.yaml` — identify Lab 03 devices, objectives, console ports.
+2. Copy `labs/eigrp/lab-02-[name]/solutions/` as `initial-configs/` for Lab 03.
+3. Write `workbook.md` with all 10 required sections.
+4. Generate `initial-configs/`, `solutions/`, `topology.drawio`, `setup_lab.py`.
+5. Invoke `drawio` skill to validate topology diagram style.
+6. Invoke `fault-injector` skill to generate `scripts/fault-injection/`.

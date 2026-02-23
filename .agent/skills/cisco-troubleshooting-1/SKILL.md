@@ -1,823 +1,139 @@
 ---
-name: cisco-troubleshooting
-description: Systematically diagnose and resolve Cisco network faults using structured troubleshooting methodologies (Top-Down, Bottom-Up, Divide & Conquer, Follow Traffic Path, Compare Configurations). Connects to live GNS3 routers via Netmiko utilities and uses lab workbook/challenge context for informed diagnosis.
+name: cisco-troubleshooting-1
+description: Systematically diagnoses and resolves Cisco IOS network faults using structured methodologies. Use when a user reports a network fault, says a lab "isn't working", asks to "troubleshoot" a problem, or describes EIGRP/OSPF/BGP adjacency failures, missing routes, connectivity problems, or configuration errors in a GNS3 lab. Do NOT use for initial network design, security hardening, capacity planning, or routine monitoring.
 ---
 
 # Cisco Network Troubleshooting Skill
 
-This skill implements the **Structured Troubleshooting Process** from Cisco curriculum, avoiding haphazard "shoot from the hip" attempts. Every fault follows a rigorous four-phase lifecycle that ensures systematic problem resolution and comprehensive documentation.
+Implements the **Structured Troubleshooting Process** from Cisco curriculum. Every fault follows a four-phase lifecycle: Problem Definition → Methodology Selection → Diagnostic Execution → Resolution & Reporting.
 
-It integrates with the project's **GNS3 lab environment** by:
-- Reading `workbook.md` and `challenges.md` for lab context, objectives, and expected behavior
-- Connecting to live routers via the Netmiko-based utilities in `labs/common/tools/`
-- Using `initial-configs/` and `solutions/` as reference baselines
+Integrates with GNS3 labs by reading `workbook.md` and `challenges.md` for context, connecting to live routers via Netmiko telnet, and comparing against `initial-configs/` and `solutions/`.
 
-## Core Principles
+-# Instructions
 
-- **Systematic approach**: Never guess or randomly try commands
-- **Evidence-based**: Every hypothesis must be tested and validated
-- **Documented process**: Maintain a clear audit trail of all actions
-- **Methodology-driven**: Select the right approach for each problem type
-- **Verification-focused**: Confirm resolution before closing the incident
-- **Context-aware**: Always read the lab's workbook/challenges before diagnosing
+--# Phase 0: Lab Context Gathering (Mandatory)
 
----
+Before diagnosing, read the lab files at `labs/[chapter]/[lab-NN-slug]/`:
 
-## Phase 0: Lab Context Gathering
+1. **`workbook.md`** — topology, objectives, Console Access Table, expected verification outputs, solutions (private reference — do NOT reveal unless asked)
+2. **`challenges.md`** — standalone challenge exercises and fault tickets
+3. **`initial-configs/`** — pre-configured baseline state for each router
+4. **`solutions/`** — expected end-state (private reference only)
 
-**Objective**: Understand the lab environment, topology, and objectives before diagnosing.
-
-**This phase is MANDATORY before proceeding to Phase I.**
-
-### Step 1: Identify the Lab Path
-
-Determine the lab directory from the user's description. Format: `labs/<chapter>/lab-NN-<slug>/`
-
-### Step 2: Read Lab Context Files
-
-Read the following files to understand what the lab is about, what the expected working state looks like, and what the student is trying to achieve:
-
-1. **`workbook.md`** — Read for:
-   - Topology and scenario description
-   - Lab objectives and challenge tasks
-   - Hardware & Environment Specifications (Cabling & Connectivity Table, Console Access Table)
-   - Verification commands and expected outputs
-   - Troubleshooting scenarios (if the fault was injected via a scenario script)
-   - Solutions section (use ONLY as a reference for expected state — do NOT reveal to the user unless asked)
-
-2. **`challenges.md`** — Read for:
-   - Standalone challenge exercises and acceptance criteria
-   - Specific symptoms described in troubleshooting tickets
-
-3. **`initial-configs/`** — The baseline starting state for each router. Useful for understanding what was pre-configured vs. what the student should have added.
-
-4. **`solutions/`** — The expected end-state configurations. Use as a private reference to understand what "correct" looks like. **Do NOT show solution configs to the user unless explicitly asked.**
-
-### Step 3: Build Device Console Map
-
-Parse the Console Access Table from `workbook.md` to build the device-to-port mapping:
-
+Parse the Console Access Table to build the device-to-port map:
 ```
-Device → Console Port
-R1     → 5001
-R2     → 5002
-R3     → 5003
-R7     → 5007
-...
+R1 → 5001 | R2 → 5002 | R3 → 5003 | R7 → 5007  (default pattern: RN → 500N)
 ```
 
-This map is used by the Netmiko utilities to connect to routers in Phase III.
+--# Phase I: Problem Definition
 
----
+Transform vague symptoms into a precise problem statement.
 
-## Phase I: Problem Definition & Assessment
+1. Gather: exact symptoms, affected devices/interfaces, when it started, what config changed
+2. Clarify using lab context — ask targeted questions: "Are you on Objective 2?", "Which router did you configure last?"
+3. Document a crisp statement: **Symptoms** + **Scope** + **Lab Objective** + **Expected baseline**
 
-**Objective**: Transform vague symptoms into a precise technical problem statement, informed by the lab context gathered in Phase 0.
+See `references/methodologies.md` for examples of problem statement transformations.
 
-### Process
+--# Phase II: Methodology Selection
 
-1. **Gather Initial Report**
-   - What are the exact symptoms? (e.g., "cannot access web server" not "network is broken")
-   - Who is affected? (specific devices, interfaces, subnets)
-   - When did it start? (after which configuration step)
-   - What changed recently? (what config did the student apply)
-   - Cross-reference the user's description against `workbook.md` objectives — which objective is failing?
-
-2. **Clarify Ambiguities**
-   - Ask specific questions to eliminate vague descriptions
-   - Use lab context to ask targeted questions:
-     - "Are you working on Objective 2 (OSPF area configuration)?"
-     - "Which router are you configuring — R2 or R3?"
-     - "Did you complete the previous objective before starting this one?"
-   - Example transformations:
-     - "It's not working" → "R3 is not forming an OSPF adjacency with R1 on Fa0/0"
-     - "Routes are missing" → "R2's routing table shows no EIGRP routes from R5"
-
-3. **Document Problem Statement**
-   Create a clear, technical problem statement including:
-   - **Symptoms**: Specific observable failures
-   - **Scope**: Affected devices and interfaces (from topology)
-   - **Lab Objective**: Which workbook objective this relates to
-   - **Baseline**: What the expected working state looks like (from solutions/ or workbook verification section)
-
-**Output**: A crisp problem statement ready for methodological analysis, grounded in lab context.
-
----
-
-## Phase II: Methodology Selection
-
-**Objective**: Choose the optimal troubleshooting approach based on problem characteristics.
-
-### Decision Framework
-
-Analyze the problem statement and select from these five methodologies:
-
-#### 1. **Top-Down Approach**
-**When to use**:
-- Problem appears to be at the application layer (Layer 7)
-- Application-specific symptoms (DNS failures, web server errors, email issues)
-- Lower layers are confirmed working
-
-**Process**:
-- Start at OSI Layer 7 (Application)
-- Work down through the stack: Application → Presentation → Session → Transport → Network → Data Link → Physical
-- Example sequence: Check web server logs → Verify HTTP service → Check TCP ports → Verify IP connectivity → Check switching → Verify cables
-
-**Best for**: "Users can ping the server but can't access the website"
-
----
-
-#### 2. **Bottom-Up Approach**
-**When to use**:
-- Suspected physical layer failure
-- "Cable unplugged" scenarios
-- New hardware installation issues
-- Total connectivity loss
-
-**Process**:
-- Start at OSI Layer 1 (Physical)
-- Work up through the stack: Physical → Data Link → Network → Transport → Session → Presentation → Application
-- Example sequence: Check cable connection → Verify interface status → Check switch port → Verify VLAN → Test IP connectivity → Verify routing
-
-**Best for**: "The new switch installation isn't working" or "Link light is off"
-
----
-
-#### 3. **Divide and Conquer** (Most Versatile)
-**When to use**:
-- Unknown problem location
-- Complex multi-layer issues
-- Default choice when other methods aren't clearly indicated
-
-**Process**:
-- Start at OSI Layer 3 (Network layer)
-- Test with `ping` or similar network-layer tool
-- **If ping succeeds**: Problem is in upper layers (Transport/Session/Presentation/Application)
-- **If ping fails**: Problem is in lower layers (Physical/Data Link/Network)
-- Continue dividing the remaining layers until root cause is found
-
-**Example diagnostic tree**:
-```
-ping target
-├─ SUCCESS → Check upper layers
-│  ├─ Telnet/SSH port test
-│  ├─ Application logs
-│  └─ Service status
-└─ FAIL → Check lower layers
-   ├─ Check routing table
-   ├─ Check ARP cache
-   ├─ Check interface status
-   └─ Check physical connectivity
-```
-
-**Best for**: "User can't reach the file server" (unclear which layer is failing)
-
----
-
-#### 4. **Follow the Traffic Path**
-**When to use**:
-- Multi-hop routing issues
-- WAN connectivity problems
-- Need to find exact failure point in packet path
-- ACL or firewall blocking suspected
-
-**Process**:
-- Trace the packet path hop-by-hop from source to destination
-- Use `traceroute` or `tracert` to identify where packets stop
-- Examine each device in the path for:
-  - Routing table entries
-  - Interface status
-  - ACLs blocking traffic
-  - NAT translations
-  - QoS policies
-
-**Example**:
-```
-User PC → Switch A → Router A → WAN Link → Router B → Switch B → Server
-
-1. Verify User PC can reach Switch A (default gateway)
-2. Verify Router A has route to destination
-3. Check WAN link status
-4. Verify Router B receives packets
-5. Check ACLs on Router B
-6. Verify Server is reachable from Switch B
-```
-
-**Best for**: "Remote office can't access headquarters resources"
-
----
-
-#### 5. **Compare Configurations**
-**When to use**:
-- One device works, another doesn't (similar setup)
-- Suspected misconfiguration
-- After configuration changes
-- Standardization/compliance checking
-
-**Process**:
-- Identify a working reference device (baseline)
-- Compare configurations section by section:
-  - Interface configurations
-  - Routing protocol settings
-  - ACLs and security policies
-  - VLANs and trunking
-  - QoS and service policies
-- Flag discrepancies for investigation
-- Use tools: `show running-config`, `show startup-config`, config diff utilities
-
-**Best for**: "Router A works fine, but Router B with identical setup doesn't work"
-
----
-
-### Selection Logic
-
-Use this decision tree to select methodology:
+Use this decision tree to select the approach, then state the selection and rationale.
 
 ```
-Is this a physical problem (cable, power, hardware)?
+Physical problem (cable / power / hardware)?
 ├─ YES → Bottom-Up
 └─ NO → Continue
 
-Is there a working device to compare?
+Working reference device to compare against?
 ├─ YES → Compare Configurations
 └─ NO → Continue
 
-Is this clearly an application problem (DNS, HTTP, etc.)?
+Clearly application layer (DNS / HTTP / email, ping works)?
 ├─ YES → Top-Down
 └─ NO → Continue
 
-Is this a multi-hop routing/path issue?
+Multi-hop routing / WAN / ACL blocking suspected?
 ├─ YES → Follow the Traffic Path
-└─ NO → Divide and Conquer (default)
+└─ NO → Divide and Conquer (default — start at Layer 3 with ping)
 ```
 
-**Document your choice**: Always state which methodology was selected and why.
+See `references/methodologies.md` for full descriptions of each methodology.
 
----
+--# Phase III: Diagnostic Execution
 
-## Phase III: Diagnostic Execution
-
-**Objective**: Systematically gather evidence, test hypotheses, and isolate the root cause using live router connections.
-
-### Connecting to GNS3 Routers
-
-Use the project's Netmiko utilities in `labs/common/tools/` to connect to live routers and run diagnostic commands.
-
-#### Option A: Direct Netmiko Connection (for running show commands)
-
-Use `telnet localhost <port>` via the shell to connect to a router's console and run commands interactively:
-
-```bash
-# Connect to R1's console (port from Console Access Table)
-telnet localhost 5001
-```
-
-Or use the `labs/common/tools/lab_utils.py` `LabSetup._connect()` pattern programmatically:
-
+Connect to routers via Netmiko:
 ```python
 from netmiko import ConnectHandler
-
 conn = ConnectHandler(
     device_type="cisco_ios_telnet",
     host="127.0.0.1",
-    port=5001,  # Console port from workbook
-    username="",
-    password="",
-    secret="",
+    port=5001,   # from Console Access Table
+    username="", password="", secret="",
     timeout=10,
 )
-output = conn.send_command("show ip route")
-print(output)
+output = conn.send_command("show ip eigrp neighbors")
 conn.disconnect()
 ```
 
-#### Option B: FaultInjector Utility (for applying config changes)
+Execute the diagnostic loop:
+1. Gather information — run `show` commands on **both sides** of each relevant link
+2. Establish baseline — compare live state against `initial-configs/` and `solutions/`
+3. Eliminate valid causes — systematically rule out functioning components
+4. Hypothesize → Test → Conclude → Iterate
+5. Verify resolution — confirm all original symptoms are gone
 
-Use `labs/common/tools/fault_utils.py` `FaultInjector` class to push configuration commands:
+See `references/diagnostic-commands.md` for the full CLI command library and evidence table template.
 
-```python
-import sys
-sys.path.insert(0, "labs/common/tools")
-from fault_utils import FaultInjector
+--# Phase IV: Resolution & Reporting
 
-injector = FaultInjector()
-# Execute show commands or config changes on a device
-injector.execute_commands(5001, ["show ip ospf neighbor"], "Diagnostic check on R1")
-```
+Generate a resolution report covering:
+1. Incident Summary (problem statement, lab, severity)
+2. Methodology Applied (selected approach + rationale)
+3. Diagnostic Log (chronological, timestamped)
+4. Root Cause Analysis (technical explanation + exam relevance)
+5. Resolution Actions (exact IOS commands used + verification)
+6. Testing & Verification (all symptoms confirmed resolved)
+7. Lessons Learned (exam trap, preventive notes)
 
-#### Option C: LabRefresher Utility (for resetting to baseline)
+See `references/resolution-report-template.md` for the full template.
 
-Use `labs/common/tools/lab_utils.py` `LabRefresher` class to reset a device back to its initial-config state:
+-# Common Issues
 
-```python
-import sys
-sys.path.insert(0, "labs/common/tools")
-from lab_utils import LabRefresher
+--# Lab context files not found
+- **Cause:** Lab path is wrong or workbook.md has not been generated yet.
+- **Solution:** Confirm the path format `labs/[chapter]/lab-NN-[slug]/`. If workbook.md is missing, run the `create-lab` skill first.
 
-devices = [("R1", 5001, "labs/ospf/lab-05-special-areas/initial-configs/R1.cfg")]
-refresher = LabRefresher(devices)
-refresher.run()
-```
+--# Console Access Table missing or unparseable
+- **Cause:** workbook.md was generated with a non-standard format.
+- **Solution:** Fall back to default port convention (R1=5001, R2=5002, RN=500N), or check `labs/[chapter]/baseline.yaml` for declared console ports.
 
-### Step 1: Gather Information
+--# Netmiko connection refused
+- **Cause:** GNS3 project is not running or device has not finished booting.
+- **Solution:** Open GNS3 and confirm all devices show "Running". IOS boot typically takes 30–60 seconds. Retry after boot completes.
 
-Connect to the relevant routers (identified in Phase 0) and collect data using appropriate commands:
+--# User asks for the solution directly
+- **Cause:** User is stuck or frustrated.
+- **Solution:** Guide toward discovery first ("What does `show ip ospf neighbor` show on R2?"). Only reveal `solutions/` content if the user explicitly asks for it.
 
-#### CLI Commands (Cisco IOS)
-```
-# Interface status and statistics
-show interfaces [interface-id]
-show ip interface brief
-show interfaces status
-show interfaces trunk
+-# Quick Reference
 
-# Routing and Layer 3
-show ip route
-show ip protocols
-show ip ospf neighbor
-show ip eigrp neighbors
-show ip bgp summary
-
-# Layer 2 switching
-show mac address-table
-show vlan brief
-show spanning-tree
-show cdp neighbors detail
-
-# Access Control and Security
-show ip access-lists
-show access-lists
-show ip nat translations
-
-# Hardware and system
-show version
-show inventory
-show environment
-show logging
-
-# Debugging (use with caution)
-debug ip routing
-debug ip packet
-debug eigrp packets
-```
-
-#### Gathering Evidence from Multiple Routers
-
-When diagnosing adjacency or reachability issues, connect to **both sides** of the link. Use the Console Access Table from Phase 0 to connect to each device:
-
-```bash
-# Check OSPF neighbor state on both sides
-telnet localhost 5001   # R1 — run: show ip ospf neighbor
-telnet localhost 5002   # R2 — run: show ip ospf neighbor
-```
-
-Compare the output from both sides to identify mismatches (timers, authentication, area IDs, network statements, etc.).
-
-#### Comparing Against Expected State
-
-Cross-reference live router output against:
-- **`initial-configs/`** — what was pre-configured (baseline)
-- **`solutions/`** — what the correct end-state should look like (private reference)
-- **`workbook.md` Verification section** — expected command outputs
-
-### Step 2: Establish Baseline Behavior
-
-Compare current state against normal operation:
-
-| Component | Normal Behavior | Current Observation | Status |
-|-----------|----------------|---------------------|--------|
-| Interface Gi0/1 | Up/Up | Up/Up | ✓ OK |
-| OSPF neighbor | Full state | Down | ✗ FAULT |
-| Routing table | 15 routes | 15 routes | ✓ OK |
-| ACL hits | ~1000/min | 0/min | ✗ SUSPICIOUS |
-
-### Step 3: Eliminate Valid Causes
-
-Systematically rule out functioning components:
-
-**Example process**:
-1. ✓ Physical layer: Interface shows "up/up", cable test passed
-2. ✓ Data Link layer: CDP neighbors visible, MAC address learned
-3. ✗ Network layer: No route to destination subnet
-4. Investigation needed: Why is route missing?
-
-### Step 4: Hypothesize and Test
-
-Develop testable hypotheses and verify each:
-
-**Hypothesis template**:
-- **Hypothesis**: "Route is missing because OSPF neighbor relationship failed"
-- **Test**: Check `show ip ospf neighbor` for neighbor state
-- **Expected result**: Neighbor should be in FULL state
-- **Actual result**: Neighbor shows INIT state (stuck)
-- **Conclusion**: OSPF Hello mismatch or authentication failure
-
-**Iterate through hypotheses**:
-1. First hypothesis → Test → Result
-2. If false, develop next hypothesis
-3. If true, verify by fixing and retesting
-4. Continue until root cause is confirmed
-
-### Step 5: Implement Workaround (if needed)
-
-If immediate fix isn't possible:
-- Document temporary workaround
-- Note limitations and risks
-- Schedule permanent resolution
-- Communicate to stakeholders
-
-Example: "Static route added temporarily while investigating OSPF issue"
-
-### Step 6: Verify Resolution
-
-Test the specific symptoms from Phase I:
-- Can user now access the server?
-- Does ping succeed?
-- Are error messages gone?
-- Is performance back to baseline?
-
-**Don't assume**: Test everything explicitly.
-
----
-
-## Phase IV: Resolution & Reporting
-
-**Objective**: Document the complete troubleshooting process for knowledge management and future reference.
-
-### Resolution Report Structure
-
-Generate a comprehensive report containing:
-
-#### 1. **Incident Summary**
-```
-Incident ID: [INC-2024-0123]
-Reported: [2024-02-08 09:15 PST]
-Reported by: [User: john.doe@company.com]
-Severity: [High - Production Impact]
-
-Problem Statement:
-Users in Building A (subnet 10.20.30.0/24) cannot access the file server 
-at 10.10.10.5. Ping to server times out. Started after maintenance window 
-on 2024-02-08 at 07:00 PST.
-```
-
-#### 2. **Methodology Applied**
-```
-Selected Approach: Divide and Conquer
-
-Rationale:
-- Unknown whether issue is upper or lower layer
-- Started with Layer 3 ping test to determine direction
-- Ping failed, indicating lower layer issue
-- Proceeded to check routing and Layer 2
-```
-
-#### 3. **Diagnostic Log**
-
-Chronological record of all investigations:
-
-```
-[09:20] Initial ping test from 10.20.30.10 to 10.10.10.5 - FAILED
-        
-[09:22] Checked user workstation default gateway
-        Command: ipconfig /all
-        Result: Gateway 10.20.30.1 configured, reachable
-        
-[09:25] Tested ping from Router A (10.20.30.1) to 10.10.10.5 - FAILED
-        This confirms issue is beyond the local subnet
-        
-[09:27] Checked routing table on Router A
-        Command: show ip route | include 10.10.10.0
-        Result: No route to 10.10.10.0/24 found
-        Hypothesis: Missing route or routing protocol failure
-        
-[09:30] Checked OSPF neighbor status
-        Command: show ip ospf neighbor
-        Result: Neighbor 10.1.1.2 in INIT state (should be FULL)
-        Hypothesis: OSPF Hello parameter mismatch
-        
-[09:33] Verified OSPF configuration
-        Command: show ip ospf interface GigabitEthernet0/1
-        Result: Hello interval = 10 seconds (standard)
-               Dead interval = 40 seconds (standard)
-        
-[09:35] Checked neighbor router configuration (via console)
-        Command: show ip ospf interface GigabitEthernet0/0
-        Result: Hello interval = 20 seconds (NON-STANDARD)
-               Dead interval = 80 seconds (NON-STANDARD)
-        ROOT CAUSE IDENTIFIED: Hello/Dead timer mismatch
-        
-[09:40] Verified no OSPF authentication mismatch
-        Command: show ip ospf interface | include auth
-        Result: No authentication configured on either end - OK
-```
-
-#### 4. **Root Cause Analysis**
-
-```
-Root Cause:
-OSPF neighbor relationship between Router A (10.20.30.1) and Router B 
-(10.1.1.2) failed to establish due to Hello/Dead timer mismatch.
-
-Technical Details:
-- Router A: Hello=10s, Dead=40s (default)
-- Router B: Hello=20s, Dead=80s (non-standard)
-- OSPF requires matching timers for adjacency formation
-- Timers were changed during last night's maintenance but not 
-  synchronized between both routers
-
-Impact:
-- Route to 10.10.10.0/24 not learned via OSPF
-- No alternative path available
-- All traffic from Building A to file server failed
-```
-
-#### 5. **Resolution Action**
-
-```
-Configuration Change Implemented:
-
-Router B Configuration:
------------------------
-Router-B# configure terminal
-Router-B(config)# interface GigabitEthernet0/0
-Router-B(config-if)# ip ospf hello-interval 10
-Router-B(config-if)# ip ospf dead-interval 40
-Router-B(config-if)# end
-Router-B# write memory
-
-Verification:
-------------
-Router-B# show ip ospf neighbor
-Neighbor ID     Pri   State        Dead Time   Address
-10.20.30.1      1     FULL/DR      00:00:35    10.1.1.1
-
-Router-A# show ip route 10.10.10.0
-Routing entry for 10.10.10.0/24
-  Known via "ospf 1", distance 110, metric 20
-  Last update from 10.1.1.2, 00:02:15 ago
-  Routing Descriptor Blocks:
-  * 10.1.1.2, from 10.10.10.5, 00:02:15 ago, via GigabitEthernet0/1
-```
-
-#### 6. **Testing and Verification**
-
-```
-Post-Resolution Testing:
-
-Test 1: Ping from user workstation
--------
-C:\> ping 10.10.10.5
-Reply from 10.10.10.5: bytes=32 time=2ms TTL=62
-Reply from 10.10.10.5: bytes=32 time=1ms TTL=62
-Status: SUCCESS ✓
-
-Test 2: File server access test
--------
-User: john.doe successfully accessed \\fileserver\shared
-Status: SUCCESS ✓
-
-Test 3: OSPF neighbor stability
--------
-Monitored for 10 minutes - neighbor remains in FULL state
-Status: STABLE ✓
-
-Test 4: Route presence verification
--------
-Router-A# show ip route 10.10.10.0/24
-Route present via OSPF with metric 20
-Status: SUCCESS ✓
-
-All symptoms from initial problem report resolved.
-```
-
-#### 7. **Lessons Learned and Recommendations**
-
-```
-Immediate Actions Taken:
-1. ✓ OSPF timers synchronized across all routers in datacenter
-2. ✓ Configuration backed up to TFTP server
-3. ✓ Change management ticket updated with root cause
-
-Preventive Measures Recommended:
-1. Implement configuration management tool to detect timer mismatches
-2. Add OSPF neighbor monitoring to network monitoring system
-3. Update change management process to require timer verification
-4. Schedule peer review of all maintenance window changes
-
-Documentation Updated:
-- Network diagram with OSPF areas
-- Standard configuration template for datacenter routers
-- Troubleshooting runbook for routing issues
-```
-
-#### 8. **Incident Metrics**
-
-```
-Resolution Timeline:
-- Reported: 09:15 PST
-- Acknowledged: 09:18 PST
-- Investigation started: 09:20 PST
-- Root cause identified: 09:35 PST
-- Resolution implemented: 09:42 PST
-- Verified and closed: 09:50 PST
-
-Total Duration: 35 minutes
-MTTR (Mean Time To Repair): 35 minutes
-Users Affected: ~50 users in Building A
-Business Impact: Medium (non-critical file access delayed)
-```
-
----
-
-## Critical Success Factors
-
-### 1. **Stay Methodical**
-- Never skip steps even if you "think" you know the answer
-- Document everything as you go
-- Don't let urgency force you into guessing
-
-### 2. **Use the Right Tools**
-- `show` commands are non-invasive - use liberally
-- `debug` commands can impact performance - use cautiously
-- Packet captures provide definitive evidence
-
-### 3. **Think Like a Packet**
-- Follow the packet's journey through the network
-- Consider each device's perspective
-- What does the packet look like at each hop?
-
-### 4. **Verify, Don't Assume**
-- "The cable is fine" → Test it anyway
-- "Configuration hasn't changed" → Check running vs startup config
-- "This worked yesterday" → Verify current state
-
-### 5. **Document as You Go**
-- Don't rely on memory
-- Include timestamps
-- Note dead ends and eliminated causes
-- Future you (or colleagues) will thank you
-
-### 6. **Know When to Escalate**
-- Hardware failure beyond your scope
-- Security incident requiring specialized response
-- Vendor support needed for proprietary features
-- Change requires higher authorization
-
----
-
-## Common Pitfalls to Avoid
-
-❌ **Random Configuration Changes**: "Let me just try changing this..."
-✓ **Hypothesis-Driven Changes**: "Based on evidence X, I expect Y will fix it"
-
-❌ **Ignoring Baselines**: "I don't know what it looked like before"
-✓ **Compare to Known Good**: "This differs from our standard configuration"
-
-❌ **Incomplete Testing**: "It works now, done!"
-✓ **Comprehensive Verification**: "All original symptoms are resolved and stable"
-
-❌ **No Documentation**: "I fixed it but don't remember how"
-✓ **Complete Audit Trail**: "Here's exactly what was wrong and how I fixed it"
-
----
-
-## Example Scenarios and Methodology Selection
-
-| Scenario | Selected Methodology | Rationale |
-|----------|---------------------|-----------|
-| Users can't browse internet but can ping 8.8.8.8 | Top-Down | Network layer works, issue is DNS/HTTP |
-| New router install has no connectivity | Bottom-Up | Likely physical/basic config issue |
-| Remote site can't reach HQ database | Follow Traffic Path | Multi-hop WAN scenario |
-| One switch configured differently than others | Compare Configurations | Reference device available |
-| Unknown issue: "email is slow" | Divide and Conquer | Unclear layer, needs diagnosis |
-
----
-
-## Integration with Change Management
-
-Every resolution should feed back into organizational learning:
-
-1. **Update documentation**: Network diagrams, runbooks, configuration standards
-2. **Feed into change management**: Was this caused by a recent change?
-3. **Update monitoring**: Add checks to catch this issue earlier next time
-4. **Train team**: Share lessons learned in team meetings
-5. **Refine processes**: Update procedures to prevent recurrence
-
----
-
-## Summary Workflow
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Phase I: Problem Definition                                 │
-│ • Gather symptoms, scope, timeline                          │
-│ • Clarify ambiguities                                       │
-│ • Document clear problem statement                          │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Phase II: Methodology Selection                             │
-│ • Analyze problem characteristics                           │
-│ • Select: Top-Down, Bottom-Up, Divide & Conquer,           │
-│   Follow Traffic Path, or Compare Configurations            │
-│ • Document selection rationale                              │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Phase III: Diagnostic Execution                             │
-│ • Gather information (show commands, tools)                 │
-│ • Establish baseline behavior                               │
-│ • Eliminate valid causes                                    │
-│ • Hypothesize and test                                      │
-│ • Implement workaround if needed                            │
-│ • Verify resolution                                         │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Phase IV: Resolution & Reporting                            │
-│ • Incident summary                                          │
-│ • Methodology applied                                       │
-│ • Diagnostic log (chronological)                            │
-│ • Root cause analysis                                       │
-│ • Resolution actions                                        │
-│ • Testing and verification                                  │
-│ • Lessons learned and recommendations                       │
-│ • Metrics and timeline                                      │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## When to Use This Skill
-
-Use this skill whenever you encounter:
-
-- Network connectivity issues
-- Routing protocol problems
-- Configuration troubleshooting
-- Performance degradation
-- Service outages
-- Post-change validation failures
-- Inter-VLAN routing issues
-- WAN connectivity problems
-- ACL or firewall blocking
-- Any situation requiring systematic network diagnosis
-- A student's lab configuration isn't producing expected results
-
-**Do NOT use** for:
-- Initial network design (use design skills)
-- Security hardening (use security skills)
-- Capacity planning (use performance analysis skills)
-- Routine monitoring (use monitoring skills)
-
-This skill is specifically for **reactive troubleshooting** of existing network faults.
-
----
-
-## Lab-Aware Troubleshooting Quick Reference
-
-### File Locations
 | Resource | Path |
 |----------|------|
-| Netmiko utilities | `labs/common/tools/lab_utils.py` |
-| Fault injection utility | `labs/common/tools/fault_utils.py` |
-| Lab workbook | `labs/<chapter>/lab-NN-<slug>/workbook.md` |
-| Challenges | `labs/<chapter>/lab-NN-<slug>/challenges.md` |
-| Initial configs (baseline) | `labs/<chapter>/lab-NN-<slug>/initial-configs/` |
-| Solution configs (reference) | `labs/<chapter>/lab-NN-<slug>/solutions/` |
-| Chapter baseline | `labs/<chapter>/baseline.yaml` |
+| Lab workbook | `labs/[chapter]/lab-NN-[slug]/workbook.md` |
+| Fault tickets | `labs/[chapter]/lab-NN-[slug]/challenges.md` |
+| Initial configs | `labs/[chapter]/lab-NN-[slug]/initial-configs/` |
+| Solution configs | `labs/[chapter]/lab-NN-[slug]/solutions/` |
+| Chapter baseline | `labs/[chapter]/baseline.yaml` |
 
-### Diagnostic Workflow Summary
-```
-1. READ workbook.md / challenges.md for context
-2. PARSE Console Access Table for device ports
-3. CONNECT to routers via telnet localhost:<port>
-4. COMPARE live state against initial-configs/ and solutions/
-5. DIAGNOSE using structured methodology (Phases I-IV)
-6. REPORT findings with evidence
-```
+-# Examples
 
-### Privacy Rules
-- **DO NOT** reveal solution configs unless the user explicitly asks
-- When the user says "don't fix it for me", only explain the root cause conceptually
-- Use solutions/ only as a private reference to understand what "correct" looks like
-- Reference the workbook's verification commands to show what the user should expect
+**User:** "My EIGRP adjacency between R1 and R2 isn't forming. I've checked the configs but can't figure it out."
 
----
-
-## Final Notes
-
-This skill enforces **professional troubleshooting discipline**. It may feel slower than "just trying things," but it:
-
-- Reduces mean time to repair (MTTR) overall
-- Prevents introducing new problems
-- Builds organizational knowledge
-- Provides audit trails for compliance
-- Trains junior engineers in best practices
-- Reduces repeat incidents through lessons learned
-
-**Remember**: In networking, discipline and documentation separate professionals from hobbyists.
+Actions:
+1. Read `workbook.md` to identify the topology and which objective is in scope.
+2. Parse Console Access Table for R1 and R2 ports.
+3. Select **Divide and Conquer** (adjacency issue, unknown layer).
+4. Connect to both routers — run `show ip eigrp neighbors`, `show ip interface brief`, `show ip protocols`.
+5. Compare against `initial-configs/` to see what the student added vs. the baseline.
+6. Form hypotheses: AS mismatch? Passive interface? K-value mismatch? Mismatched network statement?
+7. Test each hypothesis. Report root cause without revealing solution configs directly.

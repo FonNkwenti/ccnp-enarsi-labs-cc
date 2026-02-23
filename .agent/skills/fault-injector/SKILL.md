@@ -1,250 +1,141 @@
 ---
 name: fault-injector
-description: Generates Python scripts to inject troubleshooting faults into lab environments based on workbook scenarios.
+description: Generates Python fault-injection scripts for GNS3 lab troubleshooting scenarios using Netmiko. Use when the user asks to "inject faults", "generate troubleshooting scripts", "create fault scenarios", "add troubleshooting practice", or automatically after lab-workbook-creator generates a workbook.
 ---
 
 # Fault Injector Skill
 
-## Purpose
-This skill automatically generates Python scripts that inject the troubleshooting scenarios defined in lab workbooks into the live GNS3 environment. It enables instructors and students to quickly set up fault conditions for troubleshooting practice without manual configuration.
+Generates Python scripts that inject the troubleshooting scenarios defined in lab workbooks into the live GNS3 environment. Enables students to set up fault conditions for exam-style troubleshooting practice without manual configuration.
 
-## When to Use
-- Automatically called by `lab-workbook-creator` skill after workbook generation
-- Manually invoked to generate/regenerate fault injection scripts for existing labs
-- When updating troubleshooting scenarios in a workbook
+-# Instructions
 
-## Input Requirements
-The skill requires:
-1. **Workbook path**: Path to the lab's `workbook.md` file
-2. **Console Access Table**: Device-to-port mappings (parsed from workbook)
-3. **Troubleshooting Scenarios**: At least 3 scenarios from Section 8 of the workbook
+--# Step 1: Parse Inputs
 
-## Output Structure
-Creates the following in the lab directory:
+Read from the lab directory:
+1. `workbook.md` — extract troubleshooting scenarios from Section 8 and the Console Access Table
+2. Console Access Table → device-to-port map: `{"R1": 5001, "R2": 5002, ...}`
+3. From each scenario extract: **Scenario Number**, **Target Device**, **Fault Type**, **Commands to inject**
+
+--# Step 2: Generate Fault Injection Scripts
+
+For each scenario (minimum 3 per lab), generate `scripts/fault-injection/inject_scenario_0N.py`.
+
+Use `assets/inject_scenario_01_template.py` (and `_02`, `_03`) as base templates. Customise:
+- `DEVICE_NAME` and `CONSOLE_PORT` from the Console Access Table
+- `FAULT_COMMANDS` list from the scenario's solution section
+- Docstring describing exactly what fault is injected
+
+Each script must:
+1. Connect via Netmiko `device_type="cisco_ios_telnet"` to `localhost:[console_port]`
+2. Apply fault commands via `send_config_set()`
+3. Print clear progress output (connecting → injecting → done)
+4. Handle connection errors gracefully with a non-zero exit
+
+--# Step 3: Generate apply_solution.py
+
+Use `assets/apply_solution_template.py` as the base template. Customise it to restore all affected devices to their correct configuration by pushing the relevant `solutions/[Device].cfg` content.
+
+--# Step 4: Generate scripts/fault-injection/README.md
+
+Use `assets/README_template.md` as the base. Fill in:
+- One section per scenario: name, fault description, target device, command to run
+- Usage instructions for injecting and restoring
+- Prerequisites (GNS3 running, netmiko installed)
+
+--# Step 5: Validate
+
+- [ ] One inject script per scenario
+- [ ] `apply_solution.py` restores all affected devices
+- [ ] `README.md` lists all available scenarios
+- [ ] All scripts are idempotent (safe to run multiple times)
+- [ ] Console ports match the workbook's Console Access Table
+
+-# Output Structure
 
 ```
-labs/[chapter]/[lab-XX]/
-├── workbook.md
-├── scripts/
-│   └── fault-injection/
-│       ├── README.md                    # Instructions for using scripts
-│       ├── inject_scenario_01.py        # Scenario 1 fault injection
-│       ├── inject_scenario_02.py        # Scenario 2 fault injection
-│       ├── inject_scenario_03.py        # Scenario 3 fault injection
-│       └── apply_solution.py            # Restore correct configuration
+labs/[chapter]/[lab-NN]/
+└── scripts/
+    └── fault-injection/
+        ├── README.md
+        ├── inject_scenario_01.py
+        ├── inject_scenario_02.py
+        ├── inject_scenario_03.py
+        └── apply_solution.py
 ```
 
-## Script Requirements
+-# Script Structure Reference
 
-### Each Fault Injection Script Must:
-1. **Connect via Netmiko**: Use `ConnectHandler` with `device_type="cisco_ios_telnet"` to connect to localhost:[console_port]
-2. **Handle IOS CLI**: Netmiko handles enable mode, config mode, and command timing automatically
-3. **Apply Fault Configuration**: Use `send_config_set()` to inject the specific misconfiguration
-4. **Provide Feedback**: Clear console output showing progress
-5. **Error Handling**: Gracefully handle connection failures
-6. **Self-Documenting**: Include docstring explaining what fault is injected
-
-### Standard Script Structure:
 ```python
 #!/usr/bin/env python3
 """
 Fault Injection Script: [Scenario Name]
 
-Injects: [Description of fault]
-Target Device: [Device name]
-Fault Type: [Category - e.g., AS Mismatch, Passive Interface, etc.]
-
-This script connects to the device via console and applies the
-misconfiguration described in Troubleshooting Scenario X.
+Injects:     [Description of fault]
+Target:      [Device name]
+Fault Type:  [e.g., AS Mismatch, Passive Interface, Timer Mismatch]
 """
 
 from netmiko import ConnectHandler
 import sys
 
-# Device Configuration
-DEVICE_NAME = "R2"
+DEVICE_NAME  = "R2"
 CONSOLE_HOST = "127.0.0.1"
 CONSOLE_PORT = 5002
 
-# Fault Configuration Commands
 FAULT_COMMANDS = [
     "no router eigrp 100",
     "router eigrp 200",
-    "eigrp router-id 2.2.2.2",
-    # ... more commands
 ]
 
 def inject_fault():
-    """Connect to device and inject the fault configuration."""
-    print(f"[*] Connecting to {DEVICE_NAME}...")
-
+    print(f"[*] Connecting to {DEVICE_NAME} on port {CONSOLE_PORT}...")
     try:
         conn = ConnectHandler(
             device_type="cisco_ios_telnet",
             host=CONSOLE_HOST,
             port=CONSOLE_PORT,
-            username="",
-            password="",
-            secret="",
+            username="", password="", secret="",
             timeout=10,
         )
-        print(f"[+] Connected to {DEVICE_NAME}")
-
-        # Apply fault commands
-        print(f"[*] Injecting fault configuration...")
-        output = conn.send_config_set(FAULT_COMMANDS)
-        print(output)
-
+        print(f"[+] Connected. Injecting fault...")
+        conn.send_config_set(FAULT_COMMANDS)
         conn.disconnect()
-
-        print(f"[+] Fault injected successfully on {DEVICE_NAME}!")
-        print(f"[!] Troubleshooting Scenario X is now active.")
-
+        print(f"[+] Fault injected on {DEVICE_NAME}.")
     except Exception as e:
         print(f"[!] Error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    print("="*60)
-    print("Fault Injection: [Scenario Name]")
-    print("="*60)
+    print("=" * 50)
+    print(f"Fault Injection: [Scenario Name]")
+    print("=" * 50)
     inject_fault()
-    print("="*60)
 ```
 
-## README.md Template
+-# Common Issues
 
-The skill generates a README.md in the `scripts/fault-injection/` directory:
+--# workbook.md has no troubleshooting scenarios
+- **Cause:** The workbook was generated without a Section 8, or scenarios were not written.
+- **Solution:** Stop. Ask the user to add at least 3 troubleshooting scenarios to `workbook.md` Section 8 before running this skill. Use `assets/troubleshooting_scenarios_template.md` (from the `lab-workbook-creator` assets) as a reference format.
 
-```markdown
-# Fault Injection Scripts
+--# Console Access Table not found in workbook
+- **Cause:** Workbook was generated with a non-standard structure.
+- **Solution:** Fall back to default port convention (R1=5001, RN=500N). Warn the user.
 
-This directory contains automated fault injection scripts for troubleshooting practice.
+--# Scenario fault commands are unclear
+- **Cause:** The solution section in the workbook doesn't clearly show what was misconfigured.
+- **Solution:** Derive the fault as the inverse of the solution: if the solution says `ip ospf hello-interval 10`, the fault is `ip ospf hello-interval 30`.
 
-## Prerequisites
-- GNS3 project must be running
-- All devices must be accessible via console ports
-- Python 3.x installed
-- `netmiko` library installed (`pip install netmiko`)
+--# apply_solution.py restores wrong state
+- **Cause:** `solutions/` configs were updated after the fault scripts were generated.
+- **Solution:** Regenerate `apply_solution.py` after any workbook or solutions update.
 
-## Available Scenarios
+-# Examples
 
-### Scenario 1: [Name]
-**Fault**: [Description]
-**Target Device**: [Device]
-**Command**: `python3 inject_scenario_01.py`
+User: "Generate fault injection scripts for EIGRP Lab 03."
 
-### Scenario 2: [Name]
-**Fault**: [Description]
-**Target Device**: [Device]
-**Command**: `python3 inject_scenario_02.py`
-
-### Scenario 3: [Name]
-**Fault**: [Description]
-**Target Device**: [Device]
-**Command**: `python3 inject_scenario_03.py`
-
-## Usage
-
-1. Ensure your GNS3 lab is running
-2. Run a fault injection script:
-   ```bash
-   cd scripts/fault-injection
-   python3 inject_scenario_01.py
-   ```
-3. Practice troubleshooting using the workbook
-4. Restore correct configuration:
-   ```bash
-   python3 apply_solution.py
-   ```
-
-## Restoring Configuration
-
-The `apply_solution.py` script restores all devices to their correct configuration,
-removing all injected faults.
-```
-
-## Workbook Integration
-
-### Add to Workbook Section 8
-After each troubleshooting scenario, include:
-
-```markdown
-#### Running This Scenario
-
-To automatically inject this fault into your lab:
-
-\`\`\`bash
-cd scripts/fault-injection
-python3 inject_scenario_01.py
-\`\`\`
-
-To restore the correct configuration:
-
-\`\`\`bash
-python3 apply_solution.py
-\`\`\`
-```
-
-## Parsing Troubleshooting Scenarios
-
-The skill must extract from the workbook:
-1. **Scenario Number**: From heading (e.g., "Scenario 1: AS Mismatch")
-2. **Target Device**: From Problem Statement or Mission
-3. **Fault Type**: Categorize the misconfiguration
-4. **Commands to Inject**: Parse from the Solution section
-
-### Example Mapping:
-
-| Scenario | Device | Fault Commands |
-|----------|--------|----------------|
-| AS Mismatch | R2 | `no router eigrp 100`, `router eigrp 200`, ... |
-| Passive Interface | R3 | `passive-interface default`, `no passive-interface Loopback0` |
-| Missing Network | R1 | `router eigrp 100`, `no network 1.1.1.1 0.0.0.0` |
-
-## Console Access Table Parsing
-
-Extract from workbook section "Console Access Table":
-
-```markdown
-| Device | Port | Connection Command |
-|--------|------|-------------------|
-| R1 | 5001 | `telnet 127.0.0.1 5001` |
-| R2 | 5002 | `telnet 127.0.0.1 5002` |
-| R3 | 5003 | `telnet 127.0.0.1 5003` |
-```
-
-Parse into:
-```python
-DEVICE_CONSOLE_MAP = {
-    "R1": 5001,
-    "R2": 5002,
-    "R3": 5003,
-}
-```
-
-## Error Handling
-
-Scripts should handle:
-- Connection timeouts
-- Device not responding
-- Invalid console ports
-- Netmiko authentication exceptions
-- IOS command errors
-
-## Best Practices
-
-1. **Idempotent Scripts**: Running script multiple times should be safe
-2. **Clear Feedback**: Print what's happening at each step
-3. **Timeout Management**: Don't hang indefinitely
-4. **State Verification**: Optionally verify fault was applied
-5. **Documentation**: Each script self-documents what it does
-
-## Integration with Lab Workbook Creator
-
-The `lab-workbook-creator` skill should:
-1. Generate the workbook with troubleshooting scenarios
-2. Call the `fault-injector` skill
-3. Pass workbook path and parsed scenarios
-4. Fault-injector generates all Python scripts
-5. Updates workbook with instructions for running scripts
+Actions:
+1. Read `labs/eigrp/lab-03-[name]/workbook.md` — extract Console Access Table and 3 troubleshooting scenarios.
+2. For each scenario, generate an `inject_scenario_0N.py` using the template from `assets/`.
+3. Generate `apply_solution.py` to restore all affected devices.
+4. Generate `scripts/fault-injection/README.md` with scenario descriptions.

@@ -1,62 +1,97 @@
 ---
 name: gns3
-description: Interaction guide for GNS3 lab environment on Apple M1, focusing on host capabilities, supported nodes, and hardware templates.
+description: GNS3 hardware constraints and platform reference for Apple Silicon (Dynamips only). Use when generating lab configs, creating baseline.yaml topology definitions, selecting router platforms, assigning interfaces, or any time GNS3 platform constraints (c7200 vs c3725, interface slots, console ports) must be verified for Apple M1/M2/M3 compatibility.
 ---
 
-# GNS3 Lab Skill (Apple M1)
+# GNS3 Lab Skill (Apple Silicon)
 
-## 1. Host Architecture & Constraints
+Hardware reference and constraint guide for the GNS3 environment running on Apple M1/M2/M3. All lab generation must comply with these constraints.
 
-This GNS3 environment runs on **Apple M1 (Silicon)** hardware.
-- **Emulation Only:** Uses **Dynamips** for Cisco IOS.
-- **No Virtualization:** Intel VT-x/VMware/VirtualBox VMs are **NOT supported**.
-- **Images:** Strictly limited to `c7200` and `c3725` IOS images.
+-# Instructions
 
-## 2. Hardware "Source of Truth" Templates
+--# 1. Host Architecture & Constraints
 
-Use these tables as the strict reference for all lab generation.
+This GNS3 environment uses **Dynamips** (Cisco IOS emulation) only.
 
-### 2.1 Router Platform Definitions
-| Platform | Role | RAM | IOS Image | Idle PC |
-|----------|------|-----|-----------|---------|
-| **c7200** | Core/Hub/Edge | 512 MB | `c7200-adventerprisek9-mz.153-3.XB12.image` | `0x60629004` |
-| **c3725** | Branch/Spoke | 256 MB | `c3725-adventerprisek9-mz.124-15.T14.image` | `0x60c09aa0` |
+- **No virtualisation:** Intel VT-x, VMware, and VirtualBox VMs are NOT supported.
+- **No NX-OS or IOS-XR:** Strictly limited to classic IOS images.
+- **Supported images:** `c7200` and `c3725` only.
 
-### 2.2 Slot Configurations
-Define interfaces using these specific slots.
+--# 2. Platform Selection Guide
 
-**c7200 Config:**
-| Slot | Adapter | Description |
-|------|---------|-------------|
-| 0 | `C7200-IO-FE` | 1x FastEthernet (fa0/0) |
-| 1 | `PA-2FE-TX` | 2x FastEthernet (fa1/0, fa1/1) |
-| 2 | `PA-4T+` | 4x Serial Ports (s2/0 - s2/3) |
-| 3 | `PA-GE` | 1x GigabitEthernet (gi3/0) |
+| Condition | Use |
+|-----------|-----|
+| Hub, Core, or ABR role | `c7200` |
+| IPsec, GRE crypto features needed | `c7200` |
+| More than 3 FastEthernet interfaces needed | `c7200` |
+| Branch, Spoke, or Edge role | `c3725` |
+| L2 switching ports needed (NM-16ESW) | `c3725` |
+| Serial WAN links | either (both support `NM-4T`) |
 
-**c3725 Config:**
-| Slot | Adapter | Description |
-|------|---------|-------------|
-| 0 | `GT96100-FE` | 2x Onboard FastEthernet (fa0/0, fa0/1) |
-| 1 | `NM-16ESW` | 16x Switch Ports (fa1/0 - fa1/15) - *Use for L2 Labs* |
-| 2 | `NM-4T` | 4x Serial Ports (s2/0 - s2/3) |
+--# 3. Hardware Templates (Source of Truth)
 
-### 2.3 Console Access
-Standardize console ports to allow scriptable access.
-_Base Port: 5000_
+### c7200
+
+| Slot | Adapter | Interfaces |
+|------|---------|------------|
+| 0 | `C7200-IO-FE` | fa0/0 |
+| 1 | `PA-2FE-TX` | fa1/0, fa1/1 |
+| 2 | `PA-4T+` | s2/0–s2/3 |
+| 3 | `PA-GE` | gi3/0 |
+
+- **RAM:** 512 MB
+- **IOS Image:** `c7200-adventerprisek9-mz.153-3.XB12.image`
+- **Idle PC:** `0x60629004`
+
+### c3725
+
+| Slot | Adapter | Interfaces |
+|------|---------|------------|
+| 0 | `GT96100-FE` | fa0/0, fa0/1 |
+| 1 | `NM-16ESW` | fa1/0–fa1/15 (L2 switching) |
+| 2 | `NM-4T` | s2/0–s2/3 |
+
+- **RAM:** 256 MB
+- **IOS Image:** `c3725-adventerprisek9-mz.124-15.T14.image`
+- **Idle PC:** `0x60c09aa0`
+
+--# 4. Console Port Convention
+
+Base port: 5000. Assign sequentially by router number.
 
 | Router | Console Port | Telnet Command |
-|--------|--------------|----------------|
+|--------|-------------|----------------|
 | R1 | 5001 | `telnet localhost 5001` |
 | R2 | 5002 | `telnet localhost 5002` |
 | R3 | 5003 | `telnet localhost 5003` |
-| ... | ... | ... |
+| RN | 500N | `telnet localhost 500N` |
 
-## 3. Supported Node Types (Non-IOS)
-- **Unmanaged Switch**: Generic GNS3 switch for L2 connectivity.
-- **VPCS**: Virtual PC Simulator for ping testing.
+--# 5. Design Rules for Lab Generation
 
-## 4. Design Rules for Lab Generation
-1.  **No High-Speed Interfaces**: Do not use "100Gig" or "TenGig". Use "GigabitEthernet" (Slot 3 on c7200) or "FastEthernet".
-2.  **No Incompatible Tech**: Do not include features requiring IOS-XR, NX-OS, or heavy containerization.
-3.  **Physical Link Table**: Always define links explicitly.
-    - Format: `Source Device:Intf <--> Target Device:Intf`
+1. **No high-speed interfaces:** Do not use `TenGig` or `HundredGig`. Use `FastEthernet` or `GigabitEthernet` (gi3/0 on c7200).
+2. **No incompatible technology:** Exclude features requiring IOS-XR, NX-OS, or containerisation.
+3. **Physical link table:** Always define links explicitly in `baseline.yaml` using the format:
+   `Source:Interface ↔ Target:Interface`
+4. **Supported node types (non-IOS):** Unmanaged Switch (generic GNS3), VPCS (ping testing only).
+
+-# Common Issues
+
+--# Feature not available on c3725
+- **Cause:** c3725 IOS image does not support advanced crypto (IPsec, DMVPN) or advanced BGP features.
+- **Solution:** Upgrade the affected router to c7200 in `baseline.yaml`. Update console ports and interface names accordingly (`fa0/0` → `fa0/0` is the same, but `gi3/0` is only on c7200).
+
+--# Interface name mismatch in configs
+- **Cause:** Config references `Gi0/0` but the platform only has `Fa0/0`.
+- **Solution:** Check the slot table above. c3725 slot 0 = `Fa0/0`/`Fa0/1`. c7200 slot 3 = `Gi3/0`. Never use interface names not listed in the slot tables.
+
+--# Too many interfaces needed
+- **Cause:** Lab requires more than 2 FastEthernet on a c3725 (only fa0/0 and fa0/1 in slot 0).
+- **Solution:** Switch to c7200 (slot 1 provides fa1/0 and fa1/1, slot 3 provides gi3/0), or use an unmanaged switch to extend a single interface into multiple segments.
+
+-# Examples
+
+When generating `baseline.yaml` for an OSPF multi-area lab with 4 routers:
+- R1 (ABR, connects Area 0 to Area 1): `c7200` — needs 3 interfaces
+- R2 (Area 0 internal): `c3725` — 2 interfaces sufficient
+- R3 (ABR, connects Area 0 to Area 2): `c7200` — needs 3 interfaces
+- R7 (Area 2 stub, added in Lab 05): `c3725` — 1 interface sufficient
