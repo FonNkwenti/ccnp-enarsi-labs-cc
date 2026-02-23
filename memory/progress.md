@@ -7,8 +7,8 @@
 
 - **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** baseline.yaml
-- **Next action:** Review baseline.yaml, then generate lab-01-classic-adjacency
+- **Last completed lab:** lab-01-classic-adjacency
+- **Next action:** Review lab-01 — approve before generating lab-02
 
 ---
 
@@ -17,7 +17,7 @@
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
 | — | baseline.yaml | Review Needed | Generated 2026-02-23 — 9 labs, R1/R2/R3 core + R4 from lab-06 |
-| 01 | Classic Adjacency | Not generated | Awaiting baseline approval |
+| 01 | Classic Adjacency | Review Needed | Generated 2026-02-23 |
 | 02 | Named Mode & Dual-Stack | Not generated | |
 | 03 | Metrics & K-Values | Not generated | |
 | 04 | Feasible Successor | Not generated | |
