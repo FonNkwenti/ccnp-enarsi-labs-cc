@@ -62,6 +62,58 @@ show ip route eigrp
 </details>
 ```
 
+**ASCII Topology Diagram standard (required in Section 2):**
+
+Use Unicode box-drawing characters. Every diagram must include:
+- Device box: `┌─┐│└─┘` with hostname, role, and Loopback0 IP inside
+- Interface name **and** full IP/mask labeled on each link segment (local side above, remote side below the gap)
+- Subnet label on horizontal bottom links
+- Do NOT use `/`, `\`, or plain `-` lines — use `│` for vertical links and `─` inside boxes only
+
+Chain (linear) example:
+```
+                    ┌─────────────────┐
+                    │       R1        │
+                    │   (Hub Router)  │
+                    │ Lo0: 10.0.0.1   │
+                    └───────┬─────────┘
+                            │ Fa0/0
+                            │ 10.12.0.1/30
+                            │
+                            │ 10.12.0.2/30
+                            │ Fa0/0
+                    ┌───────┴─────────┐
+                    │       R2        │
+                    │ (Branch Router) │
+                    │ Lo0: 10.0.0.2   │
+                    └─────────────────┘
+```
+
+Triangle (hub + two branches) example:
+```
+              ┌─────────────────────────┐
+              │           R1            │
+              │      (Hub / Core)       │
+              │   Lo0: 10.0.0.1/32      │
+              └──────┬───────────┬──────┘
+           Fa0/0     │           │     Fa1/0
+     10.12.0.1/30    │           │   10.13.0.1/30
+                     │           │
+     10.12.0.2/30    │           │   10.13.0.2/30
+           Fa0/0     │           │     Fa0/0
+     ┌───────────────┘           └───────────────┐
+     │                                           │
+┌────┴──────────────┐           ┌────────────────┴────┐
+│       R2          │           │       R3            │
+│   (Branch A)      │           │   (Branch B)        │
+│ Lo0: 10.0.0.2/32  │           │ Lo0: 10.0.0.3/32    │
+└─────────┬─────────┘           └─────────┬───────────┘
+      Fa0/1│                              │Fa0/1
+10.23.0.1/30│                            │10.23.0.2/30
+            └────────────────────────────┘
+                      10.23.0.0/30
+```
+
 **Console Access Table format (required in Section 3):**
 
 | Device | Port | Connection Command |
