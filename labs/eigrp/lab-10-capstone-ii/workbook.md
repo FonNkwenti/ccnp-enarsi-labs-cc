@@ -12,7 +12,6 @@
 
 | Blueprint IDs | Topics |
 |---|---|
-| 1.9.a | EIGRP address families (IPv4, IPv6) |
 | 1.9.b | Neighbor adjacency (troubleshoot misconfigurations) |
 | 1.9.c | Loop-free path selection (verify FD/RD, detect loop conditions) |
 | 1.9.d | EIGRP stub routing (identify misconfigurations) |
@@ -73,19 +72,19 @@ Same as Lab 09:
 
 **Initial State:**
 - ✅ All IP addresses and loopback interfaces are correctly configured
-- ✅ EIGRP named mode is partially configured (but with errors)
+- ✅ EIGRP classic mode is configured with faults
 - ✅ Some network statements are correct; others are wrong
-- ✅ Some address-families are missing; others have K-value mismatches
+- ✅ Some adjacencies are missing due to AS mismatch or passive interfaces
 - ✅ Filtering, summarization, and AD changes were attempted but have errors
 
 **Known Faults (Symptoms, not Solutions):**
 - R2 cannot reach R4's loopback (192.168.4.0/24)
 - R1 and R3 have incomplete routing to R2's summarized subnets
+- R2's manual summary route 172.16.20.0/23 is not advertised to neighbors (auto-summary fault)
 - R4 is not configured as a stub, causing transit routing problems
 - One adjacency is missing (AS mismatch or passive interface)
 - Metric conflicts cause suboptimal path selection
 - Split horizon may be blocking hub-spoke reachability
-- Summarization black hole affects some subnets
 - Distribution or tagging errors suppress routes
 
 ---
@@ -103,9 +102,7 @@ Understand the current broken state:
 ```bash
 # On each router, run:
 show ip eigrp neighbors
-show ipv6 eigrp neighbors
 show ip route eigrp
-show ipv6 route eigrp
 show ip eigrp topology
 show run | section eigrp
 ```
@@ -186,7 +183,6 @@ All should succeed except R3→192.168.4.0/24 (intentional).
 ### Verification Checklist (After All Fixes)
 
 - [ ] R1 has 3 IPv4 EIGRP neighbors: R2 (10.12.0.2), R3 (10.13.0.2), R4 (10.14.0.2)
-- [ ] R1 has 3 IPv6 EIGRP neighbors (same neighbors)
 - [ ] R2 has 2 IPv4 EIGRP neighbors: R1 (10.12.0.1), R3 (10.23.0.2)
 - [ ] R3 has 2 IPv4 EIGRP neighbors: R1 (10.13.0.1), R2 (10.23.0.1)
 - [ ] R4 has 1 IPv4 EIGRP neighbor: R1 (10.14.0.1)
@@ -223,9 +219,7 @@ All should succeed except R3→192.168.4.0/24 (intentional).
 | Command | Purpose | Expected Result |
 |---|---|---|
 | `show ip eigrp neighbors` | Verify IPv4 adjacencies | 3 neighbors (R1), 2 neighbors (R2/R3), 1 neighbor (R4) |
-| `show ipv6 eigrp neighbors` | Verify IPv6 adjacencies | Same as IPv4 |
 | `show ip route eigrp` | Verify routing table | All expected routes present |
-| `show ipv6 route eigrp` | Verify IPv6 routing table | All expected IPv6 loopbacks present |
 | `show ip eigrp neighbors detail` | Verify neighbor details, K-values, stub status | K-values match, R4 shows "Stub" on R1 |
 | `show ip eigrp topology` | Verify topology database | All routes P (Passive), correct FD/RD |
 | `show ip route <prefix>` | Verify specific route | Correct next-hop and metric |
@@ -248,12 +242,12 @@ All should succeed except R3→192.168.4.0/24 (intentional).
 **Fault 1: AS Number Mismatch on R4**
 - **Symptom:** R4 has no EIGRP neighbors; R1 doesn't see R4 as a neighbor
 - **Root Cause:** R4 EIGRP AS is 200 instead of 100
-- **Fix:** Change R4 EIGRP AS to 100
+- **Fix:** `router eigrp 100` (remove the wrong AS 200 process and configure correct AS 100)
 
-**Fault 2: IPv6 Address-Family Missing on R2**
-- **Symptom:** R2 has no IPv6 EIGRP neighbors; IPv6 routes to R3/R1 are missing
-- **Root Cause:** IPv6 address-family not configured on R2
-- **Fix:** Add `address-family ipv6 unicast autonomous-system 100` on R2
+**Fault 2: R2 Auto-Summary Fault**
+- **Symptom:** 172.16.20.0/23 summary route is missing from R1 and R3 routing tables. R2's routing table shows classful summary 172.16.0.0/8 in Null0 instead of 172.16.20.0/23.
+- **Root Cause:** `auto-summary` is enabled on R2 (instead of `no auto-summary`), causing classful summarization that overrides the manual /23 summary
+- **Fix:** Under `router eigrp 100` on R2: `no auto-summary`
 
 **Fault 3: K-Value Mismatch on R3**
 - **Symptom:** R3 adjacency with R1 is unstable or drops after forming
@@ -273,7 +267,7 @@ All should succeed except R3→192.168.4.0/24 (intentional).
 **Fault 6: Summarization Command on Wrong Interface**
 - **Symptom:** R2's loopbacks are not summarized; R1 sees individual /24s instead of /23
 - **Root Cause:** Summary command configured on Fa0/1 (link to R3) instead of Fa0/0 (link to R1)
-- **Fix:** Move or add summary-address command to Fa0/0 on R2
+- **Fix:** Move or add `ip summary-address eigrp 100 172.16.20.0 255.255.254.0` to Fa0/0 on R2
 
 **Fault 7: R4 Not Configured as Stub**
 - **Symptom:** R4 advertises learned routes (transit path); other routers use R4 as a backup path
@@ -283,17 +277,17 @@ All should succeed except R3→192.168.4.0/24 (intentional).
 **Fault 8: Prefix-List Missing Permit Statement**
 - **Symptom:** R3 cannot reach ANY external routes (not just 192.168.4.0/24); routing table is empty
 - **Root Cause:** Prefix-list has deny 192.168.4.0/24 but missing the implicit permit all
-- **Fix:** Add `seq 10 permit 0.0.0.0/0 le 32` to the prefix-list
+- **Fix:** Add `ip prefix-list BLOCK-R4-LO seq 10 permit 0.0.0.0/0 le 32`
 
 **Fault 9: Split Horizon Not Disabled on R1 Fa0/0**
 - **Symptom:** R2 cannot reach R3 via R1; only direct link is used (split horizon suppresses R3's routes)
 - **Root Cause:** Split horizon is still enabled on R1 Fa0/0
-- **Fix:** Add `no ip split-horizon eigrp 100` to R1 Fa0/0 interface in EIGRP config
+- **Fix:** Add `no ip split-horizon eigrp 100` to R1 Fa0/0 interface
 
 **Fault 10: AD Not Modified on R1**
 - **Symptom:** EIGRP routes show [90/XXX] instead of expected [80/XXX]
 - **Root Cause:** `distance eigrp 80 170` command is missing from R1
-- **Fix:** Add the distance command to R1 EIGRP config
+- **Fix:** Add `distance eigrp 80 170` under `router eigrp 100` on R1
 
 </details>
 
@@ -330,6 +324,7 @@ Use this systematic approach to diagnose and fix faults:
    - Verify they exist in the originating router's running config
    - Check for passive interfaces blocking advertisement
    - Check for filtering (prefix-list, distribute-list)
+   - Check for auto-summary overriding manual summaries
    - Check for summarization (expected /23 not showing individual /24s?)
 
 3. If route is in topology but not in routing table:
@@ -393,16 +388,16 @@ Use this systematic approach to diagnose and fix faults:
 
 **Configuration Fixes**
 - [ ] All EIGRP AS numbers corrected (all AS 100)
-- [ ] All address-families (IPv4 + IPv6) configured on all routers
 - [ ] All network statements present and correct
 - [ ] No passive interfaces blocking necessary links
 - [ ] All K-values matching across all neighbors
 - [ ] R4 configured as stub
 - [ ] Loopbacks on R2/R3 in EIGRP network statements
 - [ ] Summarization on correct interfaces (R2 Fa0/0, R3 Fa0/0)
+- [ ] `no auto-summary` on R2 (Fault 2 — auto-summary overrides manual /23 summary)
 - [ ] Prefix-list has explicit permit-all statement
 - [ ] Filtering applied in correct direction (inbound on R3 Fa0/0)
-- [ ] AD modified on R1 (distance eigrp 80 170)
+- [ ] AD modified on R1 (`distance eigrp 80 170`)
 - [ ] Split horizon disabled on R1 Fa0/0
 
 **Verification**
@@ -419,7 +414,6 @@ Use this systematic approach to diagnose and fix faults:
 
 **End-to-End Success**
 - [ ] Full IPv4 mesh connectivity
-- [ ] Full IPv6 mesh connectivity
 - [ ] Troubleshooting skills demonstrated
 - [ ] All EIGRP concepts from Labs 01–09 integrated and validated
 - [ ] Network is production-ready

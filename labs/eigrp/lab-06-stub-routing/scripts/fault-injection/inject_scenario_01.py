@@ -16,8 +16,7 @@ def main():
 
     conn.send_config_set(
         [
-            "router eigrp ENARSI",
-            "address-family ipv4 unicast autonomous-system 100",
+            "router eigrp 100",
             "no eigrp stub connected summary",
             "eigrp stub",
         ],

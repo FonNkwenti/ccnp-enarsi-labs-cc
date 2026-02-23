@@ -5,6 +5,41 @@
 
 ---
 
+## 2026-02-23 — EIGRP Classic Mode Only (No Named Mode on c3725/IOS 12.4)
+
+**Decision:** All EIGRP labs use classic mode (`router eigrp 100`) throughout. Named mode is NOT used.
+
+**Rationale:** Named mode EIGRP (`router eigrp NAME` with `address-family` blocks) requires IOS 15.0 or later. The project platform is Cisco c3725 running IOS 12.4 (Dynamips only — Apple Silicon constraint). All labs 02-10 were initially generated with named-mode syntax and were converted to classic mode in a batch repair session.
+
+**Classic mode IPv4 EIGRP syntax (IOS 12.4):**
+```
+router eigrp 100
+ network <subnet> <wildcard>
+ no auto-summary
+ variance N
+ eigrp stub connected summary
+ passive-interface Loopback0
+ distribute-list prefix <NAME> in <interface>
+ distance eigrp 80 170
+```
+
+**Classic mode IPv6 EIGRP syntax (IOS 12.4, Lab 02 only):**
+```
+ipv6 router eigrp 100
+ no shutdown
+!
+interface Fa0/0
+ ipv6 eigrp 100
+```
+
+**Lab 02 renamed:** "Named Mode & Dual-Stack" → "Dual-Stack EIGRP" — retains IPv6 coverage using classic IOS 12.4 syntax; drops named-mode objectives.
+
+**Labs 03-10:** IPv4-only. IPv6 dual-stack is covered exclusively in Lab 02 (sufficient for 300-410 blueprint bullet 1.9.a).
+
+**Rule:** Never use `address-family` blocks or `router eigrp NAME` syntax in any lab config or fault script.
+
+---
+
 ## 2026-02-23 Session — ENCOR→ENARSI Migration & Lab 01 Generation
 
 **Summary:** Migrated project from CCNP ENCOR (350-401) to CCNP ENARSI (300-410). Established memory system, codified lab standards in skills, generated EIGRP baseline (9 labs) and Lab 01 full artifacts.

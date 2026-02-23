@@ -15,7 +15,7 @@ def main():
 
     commands = [
         "interface Lo0",
-        "no ipv6 eigrp ENARSI",
+        "no ipv6 eigrp 100",
     ]
 
     conn.send_config_set(commands, exit_config_mode=True)
