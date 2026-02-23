@@ -7,8 +7,8 @@
 
 - **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** lab-01-classic-adjacency
-- **Next action:** Review lab-01 — approve before generating lab-02
+- **Last completed lab:** lab-02-named-mode-dual-stack
+- **Next action:** Review lab-02 — approve before generating lab-03
 
 ---
 
@@ -18,7 +18,7 @@
 |-----|------|--------|-------|
 | — | baseline.yaml | Review Needed | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
 | 01 | Classic Adjacency | Review Needed | Generated 2026-02-23 |
-| 02 | Named Mode & Dual-Stack | Not generated | |
+| 02 | Named Mode & Dual-Stack | Review Needed | Generated 2026-02-23 |
 | 03 | Metrics & K-Values | Not generated | |
 | 04 | Feasible Successor | Not generated | |
 | 05 | Summarization | Not generated | |
