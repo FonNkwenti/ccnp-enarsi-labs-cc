@@ -5,10 +5,10 @@
 
 ## Active Work
 
-- **Chapter:** —
+- **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** —
-- **Next action:** Start EIGRP chapter — run `chapter-topics` skill with `specs/eigrp/chapter-spec.md`
+- **Last completed lab:** baseline.yaml
+- **Next action:** Review baseline.yaml, then generate lab-01-classic-adjacency
 
 ---
 
@@ -16,7 +16,16 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Not generated | Run `chapter-topics` first |
+| — | baseline.yaml | Review Needed | Generated 2026-02-23 — 9 labs, R1/R2/R3 core + R4 from lab-06 |
+| 01 | Classic Adjacency | Not generated | Awaiting baseline approval |
+| 02 | Named Mode & Dual-Stack | Not generated | |
+| 03 | Metrics & K-Values | Not generated | |
+| 04 | Feasible Successor | Not generated | |
+| 05 | Summarization | Not generated | |
+| 06 | Stub Routing | Not generated | R4 added |
+| 07 | Filtering & Route Maps | Not generated | |
+| 08 | AD & Split Horizon | Not generated | |
+| 09 | Troubleshooting Integration | Not generated | |
 
 ---
 
