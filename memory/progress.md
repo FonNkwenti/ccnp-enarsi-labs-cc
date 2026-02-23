@@ -7,8 +7,8 @@
 
 - **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** lab-02-named-mode-dual-stack
-- **Next action:** Review lab-02 — approve before generating lab-03
+- **Last completed lab:** lab-10-capstone-ii
+- **Next action:** Review all EIGRP labs (01-10) — approve before proceeding to OSPF chapter
 
 ---
 
@@ -16,17 +16,17 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Review Needed | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
-| 01 | Classic Adjacency | Review Needed | Generated 2026-02-23 |
-| 02 | Named Mode & Dual-Stack | Review Needed | Generated 2026-02-23 |
-| 03 | Metrics & K-Values | Not generated | |
-| 04 | Feasible Successor | Not generated | |
-| 05 | Summarization | Not generated | |
-| 06 | Stub Routing | Not generated | R4 added |
-| 07 | Filtering & Route Maps | Not generated | |
-| 08 | AD & Split Horizon | Not generated | |
-| 09 | Capstone I — Full Protocol Mastery | Not generated | Clean slate; all blueprint bullets |
-| 10 | Capstone II — Comprehensive Troubleshooting | Not generated | Clean slate; 5+ concurrent faults |
+| — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
+| 01 | Classic Adjacency | Review Needed | Foundation — 60 min, covers 1.9.b adjacency |
+| 02 | Named Mode & Dual-Stack | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack |
+| 03 | Metrics & K-Values | Review Needed | Intermediate — 90 min, covers 1.9.f metrics |
+| 04 | Feasible Successor | Review Needed | Intermediate — 90 min, covers 1.9.c-e loop-free path selection |
+| 05 | Summarization | Review Needed | Intermediate — 75 min, covers 1.5 summarization |
+| 06 | Stub Routing | Review Needed | Intermediate — 60 min, covers 1.9.d stubs, introduces R4 |
+| 07 | Filtering & Route Maps | Review Needed | Advanced — 90 min, covers 1.2-1.3 filtering & route-maps |
+| 08 | AD & Split Horizon | Review Needed | Advanced — 75 min, covers 1.1-1.3 AD & split horizon |
+| 09 | Capstone I — Full Protocol Mastery | Review Needed | Advanced — 120 min, clean slate; all blueprint bullets; configuration challenge |
+| 10 | Capstone II — Comprehensive Troubleshooting | Review Needed | Advanced — 120 min, clean slate; 5+ concurrent faults; troubleshooting challenge |
 
 ---
 
