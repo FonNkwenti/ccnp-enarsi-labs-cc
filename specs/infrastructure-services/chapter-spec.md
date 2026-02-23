@@ -13,15 +13,17 @@
 - 4.6 Troubleshoot NetFlow (v5, v9, Flexible NetFlow)
 - 4.7 Troubleshoot network problems using Cisco DNA Center assurance (path trace, monitoring)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "combine IP SLA + object tracking in one lab" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 
 - DNA Center (4.7) is describe/concept-only — cannot be labbed on Dynamips
 - IP SLA + Object Tracking pairs well with FHRP labs
+- SNMP and syslog can share a topology with a Linux host (VPCS or unmanaged switch)

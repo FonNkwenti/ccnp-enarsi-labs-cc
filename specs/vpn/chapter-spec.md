@@ -11,16 +11,17 @@
   - 2.3.d Dynamic routing
 - 2.4 Configure and verify FlexVPN (single hub)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "DMVPN focus, skip FlexVPN" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 
 - MPLS topics (2.1, 2.2) are describe-only on the exam — theory labs, not config labs
 - DMVPN (2.3) is the primary hands-on focus
-- FlexVPN may require c7200 for crypto support on Dynamips
+- FlexVPN and IPsec require c7200 for crypto support on Dynamips

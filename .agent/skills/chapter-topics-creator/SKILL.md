@@ -81,13 +81,14 @@ labs:
     extends: 1
 ```
 
---# Step 4: Write Chapter README
+--# Step 4: Backfill chapter-spec.md
 
-Write `labs/[chapter]/README.md` containing:
-- Chapter overview
-- Blueprint coverage matrix (exam bullet → lab number mapping)
-- Topology diagram (placeholder until `generate-topology` skill is run)
-- Lab progression table with difficulty and time estimates
+After generating baseline.yaml, write the plan back into `specs/[chapter]/chapter-spec.md` under the `## Generated Plan` section. Include:
+1. **Topology summary** — devices, roles, platforms, link structure (1-3 lines of prose)
+2. **Lab Progression table** — number, title, difficulty, time, blueprint bullets, devices
+3. **Blueprint Coverage table** — each exam bullet mapped to the lab(s) that cover it
+
+This makes the spec a human-readable record of what was generated. If the user filled in `## Preferences`, note which preferences were honored.
 
 --# Step 5: Validate
 

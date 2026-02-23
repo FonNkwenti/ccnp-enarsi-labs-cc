@@ -10,15 +10,17 @@
 - 3.3 Troubleshoot control plane policing (CoPP)
 - 3.4 Describe IPv6 First Hop Security features (RA Guard, DHCP Guard, binding table, ND inspection/snooping, source guard)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "include EIGRP/OSPF authentication from routing chapters" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 
 - IPv6 First Hop Security (3.4) is describe-only — theory content
 - AAA labs may need a RADIUS/TACACS+ server (freeradius container or simulated)
+- EIGRP/OSPF authentication could be covered here or in respective protocol chapters

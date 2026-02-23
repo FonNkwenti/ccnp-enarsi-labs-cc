@@ -9,14 +9,16 @@
 - 1.7 Configure and verify VRF-Lite
 - 1.8 Describe Bidirectional Forwarding Detection (BFD)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "cover EIGRP↔OSPF and OSPF↔BGP redistribution pairs" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 
-<!-- Any chapter-specific constraints or decisions -->
+- BFD (1.8) is describe-only on the exam — theory content, not a full config lab
+- Redistribution labs should follow EIGRP and OSPF chapters (requires prior knowledge)

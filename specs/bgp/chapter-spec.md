@@ -11,13 +11,14 @@
 - 1.2 Route maps (BGP attributes, tagging, filtering)
 - 1.3 Loop prevention (BGP AS-path, communities)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "include iBGP + eBGP", "focus on path selection attributes" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 

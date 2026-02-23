@@ -11,9 +11,11 @@
 Labs are built **one at a time** to allow review and refinement before chaining to the next lab. This is the default and only approved workflow.
 
 ```
-specs/[chapter]/chapter-spec.md   ← human intent (exam bullets, lab plan)
+specs/[chapter]/chapter-spec.md   ← exam bullets + optional preferences
         ↓  chapter-topics skill
 labs/[chapter]/baseline.yaml      ← machine-readable spec (consumed by skills)
+        ↓  skill backfills
+specs/[chapter]/chapter-spec.md   ← now includes Generated Plan (topology, labs, coverage)
         ↓  create-lab skill (ONE lab at a time)
 labs/[chapter]/lab-NN-*/          ← DeepSeek Standard artifacts
         ↓  inject-faults skill (automatic)

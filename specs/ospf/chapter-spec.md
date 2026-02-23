@@ -12,13 +12,14 @@
 - 1.3 Loop prevention (OSPF-specific)
 - 1.5 Manual and auto-summarization (OSPF inter-area)
 
-## Planned Labs
+## Preferences
 
-<!-- Fill in before running chapter-topics skill -->
+<!-- Optional — high-level constraints or requests. Leave blank for defaults. -->
+<!-- Examples: "6 labs max", "heavy troubleshooting focus", "skip OSPFv3" -->
 
-## Topology Requirements
+## Generated Plan
 
-<!-- Devices, links, addressing scheme -->
+> Not yet generated. Run `chapter-topics` skill to populate this section.
 
 ## Notes
 
