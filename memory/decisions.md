@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-02-23 Session — ENCOR→ENARSI Migration & Lab 01 Generation
+
+**Summary:** Migrated project from CCNP ENCOR (350-401) to CCNP ENARSI (300-410). Established memory system, codified lab standards in skills, generated EIGRP baseline (9 labs) and Lab 01 full artifacts.
+
+**Key Artifacts:**
+- `memory/progress.md` + `memory/decisions.md` (memory system)
+- `labs/eigrp/baseline.yaml` (9-lab chapter plan)
+- `labs/eigrp/lab-01-classic-adjacency/` (full DeepSeek Standard: workbook + configs + topology + scripts + 3 fault scenarios)
+- Updated 7 skills with standards + codified formats
+
+**Key Commits:**
+- `adc1889` — Memory system + slash commands
+- `7a82166` — EIGRP baseline.yaml
+- `255a9e5` — Lab 01 artifacts
+- `043a1a4` — ASCII diagram standard (box-drawing)
+- `5a6d1ba` — Spoiler-free troubleshooting
+- `f220cd2` — Workbook refactor (10 sections)
+
+**Decisions Made (see below for rationale):**
+1. One-lab-at-a-time workflow (not batch)
+2. Symptom-based troubleshooting tickets (headings don't reveal faults)
+3. Separate workbook sections: Solutions (Sec 8) ≠ Troubleshooting (Sec 9)
+4. Unicode box-drawing ASCII diagrams (not `/\`)
+5. Ops-only README.md for fault injection (no challenge descriptions)
+
+---
+
 ## 2026-02-23 — One-Lab-at-a-Time Workflow
 
 **Decision:** Labs are generated one at a time with an explicit review gate between each lab.
