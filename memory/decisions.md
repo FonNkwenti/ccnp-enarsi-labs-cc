@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-02-23 — All Routers c7200 with IOS 15.3(3)XB12 (Named Mode Supported)
+
+**Decision:** All four routers (R1–R4) use `c7200` platform with IOS image `c7200-adventerprisek9-mz.153-3.XB12.image`. Named mode EIGRP (`router eigrp ENARSI` / `address-family`) is used throughout labs 02–10.
+
+**Rationale:** Named mode EIGRP requires IOS 15.0+. The available image is 15.3(3)XB12, which fully supports named mode. Lab 02 covers the classic→named migration explicitly (exam blueprint 1.9: "classic and named mode"). Labs 03–10 use named mode consistently to match production deployments.
+
+**Adapter cards:**
+- R1: Slot 0 `C7200-IO-FE` → fa0/0; Slot 1 `PA-2FE-TX` → fa1/0, fa1/1
+- R2: Slot 0 `C7200-IO-2FE` → fa0/0, fa0/1
+- R3: Slot 0 `C7200-IO-2FE` → fa0/0, fa0/1
+- R4: Slot 0 `C7200-IO-FE` → fa0/0
+
+**Memory:** 4× c7200 at ~256 MB DRAM = ~1 GB total; well within 16 GB Mac headroom.
+
+**Rule:** Lab 01 stays classic mode (it IS the classic mode lesson). Labs 02–10 use named mode throughout.
+
+---
+
 ## 2026-02-23 Session — ENCOR→ENARSI Migration & Lab 01 Generation
 
 **Summary:** Migrated project from CCNP ENCOR (350-401) to CCNP ENARSI (300-410). Established memory system, codified lab standards in skills, generated EIGRP baseline (9 labs) and Lab 01 full artifacts.

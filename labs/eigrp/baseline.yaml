@@ -38,7 +38,7 @@ core_topology:
         fa1/1: "10.14.0.1/30 — link to R4 (optional, activated in lab-06)"
 
     - name: R2
-      platform: c3725
+      platform: c7200
       role: Branch A
       console_port: 5002
       loopback0:
@@ -50,13 +50,13 @@ core_topology:
       loopback2:
         ipv4: 172.16.21.1/24
         note: "Summarization lab (lab-05+)"
-      # Slot 0: GT96100-FE   → fa0/0, fa0/1
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
       interfaces:
         fa0/0: "10.12.0.2/30 — link to R1; ipv6 2001:db8:12::2/64"
         fa0/1: "10.23.0.1/30 — link to R3; ipv6 2001:db8:23::1/64"
 
     - name: R3
-      platform: c3725
+      platform: c7200
       role: Branch B
       console_port: 5003
       loopback0:
@@ -68,6 +68,7 @@ core_topology:
       loopback2:
         ipv4: 172.16.31.1/24
         note: "Summarization lab (lab-05+)"
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
       interfaces:
         fa0/0: "10.13.0.2/30 — link to R1; ipv6 2001:db8:13::2/64"
         fa0/1: "10.23.0.2/30 — link to R2; ipv6 2001:db8:23::2/64"
@@ -97,7 +98,7 @@ core_topology:
 # ─────────────────────────────────────────────
 optional_devices:
   - name: R4
-    platform: c3725
+    platform: c7200
     role: Stub / Edge Router
     console_port: 5004
     available_from: 6
@@ -110,6 +111,7 @@ optional_devices:
     loopback1:
       ipv4: 192.168.4.0/24
       note: "Stub network advertised by R4"
+    # Slot 0: C7200-IO-FE → fa0/0
     interfaces:
       fa0/0: "10.14.0.2/30 — link to R1"
 

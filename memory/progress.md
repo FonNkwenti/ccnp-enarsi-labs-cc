@@ -10,6 +10,7 @@
 - **Last completed lab:** lab-10-capstone-ii
 - **Next action:** Review all EIGRP labs (01-10) — approve before proceeding to OSPF chapter
 - **Quality repair completed:** 2026-02-23 — labs 03-10 repaired (48 fault scripts, 10 apply_solution.py, missing initial-configs, solutions, Section 9 workbook)
+- **Platform finalized:** 2026-02-23 — all routers c7200 + IOS 15.3(3)XB12; named mode EIGRP throughout labs 02-10; spurious network statements fixed across all 54 configs
 
 ---
 
@@ -17,7 +18,7 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
+| — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R4 from lab-06 |
 | 01 | Classic Adjacency | Review Needed | Foundation — 60 min, covers 1.9.b adjacency |
 | 02 | Named Mode & Dual-Stack | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack |
 | 03 | Metrics & K-Values | Review Needed | Intermediate — 90 min, covers 1.9.f metrics |
