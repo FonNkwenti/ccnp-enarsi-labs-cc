@@ -9,6 +9,7 @@
 - **Lab in progress:** —
 - **Last completed lab:** lab-10-capstone-ii
 - **Next action:** Review all EIGRP labs (01-10) — approve before proceeding to OSPF chapter
+- **Quality repair completed:** 2026-02-23 — labs 03-10 repaired (48 fault scripts, 10 apply_solution.py, missing initial-configs, solutions, Section 9 workbook)
 
 ---
 
