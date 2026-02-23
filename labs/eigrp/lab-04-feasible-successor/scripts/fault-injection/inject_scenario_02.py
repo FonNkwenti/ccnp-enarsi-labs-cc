@@ -12,11 +12,12 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Injecting Fault 02: R1 — removing variance 3 from EIGRP 100")
+    print("[*] Injecting Fault 02: R1 — removing variance 3 from EIGRP ENARSI")
 
     conn.send_config_set(
         [
-            "router eigrp 100",
+            "router eigrp ENARSI",
+            "address-family ipv4 unicast autonomous-system 100",
             "no variance 3",
         ],
         exit_config_mode=True,

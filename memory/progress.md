@@ -10,7 +10,6 @@
 - **Last completed lab:** lab-10-capstone-ii
 - **Next action:** Review all EIGRP labs (01-10) — approve before proceeding to OSPF chapter
 - **Quality repair completed:** 2026-02-23 — labs 03-10 repaired (48 fault scripts, 10 apply_solution.py, missing initial-configs, solutions, Section 9 workbook)
-- **Classic mode conversion completed:** 2026-02-23 — all 90 config files and 27 fault scripts converted from named mode to classic mode (IOS 12.4 compatible); IPv6 removed from labs 03-10; lab-02 renamed to "Dual-Stack EIGRP" with classic IPv4+IPv6 syntax; spurious network statements removed; workbooks updated
 
 ---
 
@@ -20,7 +19,7 @@
 |-----|------|--------|-------|
 | — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), R1/R2/R3 core + R4 from lab-06 |
 | 01 | Classic Adjacency | Review Needed | Foundation — 60 min, covers 1.9.b adjacency |
-| 02 | Dual-Stack EIGRP (IPv4 & IPv6 Classic Mode) | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack (classic IOS 12.4 syntax) |
+| 02 | Named Mode & Dual-Stack | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack |
 | 03 | Metrics & K-Values | Review Needed | Intermediate — 90 min, covers 1.9.f metrics |
 | 04 | Feasible Successor | Review Needed | Intermediate — 90 min, covers 1.9.c-e loop-free path selection |
 | 05 | Summarization | Review Needed | Intermediate — 75 min, covers 1.5 summarization |

@@ -12,11 +12,12 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Injecting Fault 04: R1 — adding passive-interface default to EIGRP 100")
+    print("[*] Injecting Fault 04: R1 — adding passive-interface default to EIGRP ENARSI")
 
     conn.send_config_set(
         [
-            "router eigrp 100",
+            "router eigrp ENARSI",
+            "address-family ipv4 unicast autonomous-system 100",
             "passive-interface default",
             "no passive-interface Loopback0",
         ],

@@ -8,7 +8,8 @@ net_connect = ConnectHandler(host="localhost", port=5003, device_type="cisco_ios
 
 # Mark R3 Fa0/0 as passive, preventing EIGRP from using it
 commands = [
-    "router eigrp 100",
+    "router eigrp ENARSI",
+    "address-family ipv4 unicast autonomous-system 100",
     "passive-interface Fa0/0",
 ]
 

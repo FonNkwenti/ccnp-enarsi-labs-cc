@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Ticket 3: K-value mismatch on IPv6 EIGRP 100 process — IPv6 neighbors drop."""
+"""Ticket 3: K-value mismatch between IPv4 and IPv6 address families"""
 from netmiko import ConnectHandler
-
 
 def main():
     conn = ConnectHandler(
@@ -12,18 +11,18 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Applying custom K-values to IPv6 EIGRP 100 on R1 (mismatch with default)...")
+    print("[*] Applying custom K-values to IPv6 AF on R1 (mismatch with IPv4)...")
 
     commands = [
-        "ipv6 router eigrp 100",
+        "router eigrp ENARSI",
+        "address-family ipv6 unicast autonomous-system 100",
         "metric weights 0 2 0 1 0 0",
     ]
 
     conn.send_config_set(commands, exit_config_mode=True)
-    print("[+] Fault injected: IPv6 K1=2 on R1 EIGRP 100 (vs default K1=1)")
+    print("[+] Fault injected: IPv6 K1=2 (vs IPv4 K1=1)")
 
     conn.disconnect()
-
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,8 @@ def main():
 
     conn.send_config_set(
         [
-            "router eigrp 100",
+            "router eigrp ENARSI",
+            "address-family ipv4 unicast autonomous-system 100",
             "no distribute-list prefix BLOCK-R4-LO in FastEthernet0/0",
             "distribute-list prefix BLOCK-R4-LO out FastEthernet0/0",
         ],

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ticket 1: R4 AS mismatch — router eigrp 200 instead of EIGRP 100."""
+"""Ticket 1: R4 AS mismatch — router eigrp 200 instead of ENARSI/100."""
 from netmiko import ConnectHandler
 
 
@@ -12,12 +12,13 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Injecting Fault 01: R4 — replacing EIGRP 100 with router eigrp 200")
+    print("[*] Injecting Fault 01: R4 — replacing EIGRP ENARSI AS 100 with router eigrp 200")
 
     conn.send_config_set(
         [
-            "no router eigrp 100",
+            "no router eigrp ENARSI",
             "router eigrp 200",
+            "address-family ipv4 unicast autonomous-system 200",
             "network 10.0.0.4 0.0.0.0",
             "network 10.14.0.0 0.0.0.3",
             "network 192.168.4.0",

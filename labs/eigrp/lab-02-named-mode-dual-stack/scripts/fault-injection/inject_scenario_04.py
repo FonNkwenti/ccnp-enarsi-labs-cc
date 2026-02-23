@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Ticket 4: IPv6 EIGRP process removed from R1 — R1 loses all IPv6 neighbors."""
+"""Ticket 4: Classic mode router eigrp 100 re-enabled (incomplete migration)"""
 from netmiko import ConnectHandler
-
 
 def main():
     conn = ConnectHandler(
@@ -12,18 +11,21 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Injecting Fault 04: R1 — removing ipv6 router eigrp 100 process")
+    print("[*] Re-enabling classic EIGRP mode on R1...")
 
-    conn.send_config_set(
-        [
-            "no ipv6 router eigrp 100",
-        ],
-        exit_config_mode=True,
-    )
+    commands = [
+        "router eigrp 100",
+        "network 10.0.0.0 0.0.0.255",
+        "network 10.12.0.0 0.0.0.3",
+        "network 10.13.0.0 0.0.0.3",
+        "network 10.23.0.0 0.0.0.3",
+        "no auto-summary",
+    ]
 
-    print("[+] Fault injected: R1 IPv6 EIGRP process removed — all IPv6 EIGRP neighbors lost on R1")
+    conn.send_config_set(commands, exit_config_mode=True)
+    print("[+] Fault injected: Classic mode (router eigrp 100) re-enabled on R1")
+
     conn.disconnect()
-
 
 if __name__ == "__main__":
     main()

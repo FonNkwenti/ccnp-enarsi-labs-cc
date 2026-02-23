@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Ticket 5: Passive interface on IPv6 EIGRP 100 — IPv6 neighbors won't form via Fa0/0."""
+"""Ticket 5: Passive interface on IPv6 AF only (IPv6 neighbors won't form)"""
 from netmiko import ConnectHandler
-
 
 def main():
     conn = ConnectHandler(
@@ -12,18 +11,18 @@ def main():
         global_delay_factor=2,
     )
 
-    print("[*] Setting Fa0/0 as passive in IPv6 EIGRP 100 on R2...")
+    print("[*] Setting Fa0/0 as passive in IPv6 address family on R2...")
 
     commands = [
-        "ipv6 router eigrp 100",
+        "router eigrp ENARSI",
+        "address-family ipv6 unicast autonomous-system 100",
         "passive-interface Fa0/0",
     ]
 
     conn.send_config_set(commands, exit_config_mode=True)
-    print("[+] Fault injected: Fa0/0 passive in IPv6 EIGRP 100 on R2 (IPv4 still active)")
+    print("[+] Fault injected: Fa0/0 passive in IPv6 AF on R2 (IPv4 still active)")
 
     conn.disconnect()
-
 
 if __name__ == "__main__":
     main()

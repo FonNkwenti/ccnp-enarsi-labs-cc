@@ -8,7 +8,8 @@ net_connect = ConnectHandler(host="localhost", port=5002, device_type="cisco_ios
 
 # Set K2=1 on R2 (mismatch with default K2=0)
 commands = [
-    "router eigrp 100",
+    "router eigrp ENARSI",
+    "address-family ipv4 unicast autonomous-system 100",
     "metric weights 0 1 1 1 0 0",
 ]
 
