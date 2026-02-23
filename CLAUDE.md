@@ -76,14 +76,13 @@ tests/              # Artifact validation tests
 | `infrastructure-security/` | Infrastructure Security | 3.1–3.4 |
 | `infrastructure-services/` | Infrastructure Services | 4.1–4.7 |
 
-## Lab Status
+## Memory
 
-| Chapter | Labs | Status |
-|---|---|---|
-| EIGRP | — | Not started |
-| OSPF | — | Not started |
-| BGP | — | Not started |
-| Redistribution | — | Not started |
-| VPN | — | Not started |
-| Infra Security | — | Not started |
-| Infra Services | — | Not started |
+@memory/progress.md
+@memory/decisions.md
+
+### Memory Convention
+
+- `memory/progress.md` — lab generation status per chapter (update after every lab session)
+- `memory/decisions.md` — append-only log of design decisions with rationale (newest first)
+- After completing or approving a lab, update the status row in `memory/progress.md` before ending the session

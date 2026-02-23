@@ -1,43 +1,47 @@
 Generate all labs for a chapter with proper chaining and continuity: $ARGUMENTS
 
-## Purpose
-Orchestrate the generation of an entire chapter, ensuring all labs share consistent topology and each lab builds on the previous lab's solution configs.
+> **NOT the default workflow.** Use `/create-lab` for normal lab generation (one lab at a time with reviews).
+> Only use this command when explicitly asked to batch generate a chapter and reviews will happen after all labs are complete.
+
+## Pre-flight checks
+
+1. Read `labs/<chapter>/baseline.yaml` — must exist before running this command
+2. Read `memory/progress.md` — confirm no labs for this chapter are already in progress
 
 ## Workflow
 
-1. **Read baseline.yaml** for the chapter at `labs/<chapter>/baseline.yaml`
+Use the `chapter-builder` skill. It will:
 
-2. **Generate labs sequentially:**
-   - **Lab 01 (foundation):** `initial-configs/` = base IPs from baseline's `core_topology`
-   - **Lab N (N > 1):** `initial-configs/` = copy of Lab (N-1)'s `solutions/`
-   - Add new devices only when declared in `baseline.yaml` (`available_from` field)
+1. Generate Lab 01 from `baseline.yaml core_topology` (IP only, no protocol config in initial-configs)
+2. For each subsequent lab: copy Lab (N-1) `solutions/` as initial-configs, then generate
+3. Run `fault-injector` skill after each lab
+4. Apply drawio Visual Style Guide to each `topology.drawio`
 
-3. **For each lab**, use the `/create-lab` workflow to generate:
-   - `workbook.md` with all required sections
-   - `initial-configs/` and `solutions/`
-   - `topology.drawio` (only showing devices active in that lab)
-   - `setup_lab.py`
-   - Fault injection scripts
-   - Tests
+## Chaining rules
 
-4. **Chaining rules:**
-   | Lab | initial-configs source | New devices |
-   |-----|------------------------|-------------|
-   | 01 | baseline core_topology (IP only) | Core devices |
-   | 02 | Lab 01 solutions/ | None (unless declared) |
-   | 03 | Lab 02 solutions/ | + devices with available_from: 3 |
-   | ... | ... | ... |
+| Lab | initial-configs source | New devices |
+|-----|------------------------|-------------|
+| 01 | baseline core_topology (IP only) | Core devices |
+| 02 | Lab 01 solutions/ | None (unless declared) |
+| 03 | Lab 02 solutions/ | + devices with available_from: 3 |
+| N  | Lab (N-1) solutions/ | As declared in baseline.yaml |
 
-5. **Post-generation validation checklist:**
-   - [ ] All devices use IPs from baseline.yaml
-   - [ ] Lab N initial-configs match Lab (N-1) solutions
-   - [ ] New devices are only added when declared
-   - [ ] No configs are removed between labs
-   - [ ] Each topology.drawio shows correct devices per lab
-   - [ ] Each topology.drawio follows Draw.io Standards in CLAUDE.md
-   - [ ] IP consistency across all labs
+## Post-generation validation checklist
 
-6. **Arguments format:** `<chapter> [lab-range]`
-   - `eigrp` — generate all labs defined in baseline.yaml
-   - `ospf 5-8` — generate only labs 5 through 8
-   - `bgp 1-3` — generate first 3 labs
+- [ ] All devices use IPs from baseline.yaml
+- [ ] Lab N initial-configs match Lab (N-1) solutions exactly
+- [ ] New devices are only added when declared in baseline.yaml
+- [ ] No configs are removed between labs
+- [ ] Each topology.drawio shows correct devices per lab
+- [ ] Each topology.drawio follows the drawio Visual Style Guide
+
+## Arguments format
+
+- `eigrp` — generate all labs defined in baseline.yaml
+- `ospf 5-8` — generate only labs 5 through 8
+
+## After generation
+
+Update `memory/progress.md`:
+- Set all generated labs to **Review Needed**
+- Set "Active Work → Next action" to: "Review all <chapter> labs before approving"

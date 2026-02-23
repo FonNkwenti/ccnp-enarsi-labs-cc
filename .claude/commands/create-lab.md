@@ -1,41 +1,37 @@
 Create a detailed lab workbook and all supporting artifacts for: $ARGUMENTS
 
+## Pre-flight checks
+
+1. Read `memory/progress.md` — confirm which lab is next and that Lab (N-1) is Approved
+2. Read `labs/<chapter>/baseline.yaml` — devices, IPs, console ports, lab objectives
+3. If Lab N > 1: read `labs/<chapter>/lab-(N-1)-*/solutions/` — these become this lab's `initial-configs/`
+
 ## Workflow
 
-1. **Read context first:**
-   - Read `conductor/product-guidelines.md` for workbook standards
-   - Read the chapter's `baseline.yaml` for topology, devices, IPs, and console ports
-   - If this is Lab N > 1, read Lab (N-1)'s `solutions/` directory — those become this lab's `initial-configs/`
-   - Read the track spec if a conductor track exists for this lab
+Use the `lab-workbook-creator` skill. It will generate:
 
-2. **Generate the lab directory** at `labs/<chapter>/lab-NN-<slug>/` with:
-   - `workbook.md` — full lab guide following the Required Sections in CLAUDE.md
-   - `challenges.md` — standalone challenge exercises
-   - `initial-configs/` — starting `.cfg` files per router (from baseline or previous lab solutions)
-   - `solutions/` — complete solution `.cfg` files + `verification_commands.txt`
-   - `setup_lab.py` — Python automation script using `labs/common/tools/lab_utils.py` patterns to push initial configs via Netmiko (`cisco_ios_telnet`)
-   - `topology.drawio` — visual diagram following `.agent/skills/drawio/SKILL.md` Section 4
+- `labs/<chapter>/lab-NN-<slug>/workbook.md` — full lab guide (10 required sections)
+- `labs/<chapter>/lab-NN-<slug>/initial-configs/` — one `.cfg` per active device
+- `labs/<chapter>/lab-NN-<slug>/solutions/` — complete solution `.cfg` per device
+- `labs/<chapter>/lab-NN-<slug>/topology.drawio` — diagram following drawio Visual Style Guide
+- `labs/<chapter>/lab-NN-<slug>/setup_lab.py` — Netmiko automation script (cisco_ios_telnet)
 
-3. **Topology diagram** must follow the Draw.io Standards in CLAUDE.md:
-   - White connection lines, Cisco device icons, labels on empty side
-   - IP last-octet labels, legend box, no link crossthrough
-   - Use `generate_topo.py` when possible
+After the workbook is generated, the `fault-injector` skill runs automatically and adds:
 
-4. **Workbook must include at minimum 3 troubleshooting scenarios** with:
-   - Problem statement, mission, success criteria
-   - Solutions in collapsible `<details>` blocks
-   - Each targeting common misconfigurations (parameter mismatches, interface issues, authentication, etc.)
+- `labs/<chapter>/lab-NN-<slug>/scripts/fault-injection/inject_scenario_0N.py`
+- `labs/<chapter>/lab-NN-<slug>/scripts/fault-injection/apply_solution.py`
+- `labs/<chapter>/lab-NN-<slug>/scripts/fault-injection/README.md`
 
-5. **After workbook generation**, automatically create fault injection scripts:
-   - Parse the troubleshooting scenarios from the workbook
-   - Generate `scripts/fault-injection/inject_scenario_01.py`, `02.py`, `03.py`
-   - Generate `scripts/fault-injection/apply_solution.py`
-   - Generate `scripts/fault-injection/README.md`
-   - All scripts use Netmiko with `device_type="cisco_ios_telnet"` connecting to `localhost:<console_port>`
+## Rules
 
-6. **Export topology PNG:**
-   - Run `python3 labs/common/tools/export_diagrams.py --file <path_to_drawio>`
+- **One lab per session** — stop after this lab and wait for review
+- **Never remove commands between labs** — initial-configs must include everything from the previous lab's solutions
+- Solution configs must be wrapped in `<details>` spoiler blocks in the workbook
+- Console ports follow R1=5001, R2=5002, … RN=500N convention
 
-7. **Write tests** in `tests/` following existing test naming conventions.
+## After generation
 
-8. **If a conductor track exists**, update `plan.md` per the workflow in CLAUDE.md.
+Update `memory/progress.md`:
+- Set this lab's status to **Review Needed**
+- Set "Active Work → Last completed lab" to this lab number
+- Set "Next action" to: "Review lab-NN — approve before generating lab-N+1"

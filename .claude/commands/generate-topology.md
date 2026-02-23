@@ -1,6 +1,7 @@
 Generate or update a Draw.io topology diagram for: $ARGUMENTS
 
 ## Standards
+
 Follow the full visual style guide at `.agent/skills/drawio/SKILL.md`. Key rules:
 
 ### Canvas & Layout
@@ -36,7 +37,8 @@ Follow the full visual style guide at `.agent/skills/drawio/SKILL.md`. Key rules
 - Arc waypoints: `arc_y = min(source_y, target_y) - 100`
 
 ## Workflow
+
 1. Read the chapter's `baseline.yaml` for device positions, links, and IPs
 2. Generate the `.drawio` XML following all style rules above
-3. Run validation checklist from `.agent/skills/drawio/SKILL.md` Section 5
-4. Export to PNG: `python3 labs/common/tools/export_diagrams.py --file <path>`
+3. Run validation checklist from `.agent/skills/drawio/SKILL.md`
+4. Save to `labs/<chapter>/lab-NN-<slug>/topology.drawio`
