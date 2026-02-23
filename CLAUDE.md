@@ -70,6 +70,7 @@ Use **Cisco official terminology** exclusively (exam-aligned):
 - Each lab builds on the previous — Lab N's `initial-configs/` = Lab (N-1)'s `solutions/`
 - **Add only, never remove** — no config commands are deleted between labs
 - Optional devices enter at specific lab numbers (declared in `baseline.yaml available_from`)
+- **Topology size**: minimum 3 devices, maximum 15 devices (core + optional combined)
 
 ## Project Structure
 

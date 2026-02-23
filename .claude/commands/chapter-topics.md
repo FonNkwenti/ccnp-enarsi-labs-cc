@@ -57,7 +57,7 @@ labs:
 ## Topology guidelines
 
 - Core devices (3 minimum) for foundation labs
-- Optional devices (up to 7 total) for advanced scenarios
+- Optional devices (up to 15 total) for advanced scenarios
 - Pre-reserve IPs for ALL potential devices
 - Each lab explicitly declares which devices are active
 - Platforms: c7200 for hub/ABR/crypto roles, c3725 for branch/spoke roles (see `gns3` skill)

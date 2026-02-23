@@ -663,15 +663,14 @@ Use this checklist when starting a new exam certification (not just new chapters
 - [ ] Exam blueprint fully mapped (check 300-410, 350-401, etc. official docs)
 - [ ] Lab progression designed (Foundation → Intermediate → Advanced)
 - [ ] Topology shapes identified (2–3 patterns that recur)
-- [ ] Device naming convention locked in (R1–R9? Other?)
-- [ ] Console port convention locked in (5001–500N? Other?)
+- [ ] Device naming convention locked in (R1–R15, minimum 3, maximum 15 per chapter)
+- [ ] Console port convention locked in (5001–500N, where N matches router number)
 - [ ] IPv4 + IPv6 addressing pre-reserved in baseline.yaml
 - [ ] Workbook structure documented in skill (10 sections)
 - [ ] ASCII diagram standard codified (box-drawing, labeled links)
 - [ ] Troubleshooting ticket format defined (symptom headings, spoiler blocks)
 - [ ] DeepSeek Standard artifacts identified (workbook, configs, topology, scripts, fault injection)
 - [ ] Lab 01 fully generated and reviewed
-- [ ] CHANGELOG.md started
 - [ ] LESSONS_LEARNED.md (this file) referenced
 
 ---

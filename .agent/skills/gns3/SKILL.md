@@ -73,6 +73,7 @@ Base port: 5000. Assign sequentially by router number.
 3. **Physical link table:** Always define links explicitly in `baseline.yaml` using the format:
    `Source:Interface ↔ Target:Interface`
 4. **Supported node types (non-IOS):** Unmanaged Switch (generic GNS3), VPCS (ping testing only).
+5. **Device count:** Minimum 3 routers, maximum 15 routers per chapter topology (core + optional combined).
 
 -# Common Issues
 

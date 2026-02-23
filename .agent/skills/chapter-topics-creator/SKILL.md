@@ -25,6 +25,7 @@ Design the lab series with:
 - Real-world enterprise scenarios
 - Time estimates: 45–120 minutes per lab
 - Each lab explicitly declares which devices are active
+- **Topology size**: minimum 3 devices, maximum 15 devices total across core + optional
 
 --# Step 3: Write baseline.yaml
 
@@ -94,6 +95,7 @@ This makes the spec a human-readable record of what was generated. If the user f
 
 Before finishing, confirm:
 - [ ] Every exam objective provided is covered by at least one lab
+- [ ] Total device count is between 3 (minimum) and 15 (maximum) across core + optional
 - [ ] All console ports follow the convention: RN = 500N
 - [ ] Platform choices respect Apple Silicon constraints — c7200 or c3725 only (see `gns3` skill)
 - [ ] All topology diagrams follow the drawio Visual Style Guide (invoke the `drawio` skill)
