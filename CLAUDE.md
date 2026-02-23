@@ -39,6 +39,36 @@ labs/[chapter]/lab-NN-*/fault-injection/
 - **Never skip the review step** — each lab's solutions become the next lab's initial-configs
 - The `chapter-build` skill (batch generation) is available but **not the default** — only use it when explicitly asked to generate multiple labs and reviews will happen afterwards
 
+## Product Guidelines
+
+### Voice & Tone
+- **Scenario-based**: Frame every lab in a realistic enterprise narrative (e.g., "Acme Corp is deploying EIGRP across its WAN…"). Never present labs as abstract exercises.
+- **Challenge-first**: Present topology and high-level objectives (Section 5) before solutions (Section 8). The student should attempt the challenge before seeing how.
+- **Professional & authoritative**: Position workbooks as definitive ENARSI exam preparation material.
+
+### Terminology
+Use **Cisco official terminology** exclusively (exam-aligned):
+- ✅ "Feasible Successor", "Administrative Distance", "Dead Interval", "Reported Distance"
+- ❌ "backup route", "backup priority", "keepalive", "advertised distance"
+
+### Workbook Design
+- **10 required sections**: Concepts → Topology → Hardware → Base Config → Challenge → Verification → Cheatsheet → Solutions → Troubleshooting → Checklist
+- **Solutions in `<details>` spoilers only** — never visible without a click
+- **Troubleshooting tickets describe symptoms** — never reveal the fault in headings
+- **ASCII diagrams use Unicode box-drawing** (`┌─┐│└┘┬┴`), not `/` or `\`
+- **Every workbook includes a Cabling Table and Console Access Table**
+
+### Python Style (Lab Scripts)
+- Lightweight: clear variable names, brief inline comments where intent isn't obvious
+- No formal docstrings or granular type annotations required — scripts are 50–80 line tools, not shared libraries
+- **Critical — `\\n` escaping**: When generating Python via tool calls, always use `\\n` (double backslash) for newline literals inside strings. The JSON parser interprets `\n` as a literal newline, causing `SyntaxError`.
+
+### Lab Progression
+- Labs within a chapter are generated in **progressive difficulty**: Foundation → Intermediate → Advanced
+- Each lab builds on the previous — Lab N's `initial-configs/` = Lab (N-1)'s `solutions/`
+- **Add only, never remove** — no config commands are deleted between labs
+- Optional devices enter at specific lab numbers (declared in `baseline.yaml available_from`)
+
 ## Project Structure
 
 ```
@@ -53,13 +83,12 @@ labs/               # Generated lab content (DeepSeek Standard)
     lab-NN-[name]/
       workbook.md
       topology.drawio
-      topology.png
       initial-configs/
       solutions/
       setup_lab.py
-      fault-injection/
+      scripts/fault-injection/
 
-docs/               # Verification cheatsheets (per chapter)
+memory/             # Cross-session continuity
 tests/              # Artifact validation tests
 .agent/skills/      # Lab generation skills (submodule)
 ```
