@@ -329,9 +329,34 @@ ping 10.0.0.3 source 10.0.0.1
 
 ---
 
+## 9. Troubleshooting Scenarios
+
+Each ticket simulates a real-world fault reported to you as a network engineer. Inject the fault first, then diagnose and fix using only `show` commands and your knowledge — do not look at the solutions until you have a hypothesis.
+
+### Workflow
+
+```bash
+# 1. Ensure the lab is in a known-good state
+python3 setup_lab.py                                   # or apply_solution.py to reset
+
+# 2. Inject a fault
+python3 scripts/fault-injection/inject_scenario_01.py  # Ticket 1
+python3 scripts/fault-injection/inject_scenario_02.py  # Ticket 2
+python3 scripts/fault-injection/inject_scenario_03.py  # Ticket 3
+
+# 3. Troubleshoot — use show commands, form a hypothesis, apply a fix
+# 4. Verify your fix meets the success criteria below
+# 5. Reset between tickets
+python3 scripts/fault-injection/apply_solution.py
+```
+
+---
+
 ### Ticket 1 — R2 Reports No EIGRP Neighbors
 
 A change was made to R2 during a maintenance window. The network team reports that R2 is now isolated — it has no EIGRP neighbors and remote sites can no longer reach R2's subnets.
+
+**Inject:** `python3 scripts/fault-injection/inject_scenario_01.py`
 
 **Success criteria:** R2 re-establishes EIGRP adjacencies with R1 and R3. All routes are restored.
 
@@ -376,6 +401,8 @@ R2# show ip eigrp neighbors
 
 Users at Branch-A (R2) report they cannot reach Branch-B (R3) or the corporate core. R3 can still reach R2 directly. The link between R1 and R2 appears physically up.
 
+**Inject:** `python3 scripts/fault-injection/inject_scenario_02.py`
+
 **Success criteria:** R1-R2 EIGRP adjacency is restored. R2 can reach all remote subnets via R1.
 
 <details>
@@ -416,6 +443,8 @@ R1# show ip eigrp neighbors
 
 After a config change on R3, the R2-R3 link subnet has vanished from R1 and R2's routing tables. The R3-R2 adjacency has dropped. R3's Loopback0 is still reachable via R1.
 
+**Inject:** `python3 scripts/fault-injection/inject_scenario_03.py`
+
 **Success criteria:** 10.23.0.0/30 is re-advertised. R3-R2 adjacency is restored. Full reachability confirmed.
 
 <details>
@@ -455,8 +484,9 @@ R3# show ip eigrp neighbors
 
 ---
 
-## 9. Lab Completion Checklist
+## 10. Lab Completion Checklist
 
+**Core Implementation**
 - [ ] EIGRP AS 100 configured on R1, R2, and R3
 - [ ] `no auto-summary` present on all routers
 - [ ] R1 shows 2 EIGRP neighbors (R2 via Fa0/0, R3 via Fa1/0)
@@ -466,33 +496,8 @@ R3# show ip eigrp neighbors
 - [ ] `ping 10.0.0.2 source 10.0.0.1` from R1 succeeds
 - [ ] `ping 10.0.0.3 source 10.0.0.1` from R1 succeeds
 - [ ] `ping 10.0.0.3 source 10.0.0.2` from R2 succeeds
-- [ ] Completed Ticket 1 (inject_scenario_01.py)
-- [ ] Completed Ticket 2 (inject_scenario_02.py)
-- [ ] Completed Ticket 3 (inject_scenario_03.py)
 
----
-
-## 10. Automated Fault Injection (Optional)
-
-Fault injection scripts are in `scripts/fault-injection/`. See the `README.md` in that directory for usage.
-
-```bash
-# Prerequisites
-pip install netmiko
-
-# Run setup (push initial configs to all routers)
-python3 setup_lab.py
-
-# Inject a fault scenario
-python3 scripts/fault-injection/inject_scenario_01.py
-
-# Restore after completing a scenario
-python3 scripts/fault-injection/apply_solution.py
-```
-
-| Script | Scenario |
-|---|---|
-| `inject_scenario_01.py` | Ticket 1 |
-| `inject_scenario_02.py` | Ticket 2 |
-| `inject_scenario_03.py` | Ticket 3 |
-| `apply_solution.py` | Restore all devices |
+**Troubleshooting**
+- [ ] Ticket 1 diagnosed and resolved
+- [ ] Ticket 2 diagnosed and resolved
+- [ ] Ticket 3 diagnosed and resolved

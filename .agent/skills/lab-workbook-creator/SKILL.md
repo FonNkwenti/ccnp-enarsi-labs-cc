@@ -29,9 +29,9 @@ Write a complete workbook with all required sections:
 5. **Lab Challenge: Core Implementation** — step-by-step objectives for the student
 6. **Verification & Analysis** — expected `show` command outputs per objective
 7. **Verification Cheatsheet** — quick-reference commands for the entire lab
-8. **Solutions (Spoiler Alert!)** — complete solutions wrapped in `<details>` blocks (see format below)
-9. **Lab Completion Checklist** — student self-assessment checkboxes
-10. **Automated Fault Injection (Optional)** — instructions for fault-injection scripts
+8. **Solutions (Spoiler Alert!)** — solution configs for lab objectives only, wrapped in `<details>` blocks
+9. **Troubleshooting Scenarios** — fault injection workflow + symptom-based tickets with `<details>` spoilers
+10. **Lab Completion Checklist** — two groups: Core Implementation and Troubleshooting
 
 **Solutions section format (required):**
 ```markdown
@@ -89,6 +89,45 @@ Examples of correct vs. incorrect headings:
 - ✅ `Ticket 1 — R2 Reports No EIGRP Neighbors` — describes symptom only
 - ❌ `Scenario 2: Passive Interface on R1` — reveals fault and device
 - ✅ `Ticket 2 — Branch-A Loses Reachability Through the Core` — describes impact
+
+**Section 9 format (required):**
+
+Section 9 opens with the inject/restore workflow, then lists each ticket. Each ticket includes its inject command inline so the student knows exactly which script to run without leaving the workbook.
+
+```markdown
+## 9. Troubleshooting Scenarios
+
+Each ticket simulates a real-world fault. Inject the fault first, then
+diagnose and fix using only show commands.
+
+### Workflow
+
+​```bash
+python3 setup_lab.py                                   # reset to known-good
+python3 scripts/fault-injection/inject_scenario_01.py  # Ticket 1
+python3 scripts/fault-injection/apply_solution.py      # restore
+​```
+
+---
+
+### Ticket N — [Observable Symptom]
+
+[1-2 sentence scenario context]
+
+**Inject:** `python3 scripts/fault-injection/inject_scenario_0N.py`
+
+**Success criteria:** [What must be true when fixed]
+
+<details>
+<summary>Click to view Diagnosis Steps</summary>
+...
+</details>
+
+<details>
+<summary>Click to view Fix</summary>
+...
+</details>
+```
 
 **`scripts/fault-injection/README.md` format (ops-only — no challenge descriptions):**
 
@@ -222,6 +261,10 @@ Use `assets/troubleshooting_scenarios_template.md` as the template for Section 8
 --# Solutions section incomplete
 - **Cause:** Not all lab objectives have a corresponding solution block.
 - **Solution:** Every objective listed in Section 5 (Lab Challenge) must have a `<details>` solution block in Section 8. Go back and complete before finishing.
+
+--# Troubleshooting tickets in wrong section
+- **Cause:** Tickets placed inside Section 8 (Solutions) instead of Section 9.
+- **Solution:** Section 8 contains only lab objective solution configs. Move all tickets to Section 9 (Troubleshooting Scenarios), which opens with the inject/restore workflow block.
 
 -# Examples
 
