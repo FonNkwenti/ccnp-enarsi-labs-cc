@@ -1,6 +1,6 @@
 ---
 name: chapter-builder
-description: Orchestrates generation of an entire chapter with shared topology and progressive configs, ensuring lab continuity. Use when the user asks to "generate all labs", "build a chapter", "create chapter labs", or regenerate multi-part labs.
+description: Orchestrates batch generation of multiple labs for a chapter, ensuring config chaining and topology continuity. NOT the default workflow — labs should normally be built one at a time using the create-lab skill to allow review between each lab. Only use chapter-builder when the user explicitly asks to "generate all labs at once", "batch generate the chapter", or "regenerate all labs" and understands that individual review will happen after the batch completes.
 ---
 
 # Chapter Builder Skill

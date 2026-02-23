@@ -8,22 +8,36 @@
 
 ## Spec-Driven Workflow
 
+Labs are built **one at a time** to allow review and refinement before chaining to the next lab. This is the default and only approved workflow.
+
 ```
 specs/[chapter]/chapter-spec.md   ← human intent (exam bullets, lab plan)
         ↓  chapter-topics skill
 labs/[chapter]/baseline.yaml      ← machine-readable spec (consumed by skills)
-        ↓  chapter-build or create-lab skill
+        ↓  create-lab skill (ONE lab at a time)
 labs/[chapter]/lab-NN-*/          ← DeepSeek Standard artifacts
         ↓  inject-faults skill (automatic)
 labs/[chapter]/lab-NN-*/fault-injection/
+        ↓  REVIEW & APPROVE
+        ↓  create-lab skill (next lab — chains from previous solutions/)
 ```
 
-### Before generating any labs
+### Lab generation sequence
 
 1. Read the chapter spec: `specs/[chapter]/chapter-spec.md`
-2. Use `chapter-topics` skill to generate `labs/[chapter]/baseline.yaml`
-3. Use `chapter-build` (multiple labs) or `create-lab` (single lab) skill
-4. Fault injection runs automatically after lab creation
+2. Use `chapter-topics` skill → generates `labs/[chapter]/baseline.yaml`
+3. Use `create-lab` skill for **one lab at a time**:
+   - Lab 01: initial-configs generated from `baseline.yaml core_topology`
+   - Lab N: initial-configs copied from Lab (N-1) `solutions/`
+4. `inject-faults` skill runs automatically after each lab
+5. **Review and approve the lab before proceeding to the next**
+6. Repeat from step 3 for the next lab number
+
+### Rules
+
+- **Never generate more than one lab per session without explicit approval** to proceed
+- **Never skip the review step** — each lab's solutions become the next lab's initial-configs
+- The `chapter-build` skill (batch generation) is available but **not the default** — only use it when explicitly asked to generate multiple labs and reviews will happen afterwards
 
 ## Project Structure
 
