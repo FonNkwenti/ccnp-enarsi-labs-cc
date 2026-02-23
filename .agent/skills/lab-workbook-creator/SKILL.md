@@ -62,6 +62,56 @@ show ip route eigrp
 </details>
 ```
 
+**Troubleshooting ticket format (required for each scenario in Section 8):**
+
+Ticket headings MUST describe the **symptom** the student observes — never the fault type or target device. The fault identity is the answer and must only appear inside `<details>` spoiler blocks.
+
+```markdown
+### Ticket N — [Observable Symptom Description]
+
+[1-2 sentence scenario context — what the student has been told]
+
+**Success criteria:** [What must be true when fixed]
+
+<details>
+<summary>Click to view Diagnosis Steps</summary>
+...
+</details>
+
+<details>
+<summary>Click to view Fix</summary>
+...
+</details>
+```
+
+Examples of correct vs. incorrect headings:
+- ❌ `Ticket 1: AS Number Mismatch (Target: R2)` — reveals fault and device
+- ✅ `Ticket 1 — R2 Reports No EIGRP Neighbors` — describes symptom only
+- ❌ `Scenario 2: Passive Interface on R1` — reveals fault and device
+- ✅ `Ticket 2 — Branch-A Loses Reachability Through the Core` — describes impact
+
+**`scripts/fault-injection/README.md` format (ops-only — no challenge descriptions):**
+
+The README must only contain: prerequisites, run commands, and a restore command. It must NOT describe what each script injects. Reference `workbook.md` for the challenge. Students discover the fault by running the script and troubleshooting, not by reading the README.
+
+```markdown
+# Fault Injection — [Chapter] Lab NN
+
+Each script injects one fault. Work through the corresponding ticket in
+`workbook.md` Section 8 before looking at the solution.
+
+## Prerequisites
+...
+
+## Inject a Fault
+python3 inject_scenario_01.py   # Ticket 1
+python3 inject_scenario_02.py   # Ticket 2
+python3 inject_scenario_03.py   # Ticket 3
+
+## Restore
+python3 apply_solution.py
+```
+
 **ASCII Topology Diagram standard (required in Section 2):**
 
 Use Unicode box-drawing characters. Every diagram must include:

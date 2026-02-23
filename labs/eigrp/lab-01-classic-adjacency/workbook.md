@@ -329,9 +329,11 @@ ping 10.0.0.3 source 10.0.0.1
 
 ---
 
-### Troubleshooting Scenario 1: AS Number Mismatch (Target: R2)
+### Ticket 1 — R2 Reports No EIGRP Neighbors
 
-**Symptom:** R2 has no EIGRP neighbors. R1 and R3 are missing routes to R2.
+A change was made to R2 during a maintenance window. The network team reports that R2 is now isolated — it has no EIGRP neighbors and remote sites can no longer reach R2's subnets.
+
+**Success criteria:** R2 re-establishes EIGRP adjacencies with R1 and R3. All routes are restored.
 
 <details>
 <summary>Click to view Diagnosis Steps</summary>
@@ -370,20 +372,22 @@ R2# show ip eigrp neighbors
 
 ---
 
-### Troubleshooting Scenario 2: Passive Interface (Target: R1)
+### Ticket 2 — Branch-A Loses Reachability Through the Core
 
-**Symptom:** R1-R2 EIGRP adjacency is down. R2 cannot reach R3 via R1.
+Users at Branch-A (R2) report they cannot reach Branch-B (R3) or the corporate core. R3 can still reach R2 directly. The link between R1 and R2 appears physically up.
+
+**Success criteria:** R1-R2 EIGRP adjacency is restored. R2 can reach all remote subnets via R1.
 
 <details>
 <summary>Click to view Diagnosis Steps</summary>
 
 ```bash
-! On R1 — check interface EIGRP state
+! On R1 — check which interfaces are actively running EIGRP
 R1# show ip eigrp interfaces
-! Look for: Fa0/0 listed as passive (will not appear in output if passive)
+! Fa0/0 will be missing from the output
 
 R1# show ip eigrp interfaces detail
-! Look for: "Passive interface" flag on Fa0/0
+! Look for: "Passive interface" confirmation on Fa0/0
 
 ! Confirm in running config
 R1# show run | section eigrp
@@ -408,9 +412,11 @@ R1# show ip eigrp neighbors
 
 ---
 
-### Troubleshooting Scenario 3: Missing Network Statement (Target: R3)
+### Ticket 3 — Subnet 10.23.0.0/30 Disappears from All Routing Tables
 
-**Symptom:** R3-R2 adjacency drops. Subnet 10.23.0.0/30 disappears from R1 and R2 routing tables.
+After a config change on R3, the R2-R3 link subnet has vanished from R1 and R2's routing tables. The R3-R2 adjacency has dropped. R3's Loopback0 is still reachable via R1.
+
+**Success criteria:** 10.23.0.0/30 is re-advertised. R3-R2 adjacency is restored. Full reachability confirmed.
 
 <details>
 <summary>Click to view Diagnosis Steps</summary>
@@ -418,9 +424,9 @@ R1# show ip eigrp neighbors
 ```bash
 ! On R3 — check which interfaces are EIGRP-enabled
 R3# show ip eigrp interfaces
-! Fa0/1 (10.23.0.2) will NOT appear — not matched by any network statement
+! Fa0/1 (10.23.0.2) will NOT appear
 
-! Check routing table on R1 — missing 10.23.0.0/30
+! Check routing table on R1 — 10.23.0.0/30 missing
 R1# show ip route eigrp
 
 ! Check running config on R3
@@ -460,9 +466,9 @@ R3# show ip eigrp neighbors
 - [ ] `ping 10.0.0.2 source 10.0.0.1` from R1 succeeds
 - [ ] `ping 10.0.0.3 source 10.0.0.1` from R1 succeeds
 - [ ] `ping 10.0.0.3 source 10.0.0.2` from R2 succeeds
-- [ ] Completed Troubleshooting Scenario 1 (AS Mismatch)
-- [ ] Completed Troubleshooting Scenario 2 (Passive Interface)
-- [ ] Completed Troubleshooting Scenario 3 (Missing Network Statement)
+- [ ] Completed Ticket 1 (inject_scenario_01.py)
+- [ ] Completed Ticket 2 (inject_scenario_02.py)
+- [ ] Completed Ticket 3 (inject_scenario_03.py)
 
 ---
 
@@ -484,9 +490,9 @@ python3 scripts/fault-injection/inject_scenario_01.py
 python3 scripts/fault-injection/apply_solution.py
 ```
 
-| Script | Fault | Target |
-|---|---|---|
-| `inject_scenario_01.py` | AS Number Mismatch (100 → 200) | R2 |
-| `inject_scenario_02.py` | Passive Interface on Fa0/0 | R1 |
-| `inject_scenario_03.py` | Missing network statement for 10.23.0.0/30 | R3 |
-| `apply_solution.py` | Restore all devices to correct config | R1, R2, R3 |
+| Script | Scenario |
+|---|---|
+| `inject_scenario_01.py` | Ticket 1 |
+| `inject_scenario_02.py` | Ticket 2 |
+| `inject_scenario_03.py` | Ticket 3 |
+| `apply_solution.py` | Restore all devices |
