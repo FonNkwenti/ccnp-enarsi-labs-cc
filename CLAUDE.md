@@ -40,6 +40,7 @@ labs/[chapter]/lab-NN-*/fault-injection/
 - **Never generate more than one lab per session without explicit approval** to proceed
 - **Never skip the review step** — each lab's solutions become the next lab's initial-configs
 - The `chapter-build` skill (batch generation) is available but **not the default** — only use it when explicitly asked to generate multiple labs and reviews will happen afterwards
+- **Never write `topology.drawio` XML without first reading `.agent/skills/drawio/SKILL.md` §4.2–§4.7.** Always start from the §4.7 reference XML snippets. Plain rectangles, embedded labels, black lines, and missing octet labels are all spec violations.
 
 ## Product Guidelines
 

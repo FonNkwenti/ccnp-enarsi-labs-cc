@@ -7,6 +7,27 @@
 
 ---
 
+## 2026-02-24-L6 — topology.drawio generated as plain rectangles, ignoring the drawio skill entirely
+
+**Trigger:** Lab 01 `topology.drawio` was written from scratch as colored rounded rectangles
+with embedded labels and default-black connection lines. The drawio skill was never read.
+Every visual rule was violated: no Cisco icons, no white lines, no separate label cells,
+no last-octet labels, no black legend box, wrong title size, no PNG export.
+
+**Failure pattern:** `lab-workbook-creator/SKILL.md` Step 5 said "invoke the drawio skill"
+but this was a soft suggestion — no hard stop required reading `drawio/SKILL.md` before
+writing XML. Without the reference snippets in working memory, ad-hoc XML was written
+that satisfied none of the visual style requirements.
+
+**Prevention rule:**
+- Before writing any `topology.drawio` XML, read `drawio/SKILL.md` §4.2–§4.7 in full
+- Always start from the §4.7 reference XML snippets — never write drawio XML from scratch
+- Run both the pre-write and post-write checklists in `lab-workbook-creator/SKILL.md` Step 5
+- A topology is not complete until every checklist item passes
+- The `.drawio` file is the only required diagram artifact — no PNG export
+
+---
+
 ## 2026-02-23-L5 — Platform/IOS version must be confirmed before generating any configs
 
 **Trigger:** Named mode EIGRP configs (labs 02-10) were generated for `c3725` running IOS 12.4.
