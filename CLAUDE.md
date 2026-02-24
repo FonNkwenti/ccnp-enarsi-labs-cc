@@ -116,6 +116,7 @@ tests/              # Artifact validation tests
 
 @memory/progress.md
 @memory/decisions.md
+@tasks/lessons.md
 
 ### Memory Convention
 
