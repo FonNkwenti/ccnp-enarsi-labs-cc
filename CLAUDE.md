@@ -44,13 +44,16 @@ labs/[chapter]/lab-NN-*/fault-injection/
 ## Product Guidelines
 
 ### Voice & Tone
-- **Scenario-based**: Frame every lab in a realistic enterprise narrative (e.g., "Acme Corp is deploying EIGRP across its WAN…"). Never present labs as abstract exercises.
+- **Scenario-based**: Frame every lab in a realistic enterprise narrative. Both framings are acceptable:
+  - Third-person: "Acme Corp is deploying EIGRP across its WAN…"
+  - First-person: "As a lead network engineer, your task is to…"
+  Never present labs as abstract exercises.
 - **Challenge-first**: Present topology and high-level objectives (Section 5) before solutions (Section 8). The student should attempt the challenge before seeing how.
 - **Professional & authoritative**: Position workbooks as definitive ENARSI exam preparation material.
 
 ### Terminology
 Use **Cisco official terminology** exclusively (exam-aligned):
-- ✅ "Feasible Successor", "Administrative Distance", "Dead Interval", "Reported Distance"
+- ✅ "Feasible Successor", "Administrative Distance", "Dead Interval", "Reported Distance", "Metric Weights"
 - ❌ "backup route", "backup priority", "keepalive", "advertised distance"
 
 ### Workbook Design
