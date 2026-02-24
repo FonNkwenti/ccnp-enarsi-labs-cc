@@ -7,8 +7,8 @@
 
 - **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** lab-02-named-mode-dual-stack
-- **Next action:** Review lab-02 — approve before generating lab-03
+- **Last completed lab:** —
+- **Next action:** Generate lab-01
 - **Platform finalized:** 2026-02-23 — all routers c7200 + IOS 15.3(3)XB12; named mode EIGRP throughout; spurious network statements removed
 
 ---
@@ -18,8 +18,8 @@
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
 | — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R4 from lab-06 |
-| 01 | Classic Adjacency | Review Needed | Foundation — 60 min, covers 1.9.b adjacency |
-| 02 | Named Mode & Dual-Stack | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack |
+| 01 | Classic Adjacency | Not generated | Foundation — 60 min, covers 1.9.b adjacency |
+| 02 | Named Mode & Dual-Stack | Not generated | Foundation — 75 min, covers 1.9.a-b dual-stack |
 | 03 | Metrics & K-Values | Not generated | Intermediate — 90 min, covers 1.9.f metrics |
 | 04 | Feasible Successor | Not generated | Intermediate — 90 min, covers 1.9.c-e loop-free path selection |
 | 05 | Summarization | Not generated | Intermediate — 75 min, covers 1.5 summarization |
