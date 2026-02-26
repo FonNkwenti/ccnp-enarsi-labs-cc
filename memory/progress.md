@@ -7,8 +7,8 @@
 
 - **Chapter:** eigrp
 - **Lab in progress:** —
-- **Last completed lab:** 02
-- **Next action:** Review lab-02 — approve before generating lab-03
+- **Last completed lab:** 04
+- **Next action:** Review lab-04 — approve before generating lab-05
 - **Platform finalized:** 2026-02-23 — all routers c7200 + IOS 15.3(3)XB12; named mode EIGRP throughout; spurious network statements removed
 
 ---
@@ -19,9 +19,9 @@
 |-----|------|--------|-------|
 | — | baseline.yaml | Approved | Generated 2026-02-23 — 10 labs (8 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R4 from lab-06 |
 | 01 | Classic Adjacency | Approved | Foundation — 60 min, covers 1.9.b adjacency. Generated 2026-02-24. |
-| 02 | Named Mode & Dual-Stack | Review Needed | Foundation — 75 min, covers 1.9.a-b dual-stack. Generated 2026-02-24. |
-| 03 | Metrics & K-Values | Not generated | Intermediate — 90 min, covers 1.9.f metrics |
-| 04 | Feasible Successor | Not generated | Intermediate — 90 min, covers 1.9.c-e loop-free path selection |
+| 02 | Named Mode & Dual-Stack | Approved | Foundation — 75 min, covers 1.9.a-b dual-stack. Generated 2026-02-24. |
+| 03 | Metrics & K-Values | Review Needed | Intermediate — 90 min, covers 1.9.f metrics. Generated 2026-02-25. |
+| 04 | Feasible Successor | Approved | Intermediate — 90 min, covers 1.9.c-e loop-free path selection. Generated 2026-02-26. |
 | 05 | Summarization | Not generated | Intermediate — 75 min, covers 1.5 summarization |
 | 06 | Stub Routing | Not generated | Intermediate — 60 min, covers 1.9.d stubs, introduces R4 |
 | 07 | Filtering & Route Maps | Not generated | Advanced — 90 min, covers 1.2-1.3 filtering & route-maps |
