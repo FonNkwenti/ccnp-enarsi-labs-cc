@@ -69,6 +69,8 @@ labs:
 
 ## After generation
 
+Backfill `specs/<chapter>/chapter-spec.md` with the Generated Plan (topology summary, lab progression table, blueprint coverage table) — see skill Step 4 for format.
+
 Update `memory/progress.md`:
 - Add baseline.yaml row for this chapter with status **Approved**
 - Set "Active Work → Next action" to: "Generate lab-01 for <chapter>"

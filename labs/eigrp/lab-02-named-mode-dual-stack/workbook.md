@@ -5,7 +5,11 @@
 
 ---
 
-## Section 1 — Concepts
+## Section 1 — Concepts & Skills Covered
+
+**Exam Objective:** CCNP ENARSI 1.9.a, 1.9.b — Named Mode & Dual-Stack IPv6
+
+Named mode EIGRP is the Cisco-recommended configuration model and the format the ENARSI exam tests. This lab transitions from the classic single-process model introduced in Lab 01 to the hierarchical named mode structure, then extends it with a full IPv6 address family. Understanding how the two address families are activated, why the IPv6 AF requires an explicit router-id, and what happens during a classic-to-named migration are all exam-tested concepts.
 
 ### Named Mode EIGRP
 
@@ -57,6 +61,16 @@ There is a brief convergence event during migration — adjacencies reset and re
 | IPv6 support | Separate `ipv6 router eigrp` process | Integrated AF under one process |
 | Per-AF tuning | Not possible | Per-AF bandwidth, timers, K-values |
 | EIGRP router-id | Auto-selected from highest loopback | Auto-selected, but set explicitly per AF |
+
+**Skills this lab develops:**
+
+| Skill | Description |
+|-------|-------------|
+| Named mode structure | Hierarchical `router eigrp NAME` with address-family blocks |
+| IPv4 address family | Requires `network` statements and `no auto-summary` |
+| IPv6 address family | No `network` needed — activates on all IPv6 interfaces |
+| IPv6 prerequisites | `ipv6 unicast-routing` global + explicit `eigrp router-id` in IPv6 AF |
+| Classic → Named migration | Remove classic process, rebuild under named mode; brief adjacency reset |
 
 ---
 

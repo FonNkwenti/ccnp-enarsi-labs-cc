@@ -4,6 +4,14 @@ Systematically troubleshoot a Cisco network fault using structured methodology. 
 
 Use the `cisco-troubleshooting-1` skill. Full methodology detail is in `.agent/skills/cisco-troubleshooting-1/references/`.
 
+### Phase 0: Lab Context Gathering (Mandatory)
+Before diagnosing, read the lab files at `labs/<chapter>/<lab-NN-slug>/`:
+- `workbook.md` — topology, objectives, Console Access Table, expected verification outputs
+- `initial-configs/` — pre-configured baseline state for each device
+- `solutions/` — expected end-state (private — do not reveal unless asked)
+
+Parse the Console Access Table to build the device-to-port map. The skill provides full detail.
+
 ### Phase I: Problem Definition
 - Transform the user's description into a precise technical problem statement.
 - Clarify: exact symptoms, affected devices/subnets, timeline, recent changes.

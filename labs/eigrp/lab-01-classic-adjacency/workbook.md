@@ -5,7 +5,11 @@
 
 ---
 
-## Section 1 — Concepts
+## Section 1 — Concepts & Skills Covered
+
+**Exam Objective:** CCNP ENARSI 1.9.b — EIGRP Neighbor Adjacency
+
+Classic mode EIGRP is the foundation of all EIGRP study. Before exploring named mode, dual-stack, or advanced path selection, you must understand how two routers discover each other, what prevents an adjacency from forming, and how the `network` command activates the protocol on specific interfaces. This lab builds that foundation against a real three-router topology.
 
 ### EIGRP Overview
 
@@ -52,6 +56,16 @@ The wildcard mask is the bitwise inverse of the subnet mask. EIGRP activates on 
 ### Automatic Summarization
 
 By default, IOS performs classful auto-summarization at major network boundaries. Always configure `no auto-summary` in modern networks to prevent unexpected summarization.
+
+**Skills this lab develops:**
+
+| Skill | Description |
+|-------|-------------|
+| EIGRP process model | Classic mode uses a single AS-numbered global process |
+| Neighbor adjacency | Requirements: matching AS, K-values, common subnet |
+| `network` command | Activates EIGRP on interfaces whose IP falls in the range |
+| Hello / Hold timers | Default 5 sec Hello, 15 sec Hold on FastEthernet |
+| `no auto-summary` | Prevents classful summarization at network boundaries |
 
 ---
 

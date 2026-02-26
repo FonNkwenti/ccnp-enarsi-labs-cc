@@ -10,7 +10,7 @@ Use the `fault-injector` skill. Provide the lab path as the argument (e.g., `lab
 
 The skill will:
 
-1. Read `workbook.md` — extract Console Access Table and Section 8 troubleshooting scenarios (minimum 3)
+1. Read `workbook.md` — extract Console Access Table and Section 9 troubleshooting scenarios (minimum 3)
 2. For each scenario, generate `scripts/fault-injection/inject_scenario_0N.py`
 3. Generate `scripts/fault-injection/apply_solution.py` — restores all devices to correct config
 4. Generate `scripts/fault-injection/README.md` — usage instructions per scenario
