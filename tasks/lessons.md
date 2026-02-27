@@ -7,6 +7,19 @@
 
 ---
 
+## 2026-02-27-L7 — Exam blueprint fetched from the internet instead of local reference-docs/
+
+**Trigger:** User reminder that the authoritative exam topics file exists locally.
+
+**Failure pattern:** Using WebSearch or WebFetch to look up ENARSI exam objectives instead of reading the local file.
+
+**Prevention rule:**
+- Exam blueprint content lives at `reference-docs/300-410-ENARSI-v1.1-7-2025 exam topics.md`
+- Before referencing any exam objective (1.9.d, 1.5, etc.), read from `reference-docs/` — never search the internet
+- This applies to all skills: `chapter-topics`, `create-lab`, `chapter-build`, and any workbook Section 1 content
+
+---
+
 ## 2026-02-24-L6 — topology.drawio generated as plain rectangles, ignoring the drawio skill entirely
 
 **Trigger:** Lab 01 `topology.drawio` was written from scratch as colored rounded rectangles

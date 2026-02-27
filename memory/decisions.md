@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-02-27 — Exam Blueprints from Local reference-docs/
+
+**Decision:** Always source exam blueprint content from `reference-docs/` in the project root. Do not search the internet for exam topics or objective lists.
+
+**Files:**
+- `reference-docs/300-410-ENARSI-v1.1-7-2025 exam topics.md` — authoritative ENARSI blueprint
+
+**Rule:** When any skill or lab generation task requires exam objective context, read from `reference-docs/` first. Never use WebSearch or WebFetch to find exam topics.
+
+---
+
 ## 2026-02-23 — All Routers c7200 with IOS 15.3(3)XB12 (Named Mode Supported)
 
 **Decision:** All four routers (R1–R4) use `c7200` platform with IOS image `c7200-adventerprisek9-mz.153-3.XB12.image`. Named mode EIGRP (`router eigrp ENARSI` / `address-family`) is used throughout labs 02–10.
