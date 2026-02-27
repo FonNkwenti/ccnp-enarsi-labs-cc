@@ -41,9 +41,9 @@ labs/[chapter]/lab-NN-*/fault-injection/
 - **Never skip the review step** — each lab's solutions become the next lab's initial-configs
 - The `chapter-build` skill (batch generation) is available but **not the default** — only use it when explicitly asked to generate multiple labs and reviews will happen afterwards
 - **Never write `topology.drawio` XML without first reading `.agent/skills/drawio/SKILL.md` §4.2–§4.7.** Always start from the §4.7 reference XML snippets. Plain rectangles, embedded labels, black lines, and missing octet labels are all spec violations.
-- **After `chapter-topics` generates `baseline.yaml`**: update `LABS_MAP.md` — add the chapter branch with `✓ baseline.yaml` and all planned labs as `○ Lab NN <name>`
-- **After `create-lab` completes all artifacts**: update `LABS_MAP.md` — set that lab's node to `◉ Lab NN <name>` (Review Needed)
-- **After updating `memory/progress.md` to Approved**: also update `LABS_MAP.md` — set that lab's node to `✓ Lab NN <name>`
+- **After `chapter-topics` generates `baseline.yaml`**: update the mindmap in `README.md` — add the chapter branch with `✓ baseline.yaml` and all planned labs as `○ Lab NN <name>`
+- **After `create-lab` completes all artifacts**: update the mindmap in `README.md` — set that lab's node to `◉ Lab NN <name>` (Review Needed)
+- **After updating `memory/progress.md` to Approved**: also update the mindmap in `README.md` — set that lab's node to `✓ Lab NN <name>`
 
 ## Product Guidelines
 
@@ -129,5 +129,5 @@ tests/              # Artifact validation tests
 
 - `memory/progress.md` — lab generation status per chapter (update after every lab session)
 - `memory/decisions.md` — append-only log of design decisions with rationale (newest first)
-- `LABS_MAP.md` — Mermaid mindmap of all chapters and labs; auto-updated after every skill run and every approval; do not edit manually
+- `README.md` — project intro + Mermaid mindmap of all chapters and labs; auto-updated after every skill run and every approval; do not edit manually
 - After completing or approving a lab, update the status row in `memory/progress.md` before ending the session
