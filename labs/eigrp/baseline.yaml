@@ -1,6 +1,14 @@
 chapter: eigrp
 version: "1.0"
 exam: 300-410 ENARSI
+
+meta:
+  created:
+    date: "2026-02-23"
+    agent: claude-sonnet-4-6
+    skill: chapter-topics
+    skill_version: "2026-02-23"
+  updated: []
 blueprint_sections:
   - "1.9 Troubleshoot EIGRP (classic and named mode)"
   - "1.9.a Address families (IPv4, IPv6)"

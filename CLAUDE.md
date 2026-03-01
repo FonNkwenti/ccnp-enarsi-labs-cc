@@ -44,6 +44,7 @@ labs/[chapter]/lab-NN-*/fault-injection/
 - **After `chapter-topics` generates `baseline.yaml`**: update the mindmap in `README.md` — add the chapter branch with `✓ baseline.yaml` and all planned labs as `○ Lab NN <name>`
 - **After `create-lab` completes all artifacts**: update the mindmap in `README.md` — set that lab's node to `◉ Lab NN <name>` (Review Needed)
 - **After updating `memory/progress.md` to Approved**: also update the mindmap in `README.md` — set that lab's node to `✓ Lab NN <name>`
+- **After an external agent (Gemini, Kimi, etc.) generates or modifies a lab**: run `/tag-lab <chapter/lab-slug> <agent-name> <skill-name>` to stamp `meta.yaml`
 
 ## Product Guidelines
 
@@ -101,6 +102,7 @@ labs/               # Generated lab content (DeepSeek Standard)
       solutions/
       setup_lab.py
       scripts/fault-injection/
+      meta.yaml              ← provenance: agent, skill, skill_version, files
 
 memory/             # Cross-session continuity
 tests/              # Artifact validation tests
