@@ -35,7 +35,7 @@ mindmap
       ✓ Lab 04 Feasible Successor
       ✓ Lab 05 Summarization
       ✓ Lab 06 Stub Routing
-      ○ Lab 07 Filtering and Route Maps
+      ◉ Lab 07 Filtering and Route Maps
       ○ Lab 08 AD and Split Horizon
       ○ Lab 09 Capstone I
       ○ Lab 10 Capstone II

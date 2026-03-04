@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-03-04 — IOS Command Compatibility Verification System
+
+**Decision:** Introduced a just-in-time command compatibility verification system to prevent IOS syntax failures in generated lab configs.
+
+**Files added:**
+- `reference-docs/ios-compatibility.yaml` — compatibility record (pass/fail per command per platform; grows incrementally)
+- `scripts/verify_ios_commands.py` — Netmiko script; connects to R1 (c7200, port 5001) and R2 (c3725, port 5002), tests commands in their IOS context, updates the YAML
+
+**Workflow change:**
+- `lab-workbook-creator` skill now generates solutions **first** (draft → verify → write to disk), then writes the workbook. This ensures cheatsheets and task descriptions reference only verified, working commands.
+- Step order: Step 2 (solutions draft+verify) → Step 3 (workbook) → Step 4 (initial-configs)
+
+**Platform scope (corrected 2026-03-04):**
+- c3725 is **not deprecated**. It remains valid for labs that require L2 switching via the NM-16ESW module (fa1/0–fa1/15).
+- c3725 must **never** be used for routing-only roles or with any IOS 15+ feature (named-mode EIGRP, advanced crypto, etc.) — its IOS 12.4 image does not support them.
+- c7200 is the default for all routing roles (hub, core, ABR, branch, spoke, edge).
+- Rule 6 in `gns3/SKILL.md` Section 5 enforces platform-command alignment via `reference-docs/ios-compatibility.yaml`.
+
+---
+
 ## 2026-02-27 — Exam Blueprints from Local reference-docs/
 
 **Decision:** Always source exam blueprint content from `reference-docs/` in the project root. Do not search the internet for exam topics or objective lists.

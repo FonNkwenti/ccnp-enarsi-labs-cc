@@ -1,0 +1,65 @@
+platforms:
+  c7200:
+    ios: "15.3(3)XB12"
+    console_port: 5001
+    deprecated: false
+  c3725:
+    ios: "12.4(15)T14"
+    console_port: 5002
+    deprecated: false
+
+# context values: global | interface | router-eigrp | router-eigrp-named | af-ipv4-unicast | router-ospf | router-bgp
+commands:
+  - command: "router eigrp ENARSI"
+    context: global
+    c7200: pass
+    c3725: fail
+    notes: "Named-mode EIGRP process requires IOS 15.0+"
+
+  - command: "address-family ipv4 unicast autonomous-system 100"
+    context: router-eigrp-named
+    c7200: pass
+    c3725: fail
+    notes: "Named mode address-family requires IOS 15.0+"
+
+  - command: "ip authentication mode eigrp 100 md5"
+    context: interface
+    c7200: unknown
+    c3725: unknown
+    notes: ""
+
+  - command: "ip authentication key-chain eigrp 100 EIGRP_AUTH"
+    context: interface
+    c7200: unknown
+    c3725: unknown
+    notes: ""
+
+  - command: "ip summary-address eigrp 100 10.0.0.0 255.0.0.0"
+    context: interface
+    c7200: unknown
+    c3725: unknown
+    notes: ""
+
+  - command: "distribute-list prefix PFX_OUT out"
+    context: router-eigrp
+    c7200: unknown
+    c3725: unknown
+    notes: ""
+
+  - command: "route-map RM_POLICY permit 10"
+    context: global
+    c7200: unknown
+    c3725: unknown
+    notes: ""
+
+  - command: "distribute-list prefix PFX_DENY_R4_STUB out FastEthernet0/0"
+    context: af-ipv4-unicast
+    c7200: unknown
+    c3725: unknown
+    notes: "Named mode EIGRP — must be under topology base sub-mode"
+
+  - command: "distribute-list route-map RM_TAG_BRANCH_A out"
+    context: af-ipv4-unicast
+    c7200: unknown
+    c3725: unknown
+    notes: "Named mode EIGRP — route-map based distribute-list under topology base"
