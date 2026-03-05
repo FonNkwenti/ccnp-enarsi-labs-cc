@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-03-05 — IOS Compatibility System Moved to Skills Submodule
+
+**Decision:** Moved `ios-compatibility.yaml` and `verify_ios_commands.py` from project-level directories into the skills submodule so the data and tooling are shared across all CCNP lab projects.
+
+**New canonical paths (relative to project root):**
+- Data file: `.agent/skills/reference-data/ios-compatibility.yaml`
+- Verify script: `python3 .agent/skills/scripts/verify_ios_commands.py`
+
+**Files removed from project:**
+- `reference-docs/ios-compatibility.yaml` — deleted
+- `scripts/verify_ios_commands.py` — deleted
+- `scripts/` directory — removed (was empty)
+
+**Skill files updated** (all 3 references changed to new paths):
+- `.agent/skills/gns3/SKILL.md`
+- `.agent/skills/lab-workbook-creator/SKILL.md`
+- `.agent/skills/mega-capstone-creator/SKILL.md`
+
+---
+
 ## 2026-03-04 — IOS Command Compatibility Verification System
 
 **Decision:** Introduced a just-in-time command compatibility verification system to prevent IOS syntax failures in generated lab configs.
