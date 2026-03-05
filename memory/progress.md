@@ -8,7 +8,7 @@
 - **Chapter:** eigrp
 - **Lab in progress:** —
 - **Last completed lab:** 08
-- **Next action:** Review lab-08 — approve before generating lab-09
+- **Next action:** Generate lab-09 (Capstone I) — clean slate from core_topology; all blueprint bullets
 - **Platform finalized:** 2026-02-23 — all routers c7200 + IOS 15.3(3)XB12; named mode EIGRP throughout; spurious network statements removed
 
 ---
@@ -24,8 +24,8 @@
 | 04 | Feasible Successor | Approved | Intermediate — 90 min, covers 1.9.c-e loop-free path selection. Generated 2026-02-26. |
 | 05 | Summarization | Approved | Intermediate — 75 min, covers 1.5 summarization. Generated 2026-02-27. Approved 2026-02-27. |
 | 06 | Stub Routing | Approved | Intermediate — 60 min, covers 1.9.d stubs, introduces R4. Generated 2026-02-27. Approved 2026-02-27. |
-| 07 | Filtering & Route Maps | Review Needed | Advanced — 90 min, covers 1.2-1.3 filtering & route-maps. Generated 2026-03-04. |
-| 08 | AD & Split Horizon | Review Needed | Advanced — 75 min, covers 1.1-1.3 AD & split horizon. Generated 2026-03-05. |
+| 07 | Filtering & Route Maps | Approved | Advanced — 90 min, covers 1.2-1.3 filtering & route-maps. Generated 2026-03-04. Approved 2026-03-05. |
+| 08 | AD & Split Horizon | Approved | Advanced — 75 min, covers 1.1-1.3 AD & split horizon. Generated 2026-03-05. Approved 2026-03-05. |
 | 09 | Capstone I — Full Protocol Mastery | Not generated | Advanced — 120 min, clean slate; all blueprint bullets; configuration challenge |
 | 10 | Capstone II — Comprehensive Troubleshooting | Not generated | Advanced — 120 min, clean slate; 5+ concurrent faults; troubleshooting challenge |
 
