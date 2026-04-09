@@ -1,0 +1,239 @@
+chapter: VPN
+version: 1.0
+
+meta:
+  created:
+    date: "2026-03-06"
+    agent: claude-sonnet-4-6
+    skill: chapter-topics
+    skill_version: "2026-03-05 12:50:24 +0400"
+  updated: []
+
+# ---------------------------------------------------------------------------
+# Core topology — Hub + 2 initial spokes; R4 (third spoke) added from lab-03
+#
+# Address plan:
+#   Underlay (simulated Internet / transport):
+#     10.0.12.0/30  Hub (R1 fa0/0) ↔ ISP-side R2 (fa0/0)
+#     10.0.13.0/30  Hub (R1 fa1/0) ↔ ISP-side R3 (fa0/0)
+#     10.0.14.0/30  Hub (R1 fa1/1) ↔ ISP-side R4 (fa0/0)   [active from lab-03]
+#   Overlay / tunnel (DMVPN cloud):
+#     172.16.0.0/24  tunnel0 on all routers
+#   Loopbacks (simulating LAN prefixes):
+#     R1: 192.168.1.0/24  Hub LAN
+#     R2: 192.168.2.0/24  Spoke-A LAN
+#     R3: 192.168.3.0/24  Spoke-B LAN
+#     R4: 192.168.4.0/24  Spoke-C LAN  [active from lab-03]
+# ---------------------------------------------------------------------------
+
+core_topology:
+  devices:
+    - name: R1
+      platform: c7200
+      ios_image: c7200-adventerprisek9-mz.153-3.XB12.image
+      role: DMVPN Hub
+      loopback0: 192.168.1.1/24
+      tunnel0: 172.16.0.1/24
+      console_port: 5001
+      interfaces:
+        - name: fa0/0
+          ip: 10.0.12.1/30
+          description: Underlay to R2
+        - name: fa1/0
+          ip: 10.0.13.1/30
+          description: Underlay to R3
+
+    - name: R2
+      platform: c7200
+      ios_image: c7200-adventerprisek9-mz.153-3.XB12.image
+      role: DMVPN Spoke-A
+      loopback0: 192.168.2.1/24
+      tunnel0: 172.16.0.2/24
+      console_port: 5002
+      interfaces:
+        - name: fa0/0
+          ip: 10.0.12.2/30
+          description: Underlay to R1
+
+    - name: R3
+      platform: c7200
+      ios_image: c7200-adventerprisek9-mz.153-3.XB12.image
+      role: DMVPN Spoke-B
+      loopback0: 192.168.3.1/24
+      tunnel0: 172.16.0.3/24
+      console_port: 5003
+      interfaces:
+        - name: fa0/0
+          ip: 10.0.13.2/30
+          description: Underlay to R1
+
+  links:
+    - id: L1
+      source: R1:fa0/0
+      target: R2:fa0/0
+      subnet: 10.0.12.0/30
+      description: Hub underlay to Spoke-A
+
+    - id: L2
+      source: R1:fa1/0
+      target: R3:fa0/0
+      subnet: 10.0.13.0/30
+      description: Hub underlay to Spoke-B
+
+# ---------------------------------------------------------------------------
+# Optional devices — R4 (third spoke) introduced in lab-03
+# IP addresses pre-reserved
+# ---------------------------------------------------------------------------
+
+optional_devices:
+  - name: R4
+    platform: c7200
+    ios_image: c7200-adventerprisek9-mz.153-3.XB12.image
+    role: DMVPN Spoke-C
+    loopback0: 192.168.4.1/24
+    tunnel0: 172.16.0.4/24
+    console_port: 5004
+    available_from: 3
+    purpose: Third spoke for Phase 2 spoke-to-spoke traffic and full-mesh NHRP resolution
+
+optional_links:
+  - id: L3
+    source: R1:fa1/1
+    target: R4:fa0/0
+    subnet: 10.0.14.0/30
+    available_from: 3
+    description: Hub underlay to Spoke-C
+
+# ---------------------------------------------------------------------------
+# Lab progression
+# ---------------------------------------------------------------------------
+
+labs:
+  - number: 1
+    title: "GRE Tunnel Foundations"
+    difficulty: Foundation
+    time_minutes: 60
+    devices: [R1, R2, R3]
+    blueprint_bullets: [2.3.a]
+    objectives:
+      - Configure point-to-point GRE tunnels between R1 (Hub) and R2 (Spoke-A), and between R1 and R3 (Spoke-B)
+      - Assign tunnel interface IP addresses and verify tunnel adjacency with ping
+      - Understand GRE encapsulation, tunnel source/destination, and keepalive behavior
+      - Verify underlay reachability as the prerequisite for overlay tunnel establishment
+    scenario: >
+      As a lead network engineer at Acme Corp, you are tasked with connecting two branch offices
+      (Spoke-A and Spoke-B) to the corporate hub using GRE tunnels over a simulated Internet
+      transport. This lab establishes the foundational GRE skills required for DMVPN Phase 1.
+
+  - number: 2
+    title: "DMVPN Phase 1 — mGRE and NHRP"
+    difficulty: Foundation
+    time_minutes: 75
+    devices: [R1, R2, R3]
+    extends: 1
+    blueprint_bullets: [2.3.a, 2.3.b]
+    objectives:
+      - Migrate point-to-point GRE tunnels to multipoint GRE (mGRE) on all routers
+      - Configure NHRP: define the NHS (hub R1), register spoke tunnel addresses, and verify NHRP cache
+      - Establish DMVPN Phase 1 hub-and-spoke overlay (all spoke-to-spoke traffic flows through hub)
+      - Verify NHRP registration and resolution with show ip nhrp and debug ip nhrp
+    scenario: >
+      Acme Corp is scaling its WAN. Instead of maintaining N point-to-point GRE tunnels,
+      the network team migrates to DMVPN Phase 1 using mGRE and NHRP so that new spokes
+      can be added without hub reconfiguration.
+
+  - number: 3
+    title: "DMVPN Phase 2 — Spoke-to-Spoke Traffic"
+    difficulty: Intermediate
+    time_minutes: 90
+    devices: [R1, R2, R3, R4]
+    extends: 2
+    blueprint_bullets: [2.3.a, 2.3.b, 2.3.d, 2.3.e]
+    objectives:
+      - Introduce R4 (Spoke-C) and add its underlay link and DMVPN configuration
+      - Migrate from DMVPN Phase 1 to Phase 2 by enabling NHRP redirect on the hub and shortcut on spokes
+      - Verify dynamic spoke-to-spoke tunnel creation via NHRP resolution (show ip nhrp detail)
+      - Configure EIGRP as the dynamic routing protocol over the DMVPN tunnel (next-hop preservation critical)
+      - Verify spoke-to-spoke direct forwarding without hub transit
+    scenario: >
+      Acme Corp's video-conferencing traffic between branch offices is saturating the hub link.
+      The team upgrades to DMVPN Phase 2 to enable direct spoke-to-spoke tunnels on demand,
+      and adds a third spoke (Spoke-C / R4) to complete the full branch network.
+
+  - number: 4
+    title: "IPsec Profile over DMVPN"
+    difficulty: Intermediate
+    time_minutes: 90
+    devices: [R1, R2, R3, R4]
+    extends: 3
+    blueprint_bullets: [2.3.a, 2.3.b, 2.3.c, 2.3.d, 2.3.e]
+    objectives:
+      - Configure an IKEv1 ISAKMP policy and IPsec transform-set on all routers
+      - Apply an IPsec profile to the mGRE tunnel interfaces to encrypt DMVPN overlay traffic
+      - Verify IKE Phase 1 and Phase 2 SAs with show crypto isakmp sa and show crypto ipsec sa
+      - Confirm that spoke-to-spoke NHRP resolution still functions after IPsec is applied
+      - Troubleshoot common IPsec/DMVPN integration issues (MTU, DF bit, NHRP over encrypted tunnel)
+    scenario: >
+      Acme Corp's security policy mandates encryption for all WAN traffic. The network team
+      layers IPsec profiles onto the existing DMVPN Phase 2 topology to encrypt both
+      hub-to-spoke and dynamic spoke-to-spoke tunnels.
+
+  - number: 5
+    title: "MPLS Theory Lab — Operations and L3 VPN Concepts"
+    difficulty: Foundation
+    time_minutes: 60
+    devices: [R1, R2, R3]
+    blueprint_bullets: [2.1, 2.2]
+    clean_slate: true
+    type: theory
+    objectives:
+      - Describe MPLS label operations (push, pop, swap) and the roles of LSR, LER, and P/PE routers
+      - Explain LDP label distribution and Label Switched Path (LSP) establishment
+      - Describe MPLS Layer 3 VPN architecture (VRF, RT import/export, MP-BGP between PE routers)
+      - Walk through a packet trace showing label stacking across a provider network
+      - Verify conceptual understanding with structured verification questions (no live config)
+    scenario: >
+      As part of a handoff meeting, your team is reviewing the service provider MPLS backbone
+      that carries Acme Corp's enterprise VPN traffic. This theory lab solidifies your
+      understanding of MPLS operations and L3 VPN concepts for the 300-410 exam.
+    notes: >
+      This is a describe-only lab aligned to exam bullets 2.1 and 2.2. No router configuration
+      is generated. The workbook provides detailed conceptual content, packet-trace walkthroughs,
+      and verification Q&A. initial-configs contain IP addressing only (loopbacks + underlay);
+      no MPLS commands are configured or expected.
+
+  - number: 6
+    title: "DMVPN Full Protocol Mastery — Capstone I"
+    type: capstone_i
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint_bullets: [2.1, 2.2, 2.3.a, 2.3.b, 2.3.c, 2.3.d, 2.3.e]
+    devices: [R1, R2, R3, R4]
+    objectives:
+      - Configure the complete DMVPN Phase 2 solution from scratch (mGRE + NHRP + IPsec + dynamic routing)
+      - Enable spoke-to-spoke connectivity and verify dynamic NHRP resolution across all three spokes
+      - Apply IPsec encryption to all tunnel traffic and verify IKE/IPsec SAs
+      - Configure EIGRP with correct next-hop preservation over the DMVPN overlay
+      - Demonstrate understanding of MPLS describe-only concepts (2.1, 2.2) through workbook answers
+      - No step-by-step guidance; all blueprint bullets 2.1–2.3.e must be addressed
+
+  - number: 7
+    title: "DMVPN Comprehensive Troubleshooting — Capstone II"
+    type: capstone_ii
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint_bullets: [2.3.a, 2.3.b, 2.3.c, 2.3.d, 2.3.e]
+    devices: [R1, R2, R3, R4]
+    objectives:
+      - Diagnose and resolve 5+ concurrent faults spanning all DMVPN blueprint bullets
+      - Fault coverage includes (but is not limited to):
+          - mGRE misconfiguration (wrong tunnel mode or missing multipoint keyword)
+          - NHRP authentication mismatch or incorrect NHS address on a spoke
+          - NHRP network-id mismatch breaking registration
+          - IPsec transform-set mismatch preventing IKE Phase 2 negotiation
+          - EIGRP next-hop not preserved (ip next-hop-self eigrp missing on hub)
+          - DMVPN Phase 2 shortcut not enabled (ip nhrp shortcut missing on spoke)
+      - The network is pre-broken; students must diagnose from symptoms only (no fault descriptions in headings)
+      - All faults must be identified and resolved within the 120-minute window

@@ -1,0 +1,316 @@
+chapter: bgp
+version: "1.0"
+exam: 300-410 ENARSI
+
+meta:
+  created:
+    date: "2026-03-06"
+    agent: claude-sonnet-4-6
+    skill: chapter-topics
+    skill_version: "2026-03-05"
+  updated: []
+
+blueprint_sections:
+  - "1.11 Troubleshoot BGP (Internal and External; unicast and VRF-lite)"
+  - "1.11.a Address families (IPv4, IPv6)"
+  - "1.11.b Neighbor relationship and authentication (next-hop, multihop, 4-byte AS, private AS, route refresh, synchronization, operation, peer group, states and timers)"
+  - "1.11.c Path preference (attributes and best-path)"
+  - "1.11.d Route reflector (excluding multiple route reflectors, confederations, dynamic peer)"
+  - "1.11.e Policies (inbound/outbound filtering, path manipulation)"
+  - "1.1 Troubleshoot administrative distance (BGP context)"
+  - "1.2 Troubleshoot route map (BGP attributes, tagging, filtering)"
+  - "1.3 Troubleshoot loop prevention mechanisms (AS-path, communities)"
+
+# ─────────────────────────────────────────────
+# CORE TOPOLOGY  (Labs 01–10, active throughout)
+# R1 (RR / eBGP hub, AS 65001) ↔ R2 (iBGP, AS 65001) ↔ R3 (eBGP peer, AS 65002)
+# R1 also peers eBGP with R3; R2 acts as iBGP RR client
+# ─────────────────────────────────────────────
+core_topology:
+
+  devices:
+    - name: R1
+      platform: c7200
+      role: "Route Reflector / eBGP Hub (AS 65001)"
+      console_port: 5001
+      loopback0:
+        ipv4: 10.0.0.1/32
+        ipv6: "2001:db8::1/128"
+      # Slot 0: C7200-IO-FE  → fa0/0
+      # Slot 1: PA-2FE-TX    → fa1/0, fa1/1
+      interfaces:
+        fa0/0: "10.12.0.1/30 — iBGP link to R2 (AS 65001)"
+        fa1/0: "10.13.0.1/30 — eBGP link to R3 (AS 65002)"
+        fa1/1: "10.14.0.1/30 — eBGP link to R4 (AS 65003; optional, activated lab-04)"
+
+    - name: R2
+      platform: c7200
+      role: "iBGP Peer / RR Client (AS 65001)"
+      console_port: 5002
+      loopback0:
+        ipv4: 10.0.0.2/32
+        ipv6: "2001:db8::2/128"
+      loopback1:
+        ipv4: 172.16.2.0/24
+        note: "Customer prefix advertised via BGP"
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
+      interfaces:
+        fa0/0: "10.12.0.2/30 — iBGP link to R1 (AS 65001)"
+        fa0/1: "10.25.0.1/30 — iBGP link to R5 (AS 65001; optional, activated lab-02)"
+
+    - name: R3
+      platform: c7200
+      role: "eBGP Peer (AS 65002)"
+      console_port: 5003
+      loopback0:
+        ipv4: 10.0.0.3/32
+        ipv6: "2001:db8::3/128"
+      loopback1:
+        ipv4: 172.16.3.0/24
+        note: "External prefix advertised into AS 65001"
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
+      interfaces:
+        fa0/0: "10.13.0.2/30 — eBGP link to R1 (AS 65001)"
+        fa0/1: "10.34.0.1/30 — eBGP link to R4 (AS 65003; optional, activated lab-04)"
+
+  links:
+    - id: L1
+      source: "R1:fa0/0"
+      target: "R2:fa0/0"
+      subnet_ipv4: 10.12.0.0/30
+      subnet_ipv6: "2001:db8:12::/64"
+      description: R1 to R2 (iBGP, AS 65001)
+    - id: L2
+      source: "R1:fa1/0"
+      target: "R3:fa0/0"
+      subnet_ipv4: 10.13.0.0/30
+      subnet_ipv6: "2001:db8:13::/64"
+      description: R1 to R3 (eBGP, AS 65001 ↔ AS 65002)
+
+# ─────────────────────────────────────────────
+# OPTIONAL DEVICES  (activated per lab)
+# ─────────────────────────────────────────────
+optional_devices:
+  - name: R4
+    platform: c7200
+    role: "eBGP Peer (AS 65003)"
+    console_port: 5004
+    available_from: 4
+    purpose: >
+      Provides a second external AS for path attribute comparison (MED, LOCAL_PREF,
+      AS-path length), policy labs (lab-06, lab-07), and VRF-lite (lab-08).
+      Also enables dual-path eBGP scenarios for best-path selection.
+    loopback0:
+      ipv4: 10.0.0.4/32
+      ipv6: "2001:db8::4/128"
+    loopback1:
+      ipv4: 172.16.4.0/24
+      note: "External prefix advertised from AS 65003"
+    # Slot 0: C7200-IO-FE → fa0/0
+    # Slot 1: PA-FE-TX    → fa1/0
+    interfaces:
+      fa0/0: "10.14.0.2/30 — eBGP link to R1"
+      fa1/0: "10.34.0.2/30 — eBGP link to R3"
+
+  - name: R5
+    platform: c7200
+    role: "iBGP Peer / RR Client (AS 65001)"
+    console_port: 5005
+    available_from: 2
+    purpose: >
+      Provides a second iBGP peer in AS 65001, enabling Route Reflector scenarios
+      (lab-02) and full-mesh vs. RR comparison. Also used in peer-group labs (lab-05).
+    loopback0:
+      ipv4: 10.0.0.5/32
+      ipv6: "2001:db8::5/128"
+    loopback1:
+      ipv4: 172.16.5.0/24
+      note: "Customer prefix advertised via BGP from R5"
+    # Slot 0: C7200-IO-2FE → fa0/0
+    interfaces:
+      fa0/0: "10.25.0.2/30 — iBGP link to R2"
+
+optional_links:
+  - id: L3
+    source: "R1:fa1/1"
+    target: "R4:fa0/0"
+    subnet_ipv4: 10.14.0.0/30
+    subnet_ipv6: "2001:db8:14::/64"
+    available_from: 4
+    description: R1 to R4 (eBGP, AS 65001 ↔ AS 65003)
+  - id: L4
+    source: "R3:fa0/1"
+    target: "R4:fa1/0"
+    subnet_ipv4: 10.34.0.0/30
+    subnet_ipv6: "2001:db8:34::/64"
+    available_from: 4
+    description: R3 to R4 (eBGP, AS 65002 ↔ AS 65003)
+  - id: L5
+    source: "R2:fa0/1"
+    target: "R5:fa0/0"
+    subnet_ipv4: 10.25.0.0/30
+    subnet_ipv6: "2001:db8:25::/64"
+    available_from: 2
+    description: R2 to R5 (iBGP, AS 65001)
+
+# ─────────────────────────────────────────────
+# LAB SERIES
+# ─────────────────────────────────────────────
+labs:
+  - number: 1
+    title: "eBGP Peering Fundamentals"
+    slug: "lab-01-ebgp-peering"
+    difficulty: Foundation
+    time_minutes: 60
+    blueprint: ["1.11", "1.11.b"]
+    devices: [R1, R3]
+    objectives:
+      - "Configure eBGP peering between R1 (AS 65001) and R3 (AS 65002) using physical interface IPs"
+      - "Advertise loopback prefixes (10.0.0.1/32 and 10.0.0.3/32) and customer networks via the network command"
+      - "Verify BGP neighbor state reaches Established and routes appear in show ip bgp"
+      - "Examine BGP state machine transitions and identify the role of each state (Idle, Active, OpenSent, OpenConfirm, Established)"
+      - "Troubleshoot: AS number mismatch, incorrect neighbor IP, missing network statement, BGP not sending updates"
+
+  - number: 2
+    title: "iBGP, Full-Mesh & Route Reflector"
+    slug: "lab-02-ibgp-route-reflector"
+    difficulty: Foundation
+    time_minutes: 75
+    blueprint: ["1.11.b", "1.11.d"]
+    devices: [R1, R2, R3, R5]
+    extends: 1
+    objectives:
+      - "Add R5 to the topology; configure iBGP full-mesh between R1, R2, and R5 (AS 65001)"
+      - "Demonstrate the iBGP split-horizon rule: R2 does not forward eBGP-learned routes from R1 to R5 without full-mesh"
+      - "Convert R1 to a Route Reflector with R2 and R5 as RR clients; remove full-mesh peer sessions"
+      - "Verify R5 now receives eBGP routes from R3 via the Route Reflector (R1)"
+      - "Troubleshoot: missing full-mesh causing black holes, RR client misconfiguration, next-hop unreachability"
+
+  - number: 3
+    title: "BGP Address Families — IPv4 Unicast & IPv6"
+    slug: "lab-03-address-families"
+    difficulty: Intermediate
+    time_minutes: 75
+    blueprint: ["1.11.a", "1.11.b"]
+    devices: [R1, R2, R3, R5]
+    extends: 2
+    objectives:
+      - "Enable BGP IPv6 address family on R1 and R3 using 'address-family ipv6 unicast'"
+      - "Configure IPv6 BGP neighbors using link-local or global IPv6 addresses"
+      - "Advertise IPv6 loopback prefixes (2001:db8::/128 series) from each router"
+      - "Verify IPv4 and IPv6 routes appear separately in 'show bgp ipv4 unicast' and 'show bgp ipv6 unicast'"
+      - "Troubleshoot: missing 'no bgp default ipv4-unicast', IPv6 neighbor not activating, missing IPv6 unicast routing"
+
+  - number: 4
+    title: "BGP Path Attributes & Best-Path Selection"
+    slug: "lab-04-path-attributes"
+    difficulty: Intermediate
+    time_minutes: 90
+    blueprint: ["1.11.c", "1.11.b"]
+    devices: [R1, R2, R3, R4, R5]
+    extends: 3
+    objectives:
+      - "Add R4 (AS 65003) with eBGP peering to both R1 and R3; create a dual-path scenario to 172.16.4.0/24"
+      - "Manipulate LOCAL_PREF on R1 inbound from R4 to prefer paths through R1 over R3"
+      - "Manipulate MED on R3 outbound toward R1 to influence R1 path selection"
+      - "Observe AS-path length influencing best-path when LOCAL_PREF and MED are equal"
+      - "Verify best-path decision using 'show ip bgp 172.16.4.0' and identify which attribute triggered selection"
+      - "Troubleshoot: LOCAL_PREF not propagating to iBGP peers, MED comparison disabled, AS-path prepend misconfiguration"
+
+  - number: 5
+    title: "BGP Authentication, Peer Groups & Timers"
+    slug: "lab-05-peer-groups-auth"
+    difficulty: Intermediate
+    time_minutes: 75
+    blueprint: ["1.11.b"]
+    devices: [R1, R2, R3, R4, R5]
+    extends: 4
+    objectives:
+      - "Configure MD5 authentication on all eBGP and iBGP sessions; verify adjacency drops without matching password"
+      - "Create a BGP peer group for iBGP clients (R2, R5) on R1 with shared attributes (update-source, next-hop-self, route-reflector-client)"
+      - "Tune BGP keepalive and hold timers on the eBGP session with R3 (keepalive 10, hold 30)"
+      - "Verify peer group configuration reduces redundant per-neighbor statements"
+      - "Troubleshoot: MD5 password mismatch, peer group attribute inheritance, timer negotiation"
+
+  - number: 6
+    title: "BGP Policies — Inbound/Outbound Filtering & Route Maps"
+    slug: "lab-06-policies-filtering"
+    difficulty: Advanced
+    time_minutes: 90
+    blueprint: ["1.11.e", "1.2"]
+    devices: [R1, R2, R3, R4, R5]
+    extends: 5
+    objectives:
+      - "Apply a prefix-list to filter specific inbound prefixes from R3 (suppress 172.16.3.0/24)"
+      - "Apply a route-map outbound to R4 to set community values before advertising prefixes"
+      - "Use AS-path filter (ip as-path access-list) to deny routes with AS 65003 in the path"
+      - "Verify filtered routes are absent in the BGP table and route-map community attributes are set correctly"
+      - "Troubleshoot: prefix-list direction mismatch, route-map missing match clause, implicit deny at end of prefix-list"
+
+  - number: 7
+    title: "BGP Communities & AS-Path Loop Prevention"
+    slug: "lab-07-communities-loop-prevention"
+    difficulty: Advanced
+    time_minutes: 90
+    blueprint: ["1.3", "1.11.c", "1.11.e"]
+    devices: [R1, R2, R3, R4, R5]
+    extends: 6
+    objectives:
+      - "Configure BGP communities (well-known: NO_EXPORT, NO_ADVERTISE; standard community) and send-community to neighbors"
+      - "Apply AS-path prepending on R1 outbound to R3 to make paths through R4 less preferred"
+      - "Verify NO_EXPORT community prevents R3 from re-advertising prefixes beyond its eBGP peers"
+      - "Demonstrate AS-path loop prevention: R3 rejecting an update that contains its own AS (65002) in the path"
+      - "Troubleshoot: missing send-community, community not matching route-map, AS-path prepend applied in wrong direction"
+
+  - number: 8
+    title: "BGP Administrative Distance & VRF-Lite"
+    slug: "lab-08-ad-vrf-lite"
+    difficulty: Advanced
+    time_minutes: 90
+    blueprint: ["1.1", "1.11"]
+    devices: [R1, R2, R3, R4, R5]
+    extends: 7
+    objectives:
+      - "Modify BGP AD (eBGP 20, iBGP 200) using 'distance bgp' to influence route preference vs. static or OSPF routes"
+      - "Configure VRF-Lite on R1 with a customer VRF; move the R1–R3 eBGP session into the VRF"
+      - "Verify VRF BGP table is isolated from the global routing table"
+      - "Configure route leaking between VRF and global table using static routes"
+      - "Troubleshoot: VRF BGP neighbor not forming, AD override hiding eBGP routes, route leaking configuration errors"
+
+  - number: 9
+    title: "BGP Full Protocol Mastery — Capstone I"
+    slug: "lab-09-capstone-i"
+    type: capstone_i
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: ["1.11", "1.11.a", "1.11.b", "1.11.c", "1.11.d", "1.11.e", "1.1", "1.2", "1.3"]
+    devices: [R1, R2, R3, R4, R5]
+    objectives:
+      - "Configure eBGP peering between R1 (AS 65001) and R3 (AS 65002), and between R1 and R4 (AS 65003) — no step-by-step guidance"
+      - "Configure iBGP with R1 as Route Reflector and R2, R5 as RR clients in AS 65001"
+      - "Enable BGP IPv6 address family on all routers and advertise IPv6 loopback prefixes"
+      - "Set LOCAL_PREF 200 on R1 inbound from R4 to prefer R4 paths; use AS-path prepend outbound to R3 to reduce preference"
+      - "Configure MD5 authentication on all eBGP sessions and organize iBGP neighbors in a peer group"
+      - "Apply inbound prefix-list on R1 to filter 172.16.3.0/24 from R3; set NO_EXPORT community on routes advertised to R4"
+      - "Modify eBGP AD to 30 on R1 to override a floating static route toward 172.16.3.0/24"
+      - "Configure VRF CUSTOMER on R1; move the eBGP session to R4 into the VRF; verify isolation from global table"
+      - "Verify complete IPv4 and IPv6 BGP reachability across all five routers"
+
+  - number: 10
+    title: "BGP Comprehensive Troubleshooting — Capstone II"
+    slug: "lab-10-capstone-ii"
+    type: capstone_ii
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: ["1.11", "1.11.a", "1.11.b", "1.11.c", "1.11.d", "1.11.e", "1.1", "1.2", "1.3"]
+    devices: [R1, R2, R3, R4, R5]
+    objectives:
+      - "Diagnose and resolve an eBGP session stuck in Active state (wrong neighbor IP + MD5 mismatch)"
+      - "Identify and fix a Route Reflector misconfiguration preventing R5 from receiving external prefixes"
+      - "Resolve a best-path selection anomaly where LOCAL_PREF is not propagating to iBGP peers"
+      - "Fix a broken IPv6 address family activation preventing IPv6 BGP routes from being exchanged"
+      - "Correct an AS-path filter that is over-blocking, causing valid routes from AS 65003 to be dropped"
+      - "Restore BGP AD so that eBGP routes (AD 20) are preferred over OSPF routes for the same prefix"
+      - "Verify full IPv4 and IPv6 BGP reachability across all five routers with all faults resolved"

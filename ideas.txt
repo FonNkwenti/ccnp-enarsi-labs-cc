@@ -1,0 +1,1 @@
+My GNS3 setup also has host nodes, ubuntu vms like the one running ansible, the switch module in the 3725 routers, and unmanaged switches. I would need to update this into the device list and see how the labs will use them with the current setup. 

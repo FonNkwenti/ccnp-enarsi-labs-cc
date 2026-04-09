@@ -1,0 +1,299 @@
+chapter: ospf
+version: "1.0"
+exam: 300-410 ENARSI
+
+meta:
+  created:
+    date: "2026-03-06"
+    agent: claude-sonnet-4-6
+    skill: chapter-topics
+    skill_version: "2026-03-05"
+  updated: []
+
+blueprint_sections:
+  - "1.10 Troubleshoot OSPF (v2/v3)"
+  - "1.10.a Address families (IPv4, IPv6)"
+  - "1.10.b Neighbor relationship and authentication"
+  - "1.10.c Network types, area types, and router types"
+  - "1.10.c(i) Point-to-point, multipoint, broadcast, nonbroadcast"
+  - "1.10.c(ii) Area type: backbone, normal, transit, stub, NSSA, totally stub"
+  - "1.10.c(iii) Internal router, backbone router, ABR, ASBR"
+  - "1.10.c(iv) Virtual link"
+  - "1.10.d Path preference"
+  - "1.1 Troubleshoot administrative distance"
+  - "1.2 Troubleshoot route map (filtering, tagging)"
+  - "1.3 Troubleshoot loop prevention mechanisms (filtering, tagging)"
+  - "1.5 Troubleshoot manual and auto-summarization"
+
+# ─────────────────────────────────────────────
+# CORE TOPOLOGY
+# Multi-area OSPF: R1 (ABR, Area 0 + Area 1) ↔ R2 (Area 0) ↔ R3 (Area 0 + Area 2 ABR)
+# Area 0 backbone: R1 ↔ R2 ↔ R3 triangle
+# Area 1: R1 ↔ R4 (optional, leaf area)
+# Area 2: R3 ↔ R4 (optional, stub/NSSA lab)
+# Console ports: RN = 500N
+# ─────────────────────────────────────────────
+core_topology:
+
+  devices:
+    - name: R1
+      platform: c7200
+      role: ABR (Area 0 / Area 1) — Hub
+      console_port: 5001
+      loopback0:
+        ipv4: 10.0.0.1/32
+        ipv6: "2001:db8::1/128"
+      # Slot 0: C7200-IO-FE  → fa0/0
+      # Slot 1: PA-2FE-TX    → fa1/0, fa1/1
+      interfaces:
+        fa0/0: "10.12.0.1/30 — link to R2 (Area 0); ipv6 2001:db8:12::1/64"
+        fa1/0: "10.13.0.1/30 — link to R3 (Area 0); ipv6 2001:db8:13::1/64"
+        fa1/1: "10.14.0.1/30 — link to R4 (Area 1, optional, activated in lab-05)"
+
+    - name: R2
+      platform: c7200
+      role: Internal Router (Area 0) — Backbone Peer
+      console_port: 5002
+      loopback0:
+        ipv4: 10.0.0.2/32
+        ipv6: "2001:db8::2/128"
+      loopback1:
+        ipv4: 172.16.2.0/24
+        note: "ASBR redistribute source / summarization target (lab-07+)"
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
+      interfaces:
+        fa0/0: "10.12.0.2/30 — link to R1 (Area 0); ipv6 2001:db8:12::2/64"
+        fa0/1: "10.23.0.1/30 — link to R3 (Area 0); ipv6 2001:db8:23::1/64"
+
+    - name: R3
+      platform: c7200
+      role: ABR (Area 0 / Area 2) — Redistribution Point
+      console_port: 5003
+      loopback0:
+        ipv4: 10.0.0.3/32
+        ipv6: "2001:db8::3/128"
+      loopback1:
+        ipv4: 172.16.3.0/24
+        note: "Summary/external prefix (lab-07+)"
+      # Slot 0: C7200-IO-2FE → fa0/0, fa0/1
+      interfaces:
+        fa0/0: "10.13.0.2/30 — link to R1 (Area 0); ipv6 2001:db8:13::2/64"
+        fa0/1: "10.23.0.2/30 — link to R2 (Area 0); ipv6 2001:db8:23::2/64"
+
+  links:
+    - id: L1
+      source: "R1:fa0/0"
+      target: "R2:fa0/0"
+      subnet_ipv4: 10.12.0.0/30
+      subnet_ipv6: "2001:db8:12::/64"
+      ospf_area: 0
+      description: R1 to R2 — Area 0 backbone
+    - id: L2
+      source: "R1:fa1/0"
+      target: "R3:fa0/0"
+      subnet_ipv4: 10.13.0.0/30
+      subnet_ipv6: "2001:db8:13::/64"
+      ospf_area: 0
+      description: R1 to R3 — Area 0 backbone
+    - id: L3
+      source: "R2:fa0/1"
+      target: "R3:fa0/1"
+      subnet_ipv4: 10.23.0.0/30
+      subnet_ipv6: "2001:db8:23::/64"
+      ospf_area: 0
+      description: R2 to R3 — Area 0 backbone (alternate path)
+
+# ─────────────────────────────────────────────
+# OPTIONAL DEVICES  (activated per lab)
+# ─────────────────────────────────────────────
+optional_devices:
+  - name: R4
+    platform: c7200
+    role: Area 1 Internal Router / ASBR (stub/NSSA labs)
+    console_port: 5004
+    available_from: 5
+    purpose: >
+      Introduced in lab-05 (area types) to demonstrate stub and NSSA areas.
+      Serves as an ASBR for redistribution labs (lab-07), path preference target (lab-08),
+      and is active in both capstones.
+    loopback0:
+      ipv4: 10.0.0.4/32
+      ipv6: "2001:db8::4/128"
+    loopback1:
+      ipv4: 192.168.4.0/24
+      note: "External prefix redistributed into OSPF from R4 (ASBR)"
+    # Slot 0: C7200-IO-FE → fa0/0
+    interfaces:
+      fa0/0: "10.14.0.2/30 — link to R1 (Area 1)"
+
+optional_links:
+  - id: L4
+    source: "R1:fa1/1"
+    target: "R4:fa0/0"
+    subnet_ipv4: 10.14.0.0/30
+    subnet_ipv6: "2001:db8:14::/64"
+    ospf_area: 1
+    available_from: 5
+    description: R1 (ABR) to R4 — Area 1 leaf
+
+# ─────────────────────────────────────────────
+# LAB SERIES
+# ─────────────────────────────────────────────
+labs:
+  - number: 1
+    title: "OSPFv2 Neighbor Adjacency & Authentication"
+    slug: "lab-01-adjacency-auth"
+    difficulty: Foundation
+    time_minutes: 60
+    blueprint: ["1.10.b"]
+    devices: [R1, R2, R3]
+    objectives:
+      - "Configure OSPFv2 process 1 on R1, R2, and R3 in Area 0 (backbone)"
+      - "Advertise all connected subnets using the network command with wildcard masks"
+      - "Verify neighbor adjacencies reach FULL state on all three links (L1, L2, L3)"
+      - "Configure MD5 authentication on all Area 0 interfaces and verify adjacencies remain stable"
+      - "Troubleshoot: dead interval mismatch, MTU mismatch preventing adjacency, authentication key mismatch"
+
+  - number: 2
+    title: "OSPFv3 Dual-Stack — IPv4 and IPv6 Address Families"
+    slug: "lab-02-ospfv3-dual-stack"
+    difficulty: Foundation
+    time_minutes: 75
+    blueprint: ["1.10.a", "1.10.b"]
+    devices: [R1, R2, R3]
+    extends: 1
+    objectives:
+      - "Configure OSPFv3 address-family ipv4 unicast on all routers (process 1)"
+      - "Configure OSPFv3 address-family ipv6 unicast on all routers (process 1)"
+      - "Assign OSPFv3 per-interface under each address family for all Area 0 links"
+      - "Verify IPv4 and IPv6 OSPF neighbor adjacencies and routing tables"
+      - "Troubleshoot: missing ipv6 unicast-routing, incorrect interface assignment in wrong address family, OSPFv3 authentication mismatch"
+
+  - number: 3
+    title: "OSPF Network Types — Broadcast, Point-to-Point, and Non-Broadcast"
+    slug: "lab-03-network-types"
+    difficulty: Intermediate
+    time_minutes: 90
+    blueprint: ["1.10.c", "1.10.c(i)", "1.10.c(iii)"]
+    devices: [R1, R2, R3]
+    extends: 2
+    objectives:
+      - "Verify default network type (broadcast) — confirm DR/BDR election on all Ethernet links"
+      - "Change the R1-R2 link (L1) to point-to-point and verify no DR/BDR election occurs"
+      - "Change the R1-R3 link (L2) to non-broadcast and configure static neighbors"
+      - "Identify internal router, backbone router roles across the topology"
+      - "Troubleshoot: network type mismatch causing adjacency to stay in EXSTART/EXCHANGE, missing neighbor statement on NBMA"
+
+  - number: 4
+    title: "OSPF Area Types — Backbone, Stub, NSSA, and Totally Stub"
+    slug: "lab-04-area-types"
+    difficulty: Intermediate
+    time_minutes: 90
+    blueprint: ["1.10.c(ii)", "1.10.c(iii)"]
+    devices: [R1, R2, R3]
+    extends: 3
+    objectives:
+      - "Verify Area 0 as backbone — confirm LSA types (Type 1, 2, 3) in each router's LSDB"
+      - "Convert a simulated non-backbone area (using loopback-based area on R2) to stub — verify default route injection"
+      - "Convert same area to NSSA — redistribute a connected route from R2 and verify Type 7 LSA"
+      - "Convert to totally stubby — verify only a single default route remains"
+      - "Troubleshoot: stub area mismatch (router flagged as non-stub), Type 7 LSA not converting to Type 5 at ABR"
+
+  - number: 5
+    title: "Multi-Area OSPF — ABR, ASBR, and Virtual Links"
+    slug: "lab-05-multi-area"
+    difficulty: Intermediate
+    time_minutes: 90
+    blueprint: ["1.10.c(ii)", "1.10.c(iii)", "1.10.c(iv)"]
+    devices: [R1, R2, R3, R4]
+    extends: 4
+    objectives:
+      - "Introduce R4 in Area 1 — configure R1 as ABR for Area 0 and Area 1"
+      - "Verify inter-area routes (Type 3 LSAs) propagate from Area 1 to Area 0"
+      - "Configure R4 as ASBR: redistribute its loopback1 (192.168.4.0/24) into OSPF and verify Type 5 LSA"
+      - "Simulate a discontiguous Area 0 and resolve connectivity using a virtual link through Area 1"
+      - "Troubleshoot: virtual link not forming (area mismatch), Type 5 LSA not appearing (ASBR not redistributing)"
+
+  - number: 6
+    title: "OSPF Inter-Area Summarization & Type 3/5 LSA Control"
+    slug: "lab-06-summarization"
+    difficulty: Intermediate
+    time_minutes: 75
+    blueprint: ["1.5"]
+    devices: [R1, R2, R3, R4]
+    extends: 5
+    objectives:
+      - "Add loopback interfaces on R2 (172.16.2.x/24 range) and R3 (172.16.3.x/24 range)"
+      - "Configure inter-area summary routes on ABRs using area range — verify Type 3 LSA summarization"
+      - "Configure external route summarization on ASBR R4 using summary-address — verify Type 5 LSA consolidation"
+      - "Observe Null0 discard route created by summarization on ABR/ASBR"
+      - "Troubleshoot: summarization black hole, area range suppressing more-specifics incorrectly, summary-address not advertised"
+
+  - number: 7
+    title: "OSPF Route Filtering & Route Maps"
+    slug: "lab-07-filtering-route-maps"
+    difficulty: Advanced
+    time_minutes: 90
+    blueprint: ["1.2", "1.3"]
+    devices: [R1, R2, R3, R4]
+    extends: 6
+    objectives:
+      - "Filter specific Type 3 LSAs at the ABR using distribute-list in with prefix-list"
+      - "Apply a route-map on R3 to set OSPF route tags on redistributed external routes for loop prevention"
+      - "Use the not-advertise option under area range to suppress specific inter-area prefixes"
+      - "Verify tagged routes are denied re-redistribution using route-map match tag"
+      - "Troubleshoot: distribute-list filtering in wrong direction, implicit deny in prefix-list, route-map sequence logic errors"
+
+  - number: 8
+    title: "OSPF Path Preference & Administrative Distance"
+    slug: "lab-08-path-preference-ad"
+    difficulty: Advanced
+    time_minutes: 75
+    blueprint: ["1.10.d", "1.1"]
+    devices: [R1, R2, R3, R4]
+    extends: 7
+    objectives:
+      - "Verify OSPF path selection: intra-area (O) preferred over inter-area (O IA) over external (O E2/E1)"
+      - "Manipulate OSPF cost on links to influence the preferred path from R1 to R4's loopback"
+      - "Modify OSPF administrative distance (global and per-host) to prefer OSPF over a static route"
+      - "Compare E1 vs E2 metric propagation across ABRs and adjust redistribute metric-type"
+      - "Troubleshoot: wrong metric-type causing suboptimal path, AD misconfiguration allowing static to override OSPF intra-area"
+
+  - number: 9
+    title: "OSPF Full Protocol Mastery — Capstone I"
+    slug: "lab-09-capstone-i"
+    type: capstone_i
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: ["1.10.a", "1.10.b", "1.10.c", "1.10.c(i)", "1.10.c(ii)", "1.10.c(iii)", "1.10.c(iv)", "1.10.d", "1.1", "1.2", "1.3", "1.5"]
+    devices: [R1, R2, R3, R4]
+    objectives:
+      - "Configure OSPFv2 and OSPFv3 (dual-stack) from scratch on all four routers — no step-by-step guidance"
+      - "Establish R1 as ABR between Area 0 and Area 1; R3 as ABR between Area 0 and Area 2"
+      - "Set point-to-point network type on the R1-R2 link and non-broadcast on the R1-R3 link"
+      - "Configure R4 as ASBR: redistribute loopback1 into OSPF; set Area 1 as NSSA"
+      - "Apply inter-area summarization on both ABRs using area range for loopback prefixes"
+      - "Filter R4's external prefix from being advertised into Area 2 using distribute-list"
+      - "Set route tags on redistributed routes at R3 and deny re-redistribution via route-map"
+      - "Tune OSPF cost to make R1→R2→R3 the preferred path over R1→R3 direct"
+      - "Adjust OSPF AD to 105 to allow a floating static route to pre-empt OSPF external routes"
+      - "Verify complete IPv4 and IPv6 reachability across all four routers and all areas"
+
+  - number: 10
+    title: "OSPF Comprehensive Troubleshooting — Capstone II"
+    slug: "lab-10-capstone-ii"
+    type: capstone_ii
+    clean_slate: true
+    difficulty: Advanced
+    time_minutes: 120
+    blueprint: ["1.10.a", "1.10.b", "1.10.c", "1.10.c(i)", "1.10.c(ii)", "1.10.c(iii)", "1.10.c(iv)", "1.10.d", "1.1", "1.2", "1.3", "1.5"]
+    devices: [R1, R2, R3, R4]
+    objectives:
+      - "Diagnose and fix a multi-cause adjacency failure: dead interval mismatch on R1-R2 + authentication key error on R1-R3"
+      - "Resolve a network type mismatch causing R1-R3 link to remain in EXSTART/EXCHANGE state"
+      - "Identify and correct an Area 1 stub mismatch preventing R4 from forming adjacency with R1"
+      - "Fix a broken virtual link configuration where the transit area is incorrectly specified"
+      - "Restore summarization: an area range command is suppressing all Area 1 routes — correct the prefix and mask"
+      - "Correct an OSPF cost misconfiguration causing traffic to take a suboptimal 3-hop path"
+      - "Verify complete IPv4 and IPv6 reachability across all four routers after all faults are resolved"

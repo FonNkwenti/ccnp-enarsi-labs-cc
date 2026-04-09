@@ -35,7 +35,17 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Not generated | Run `chapter-topics` first |
+| — | baseline.yaml | Review Needed | Generated 2026-03-06 (eval run — draft, not approved) — 10 labs (8 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R4 from lab-05 |
+| 01 | OSPFv2 Neighbor Adjacency & Authentication | Not generated | Foundation — 60 min, covers 1.10.b |
+| 02 | OSPFv3 Dual-Stack — IPv4 and IPv6 Address Families | Not generated | Foundation — 75 min, covers 1.10.a, 1.10.b |
+| 03 | OSPF Network Types — Broadcast, Point-to-Point, and Non-Broadcast | Not generated | Intermediate — 90 min, covers 1.10.c, 1.10.c(i), 1.10.c(iii) |
+| 04 | OSPF Area Types — Backbone, Stub, NSSA, and Totally Stub | Not generated | Intermediate — 90 min, covers 1.10.c(ii), 1.10.c(iii) |
+| 05 | Multi-Area OSPF — ABR, ASBR, and Virtual Links | Not generated | Intermediate — 90 min, covers 1.10.c(ii), 1.10.c(iii), 1.10.c(iv); introduces R4 |
+| 06 | OSPF Inter-Area Summarization & Type 3/5 LSA Control | Not generated | Intermediate — 75 min, covers 1.5 |
+| 07 | OSPF Route Filtering & Route Maps | Not generated | Advanced — 90 min, covers 1.2, 1.3 |
+| 08 | OSPF Path Preference & Administrative Distance | Not generated | Advanced — 75 min, covers 1.10.d, 1.1 |
+| 09 | Capstone I — Full Protocol Mastery | Not generated | Advanced — 120 min, clean slate; all blueprint bullets; configuration challenge |
+| 10 | Capstone II — Comprehensive Troubleshooting | Not generated | Advanced — 120 min, clean slate; 5+ concurrent faults; troubleshooting challenge |
 
 ---
 
@@ -43,7 +53,17 @@
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Not generated | Run `chapter-topics` first |
+| — | baseline.yaml | Review Needed | Generated 2026-03-06 (eval run — draft, not approved) — 10 labs (8 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R5 from lab-02, R4 from lab-04 |
+| 01 | eBGP Peering Fundamentals | Not generated | Foundation — 60 min, covers 1.11, 1.11.b |
+| 02 | iBGP, Full-Mesh & Route Reflector | Not generated | Foundation — 75 min, covers 1.11.b, 1.11.d; introduces R5 |
+| 03 | BGP Address Families — IPv4 Unicast & IPv6 | Not generated | Intermediate — 75 min, covers 1.11.a, 1.11.b |
+| 04 | BGP Path Attributes & Best-Path Selection | Not generated | Intermediate — 90 min, covers 1.11.b, 1.11.c; introduces R4 |
+| 05 | BGP Authentication, Peer Groups & Timers | Not generated | Intermediate — 75 min, covers 1.11.b |
+| 06 | BGP Policies — Inbound/Outbound Filtering & Route Maps | Not generated | Advanced — 90 min, covers 1.11.e, 1.2 |
+| 07 | BGP Communities & AS-Path Loop Prevention | Not generated | Advanced — 90 min, covers 1.3, 1.11.c, 1.11.e |
+| 08 | BGP Administrative Distance & VRF-Lite | Not generated | Advanced — 90 min, covers 1.1, 1.11 |
+| 09 | Capstone I — BGP Full Protocol Mastery | Not generated | Advanced — 120 min, clean slate; all blueprint bullets |
+| 10 | Capstone II — BGP Comprehensive Troubleshooting | Not generated | Advanced — 120 min, clean slate; 5+ concurrent faults |
 
 ---
 
@@ -55,11 +75,18 @@
 
 ---
 
-## VPN (300-410 Sections 2.1–2.4)
+## VPN (300-410 Sections 2.1–2.3)
 
 | Lab | Name | Status | Notes |
 |-----|------|--------|-------|
-| — | baseline.yaml | Not generated | Run `chapter-topics` first |
+| — | baseline.yaml | Review Needed | Generated 2026-03-06 (eval run — draft, not approved) — 7 labs (5 objective + 2 capstone), all c7200 + IOS 15.3(3)XB12, R1/R2/R3 core + R4 from lab-03 |
+| 01 | GRE Tunnel Foundations | Not generated | Foundation — 60 min, covers 2.3.a GRE |
+| 02 | DMVPN Phase 1 — mGRE and NHRP | Not generated | Foundation — 75 min, covers 2.3.a-b |
+| 03 | DMVPN Phase 2 — Spoke-to-Spoke Traffic | Not generated | Intermediate — 90 min, covers 2.3.a-b, 2.3.d-e; introduces R4 |
+| 04 | IPsec Profile over DMVPN | Not generated | Intermediate — 90 min, covers 2.3.a-e |
+| 05 | MPLS Theory Lab — Operations and L3 VPN Concepts | Not generated | Foundation — 60 min, describe-only, covers 2.1-2.2 |
+| 06 | DMVPN Full Protocol Mastery — Capstone I | Not generated | Advanced — 120 min, clean slate; all blueprint bullets |
+| 07 | DMVPN Comprehensive Troubleshooting — Capstone II | Not generated | Advanced — 120 min, clean slate; 5+ concurrent faults |
 
 ---
 
